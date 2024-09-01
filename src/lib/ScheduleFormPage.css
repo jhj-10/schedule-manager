@@ -1,0 +1,90 @@
+/* * {
+  box-sizing: border-box;
+  font-family: "Roboto", "Noto Sans KR", sans-serif;
+} */
+
+.form-container {
+  width: 800px;
+  margin: 30px auto;
+  text-align: left;
+}
+
+.form-contents {
+  margin-top: 30px;
+  padding: 0 20px;
+}
+
+.form-contents > div {
+  margin-bottom: 10px;
+}
+
+.attributes {
+  display: inline-block;
+  width: 150px;
+  font-size: 14px;
+}
+
+.form-field {
+  padding: 8px 12px;
+  width: 300px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-errormessage {
+  color: red;
+  font-size: 12px;
+  margin-top: 8px;
+  margin-left: 150px;
+}
+
+.form-textarea {
+  padding: 8px 12px;
+  width: 500px;
+  height: 150px;
+  vertical-align: top;
+  /* margin-bottom: 30px; */
+  resize: none;
+  text-align: left;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.user-select {
+  list-style-type: none;
+  margin: 8px 0;
+  padding: 30px;
+  margin-left: 150px;
+  padding: 0;
+  max-height: 100px;
+  overflow: auto;
+  border-bottom: 1px solid #ccc;
+}
+
+.search_users,
+.recipients {
+  font-size: 14px;
+  padding: 4px 4px;
+}
+
+.recipients {
+  text-align: right;
+}
+
+.date-box {
+  padding: 4px;
+  margin: 0 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.close-btn {
+  padding: 0 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.visible {
+  display: none;
+}
