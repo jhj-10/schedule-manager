@@ -40,7 +40,9 @@ app.post("/api/login", async (req, res) => {
 // Get users
 app.get("/api/users", async (req, res) => {
   const search = req.query.search ? req.query.search.toLowerCase() : "";
-  const id = req.query.id;
+  const userId = req.query.userId ? req.query.userId.toLowerCase() : "";
+
+  console.log("getusers: ", search, userId);
   let conn;
 
   try {
@@ -48,16 +50,75 @@ app.get("/api/users", async (req, res) => {
     let query = "";
 
     if (search) {
-      query = `SELECT * FROM users WHERE LOWER(name) LIKE ? OR LOWER(email) LIKE ?`;
-    } else if (id) {
-      query = `SELECT * FROM users WHERE id <> ?`;
+      query +=
+        "SELECT * FROM users WHERE LOWER(name) LIKE ? OR LOWER(email) LIKE ?";
     }
-
-    const rows = await conn.query(query, [`%${search}%`, `%${search}%`, id]);
+    if (userId) {
+      query = `SELECT u.id, u.email, u.name, u.phone, u.position, u.authority, 
+                      u.email_sub , c.color_user_id, c.color_cd 
+                FROM users u 
+                LEFT JOIN (SELECT * FROM colorset WHERE user_id = ${userId}) c 
+                ON u.id = c.color_user_id`;
+    }
+    console.log("getusers query:", query);
+    const rows = await conn.query(query, [
+      `%${search}%`,
+      `%${search}%`,
+      { userId },
+    ]);
     res.json(rows);
   } catch (err) {
     console.error("Error fetching users:", err);
     res.status(500).json({ success: false, message: "Error fetching users" });
+  } finally {
+    if (conn) conn.end();
+  }
+});
+
+// Create colorset
+app.post("/api/users/colorset", async (req, res) => {
+  const { userId, colorUserId, colorCd } = req.body;
+  let conn;
+
+  try {
+    conn = await pool.getConnection();
+    let query =
+      "INSERT INTO colorset (user_id, color_user_id, color_cd) VALUES (?, ?, ?)";
+    const rows = await conn.query(query, [userId, colorUserId, colorCd]);
+    res.status(200).json({
+      success: true,
+      message: "Colorset created successfully",
+    });
+  } catch (err) {
+    console.error("Error saving colorset:", err.message);
+    res.status(500).json({ success: false, message: "Error saving colorset" });
+  } finally {
+    if (conn) conn.end();
+  }
+});
+
+// Update colorset
+app.put("/api/users/colorset", async (req, res) => {
+  const { userId, colorUserId, colorCd } = req.body;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.query(
+      "UPDATE colorset SET color_cd = ? WHERE user_id = ?, color_user_id = ?",
+      [colorCd, userId, colorUserId]
+    );
+    if (result.affectedRows > 0) {
+      res
+        .status(200)
+        .json({ success: true, message: "Colorset updated successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Colorset not found" });
+    }
+  } catch (err) {
+    console.error("Error updating colorset:", err.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating colorset" });
   } finally {
     if (conn) conn.end();
   }
@@ -91,16 +152,35 @@ app.get("/api/attendees", async (req, res) => {
 
 // Get schedules
 app.get("/api/schedules", async (req, res) => {
+  const userId = req.query.userId ? req.query.userId.split(",") : "";
+  console.log("Get schedules selectedUsers:", req.query.userId);
+  let query = !userId
+    ? `SELECT s.id AS pid, s.title, s.start, s.end
+            , json_arrayagg(ms.user_id) AS attendees, s.creator_id AS creatorId
+        FROM schedule_manager.schedules s 
+        INNER JOIN schedule_manager.manpower_status ms 
+        ON s.id = ms.project_id 
+        GROUP BY s.id`
+    : `SELECT ms.user_id AS userId, ms.start_dt AS start , ms.end_dt AS end
+            , s.pid, s.title, s.start AS pStartDt, s.end AS pEndDt, s.attendees, s.creator_id AS creatorId
+        FROM schedule_manager.manpower_status ms 
+        LEFT JOIN (
+              SELECT s.id AS pid , s.title, s.start, s.end
+                    , json_arrayagg(ms.user_id) AS attendees, s.creator_id
+                FROM schedule_manager.schedules s 
+                LEFT JOIN schedule_manager.manpower_status ms 
+                ON s.id = ms.project_id 
+                GROUP BY s.id
+              ) s
+        ON ms.project_id  = s.pid
+        WHERE pid IS NOT NULL
+        AND user_id IN (${[...userId]})
+        `;
   let conn;
   try {
     conn = await pool.getConnection();
-    const rows = await conn.query(`
-      SELECT s.id, s.title, s.start, s.end, json_arrayagg(ms.user_id) AS attendees, s.creator_id
-      FROM schedule_manager.schedules s 
-      LEFT JOIN schedule_manager.manpower_status ms 
-      ON s.id = ms.project_id 
-      GROUP BY s.id
-    `);
+    console.log("get schecule query:", query);
+    const rows = await conn.query(query);
     res.json(rows);
   } catch (err) {
     console.error("Error fetching schedules:", err);
@@ -228,12 +308,10 @@ app.delete("/api/manpower-status/:id", async (req, res) => {
       [id]
     );
     if (result.affectedRows > 0) {
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Manpower status deleted successfully",
-        });
+      res.status(200).json({
+        success: true,
+        message: "Manpower status deleted successfully",
+      });
     } else {
       res.status(404).json({ success: false, message: "Project ID not found" });
     }

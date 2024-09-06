@@ -7,19 +7,15 @@ import { AuthContext } from "../context/AuthContext";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import axios from "axios";
 import { format } from "date-fns";
-import UserInfo from "./UserInfo";
 import "../lib/CalendarPage.css";
-import CustomWeekView from "./components/CustomWeekView copy";
 
 const localizer = momentLocalizer(moment);
 
 Modal.setAppElement("#root"); // To avoid accessibility warning
 
-function CalendarPage() {
-  const { user, logout } = useContext(AuthContext);
+function CalendarPage({ selectedUsers, colorset }) {
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const [userList, setUserList] = useState([]);
 
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -28,16 +24,13 @@ function CalendarPage() {
   const [clickedDate, setClickedDate] = useState("");
 
   const calendarRef = useRef(null);
-  const pageRef = useRef(null);
 
   const CustomEvent = ({ event }) => {
     const startTime = format(event.start, "HH:mm ");
     return (
       <div>
-        <strong>
-          <span>{startTime}</span>
-          {event.title}
-        </strong>
+        <span>{startTime}</span>
+        {event.title}
       </div>
     );
   };
@@ -119,9 +112,20 @@ function CalendarPage() {
 
   // 색상으로 본인/타인 일정구분
   const eventPropGetter = (event) => {
-    const attendees = event.attendees || [];
-    const isCreator = attendees.includes(user.id);
-    const backgroundColor = isCreator ? "#3174ad" : "#ff7f50";
+    // console.log("eventPropGetter selectedUsers:", selectedUsers);
+    // console.log("eventPropGetter event:", event);
+    // console.log("eventPropGetter colorset:", colorset);
+    let backgroundColor = "";
+    if (selectedUsers.length === 0) {
+      const attendees = event.attendees || [];
+      const isCreator = attendees.includes(user.id);
+      const cs = colorset.find((item) => item.colorUserId === user.id);
+      backgroundColor = isCreator ? cs.colorCd : "#bfbfc3";
+    } else {
+      // console.log("eventPropGetter event:", colorset, event);
+      const cs = colorset.find((item) => item.colorUserId == event.userId);
+      backgroundColor = cs ? cs.colorCd : "#bfbfc3";
+    }
     return {
       style: { backgroundColor },
     };
@@ -200,12 +204,16 @@ function CalendarPage() {
       setClickedDate(clickedDt);
     }
 
+    console.log("modal event.attendees: ", event);
     const attendees = event.attendees;
 
     if (attendees && attendees.length > 0) {
       axios
-        .get(`http://localhost:5000/api/attendees?scheculeId=${event.id}`)
+        .get(
+          `http://localhost:5000/api/attendees?scheculeId=${event.projectId}`
+        )
         .then((response) => {
+          console.log("modal response.data: ", event.projectId, response.data);
           const updatedEvent = { ...event, attendees: response.data };
           setSelectedEvent(updatedEvent);
         })
@@ -303,163 +311,129 @@ function CalendarPage() {
 
   // 일정가져오기
   useEffect(() => {
+    console.log("useEffect selectedUsers:", `${selectedUsers}`);
     axios
-      .get("http://localhost:5000/api/schedules")
+      .get(`http://localhost:5000/api/schedules?userId=${selectedUsers}`)
       .then((response) => {
         const fetchedEvents = response.data.map((event) => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
+          projectId: event.pid || "",
+          userId: event.userId || "",
+          title: event.title || "",
+          attendees: event.attendees || [],
+          start: new Date(event.start) || "",
+          end: new Date(event.end) || "",
+          pStartDt: new Date(event.pStartDt) || "",
+          pEndDt: new Date(event.pEndDt) || "",
         }));
         setEvents(fetchedEvents);
+        console.log("useEffect selectedUsers response:", response.data);
+        console.log("useEffect selectedUsers events:", events);
       })
       .catch((error) => {
         console.error("There was an error fetching the schedules!", error);
       });
-  }, []);
-
-  // 유저 목록가져오기
-  useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/users?userId=${user.id}`)
-      .then((response) => {
-        setUserList(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the userList!", error);
-      });
-  }, []);
+  }, [selectedUsers]);
 
   return (
-    <div className="main-page" ref={pageRef}>
-      <div className="page-header">
-        <div>
-          <button className="header-btn-user" onClick={handleVisible}>
-            {" "}
-            ▒{" "}
-          </button>
-        </div>
-        <h2 className="header-title">Calendar</h2>
-        <div className="header-btn-group">
-          {user.authority === "admin" ? (
-            // <a onClick={handleAddNewUser}>관리자페이지</a>
-            <button className="header-btn-admin" onClick={handleAddNewUser}>
-              관리자페이지
+    <>
+      <div ref={calendarRef} className="calendar-container">
+        <Calendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          className="calendar-container"
+          selectable
+          onSelectSlot={handleSelectSlot}
+          onSelectEvent={handleSelectEvent}
+          eventPropGetter={eventPropGetter}
+          views={{
+            month: true,
+            week: true,
+            day: true,
+          }}
+          defaultView={Views.MONTH} // Set default view to 'week' if needed
+          components={{
+            event: CustomEvent,
+            toolbar: CustomToolbar,
+          }}
+        />
+      </div>
+      {selectedEvent && (
+        <Modal
+          isOpen={!!selectedEvent}
+          onRequestClose={closeModal}
+          contentLabel="Event Details"
+          className="content modal-content"
+          overlayClassName="overlay"
+        >
+          <h2 className="modal-title">{selectedEvent.title}</h2>
+          <hr />
+          <div className="modal-attribute">
+            <strong>시작일시</strong>{" "}
+            {selectedEvent.pStartDt
+              ? new Date(selectedEvent.pStartDt).toLocaleString()
+              : new Date(selectedEvent.start).toLocaleString()}
+          </div>
+          <div className="modal-attribute">
+            <strong>종료일시</strong>{" "}
+            {selectedEvent.pEndDt
+              ? new Date(selectedEvent.pEndDt).toLocaleString()
+              : new Date(selectedEvent.end).toLocaleString()}
+          </div>
+          <div className="modal-attribute">
+            <strong className="align-top">참여인력</strong>
+            {selectedEvent.attendees ? (
+              <div className="attendees-list">
+                {selectedEvent.attendees.map((attendee, index) => (
+                  <li key={index} className={handleUserListVisible(attendee)}>
+                    {attendee.name} ({attendee.email})
+                  </li>
+                ))}
+              </div>
+            ) : (
+              selectedEvent.attendees
+            )}
+          </div>
+          <div className="modal-attribute">
+            <strong className="align-top">메모</strong> {selectedEvent.notes}
+          </div>
+
+          <div className="button-div">
+            {(selectedEvent.attendees.some((attendee) => {
+              return attendee.user_id === user.id || user.authority === "admin";
+            }) ||
+              selectedEvent.userId === user.id) && (
+              <>
+                <button className="modal-btn modify" onClick={handleEdit}>
+                  수정
+                </button>
+                <button className="modal-btn cancle" onClick={handleDelete}>
+                  삭제
+                </button>
+              </>
+            )}
+
+            <button className="modal-btn confirm" onClick={closeModal}>
+              확인
             </button>
-          ) : (
-            ""
-          )}
-          <button className="header-btn-logout" onClick={logout}>
-            Logout
-          </button>
-        </div>
-      </div>
-      <div className="page-container" style={{ height: `${pageHeight}px` }}>
-        <div className={userInfovisible}>
-          <UserInfo users={userList} className="userInfo-container visible" />
-        </div>
-        <div ref={calendarRef} className="calendar-container">
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            className="calendar-container"
-            selectable
-            onSelectSlot={handleSelectSlot}
-            onSelectEvent={handleSelectEvent}
-            eventPropGetter={eventPropGetter}
-            views={{
-              month: true,
-              week: true,
-              // week: CustomWeekView, // 커스텀 뷰를 직접 지정
-              day: true,
-            }}
-            defaultView={Views.MONTH} // Set default view to 'week' if needed
-            components={{
-              event: CustomEvent,
-              toolbar: CustomToolbar,
-              // header: CustomWeekView.header,
-              // timeGutterHeader: CustomWeekView.timeGutterHeader,
-            }}
-          />
-        </div>
-        {selectedEvent && (
-          <Modal
-            isOpen={!!selectedEvent}
-            onRequestClose={closeModal}
-            contentLabel="Event Details"
-            className="content modal-content"
-            overlayClassName="overlay"
-          >
-            <h2 className="modal-title">{selectedEvent.title}</h2>
-            <hr />
-            <div className="modal-attribute">
-              <strong>시작일시</strong>{" "}
-              {new Date(selectedEvent.start).toLocaleString()}
-            </div>
-            <div className="modal-attribute">
-              <strong>종료일시</strong>{" "}
-              {new Date(selectedEvent.end).toLocaleString()}
-            </div>
-            <div className="modal-attribute">
-              <strong className="align-top">참여인력</strong>
-              {selectedEvent.attendees ? (
-                <div className="attendees-list">
-                  {selectedEvent.attendees.map((attendee, index) => (
-                    <li key={index} className={handleUserListVisible(attendee)}>
-                      {attendee.name} ({attendee.email})
-                    </li>
-                  ))}
-                </div>
-              ) : (
-                selectedEvent.attendees
-              )}
-            </div>
-            <div className="modal-attribute">
-              <strong className="align-top">메모</strong> {selectedEvent.notes}
-            </div>
-
-            <div className="button-div">
-              {selectedEvent.attendees.some((attendee) => {
-                return (
-                  attendee.user_id === user.id || user.authority === "admin"
-                );
-              }) && (
-                <>
-                  <button className="modal-btn modify" onClick={handleEdit}>
-                    수정
+            {showConfirm && (
+              <div className="overlay">
+                <div className="content confirm-dialog">
+                  <p>일정을 삭제하시겠습니까?</p>
+                  <button className="modal-btn confirm" onClick={handleConfirm}>
+                    확인
                   </button>
-                  <button className="modal-btn cancle" onClick={handleDelete}>
-                    삭제
+                  <button className="modal-btn cancle" onClick={handleCancle}>
+                    취소
                   </button>
-                </>
-              )}
-
-              <button className="modal-btn confirm" onClick={closeModal}>
-                확인
-              </button>
-              {showConfirm && (
-                <div className="overlay">
-                  <div className="content confirm-dialog">
-                    <p>일정을 삭제하시겠습니까?</p>
-                    <button
-                      className="modal-btn confirm"
-                      onClick={handleConfirm}
-                    >
-                      확인
-                    </button>
-                    <button className="modal-btn cancle" onClick={handleCancle}>
-                      취소
-                    </button>
-                  </div>
                 </div>
-              )}
-            </div>
-          </Modal>
-        )}
-      </div>
-    </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+    </>
   );
 }
 

@@ -13,7 +13,6 @@ import { useContext } from "react";
 import EditUserInfo from "./pages/EditUserInfo";
 import "./App.css";
 import AdminPage from "./pages/AdminPage";
-import MainPage from "./pages/MainPage";
 
 function App() {
   return (
@@ -49,19 +48,10 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <MainPage />
-                {/* <CalendarPage /> */}
+                <CalendarPage />
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/main"
-            element={
-              <ProtectedRoute>
-                <MainPage />
-              </ProtectedRoute>
-            }
-          /> */}
         </Routes>
       </Router>
     </AuthProvider>
