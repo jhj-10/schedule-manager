@@ -1,0 +1,90 @@
+/* UserInfo.css */
+.ui-user {
+  padding: 20px;
+}
+
+.ui-user p span {
+  font-size: 12px;
+}
+
+.userInfo-container hr {
+  margin: 14px 0;
+}
+.btn-userInfo {
+  margin: 10px 0;
+}
+
+.ui-userList {
+  padding: 0 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 16px;
+  position: relative;
+}
+
+.user-colors {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.colorbox {
+  width: 17%;
+  height: 20px;
+  /* margin-right: 6px; */
+  margin-bottom: 6px;
+  border: none;
+}
+
+.btn-checkReset {
+  margin: 0 10px;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.btn-arrow {
+  /* width: 20px; */
+  padding: 4px;
+  font-size: xx-small;
+  color: #999;
+}
+
+.ui-btn {
+  /* background-color: #fff; */
+  border: none;
+  cursor: pointer;
+}
+
+.checkbox {
+  margin-right: 8px;
+}
+
+.user-menu {
+  position: absolute; /* Position the menu absolutely relative to the parent */
+  top: -10px; /* Adjust the vertical position if needed */
+  left: 100%; /* Position to the right of the button */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 150px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100; /* Add a high z-index */
+  cursor: pointer;
+}
+
+/* .user-menu div:hover {
+  background-color: #f0f0f0;
+} */
+
+/* .ui-userList-name input:checked ~ .checkbox {
+  background-color: inherit;
+} */
+
+/* .checkbox */
+
+button {
+  cursor: pointer;
+}
