@@ -27,7 +27,7 @@ function LoginPage() {
               if (response.data.success) {
                 login(response.data.user); // Call the login function from AuthContext
               } else {
-                alert("Invalid credentials");
+                alert("이메일 또는 비밀번호를 확인하세요.");
               }
               setSubmitting(false);
             })

@@ -6,17 +6,15 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
+import CalendarPage from "./pages/CalendarPage";
 import LoginPage from "./pages/LoginPage";
 import ScheduleFormPage from "./pages/ScheduleFormPage";
 import { useContext } from "react";
 import EditUserInfo from "./pages/EditUserInfo";
 import "./App.css";
 import AdminPage from "./pages/AdminPage";
-import MainPage from "./pages/MainPage";
 
 function App() {
-  const END_POINT = "http://localhost:5000";
-
   return (
     <AuthProvider>
       <Router>
@@ -26,7 +24,7 @@ function App() {
             path="/schedule/write"
             element={
               <ProtectedRoute>
-                <ScheduleFormPage endPoint={END_POINT} />
+                <ScheduleFormPage />
               </ProtectedRoute>
             }
           />
@@ -34,7 +32,7 @@ function App() {
             path="/user/userinfo"
             element={
               <ProtectedRoute>
-                <EditUserInfo endPoint={END_POINT} />
+                <EditUserInfo />
               </ProtectedRoute>
             }
           />
@@ -42,7 +40,7 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute>
-                <AdminPage endPoint={END_POINT} />
+                <AdminPage />
               </ProtectedRoute>
             }
           />
@@ -50,8 +48,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <MainPage endPoint={END_POINT} />
-                {/* <CalendarPage /> */}
+                <CalendarPage />
               </ProtectedRoute>
             }
           />

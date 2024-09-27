@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no, email=no" />
+    <title>Welcome Email</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Noto Sans KR", "Poppins", sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+      }
+      .email-container {
+        min-width: 650px;
+        background-color: #ffffff;
+        padding: 100px;
+        margin: 0 auto;
+        /* max-width: 600px; */
+        border: 1px solid #ddd;
+        border-radius: 10px;
+      }
+      h1 {
+        margin: 30px 0 80px;
+      }
+      p {
+        font-size: 16px;
+        color: #333;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #888;
+      }
+      .highlight {
+        color: #4379f2;
+        font-weight: bold;
+      }
+      .img-ci {
+        width: 150px;
+      }
+      .infobox {
+        margin: 30px 0;
+        border-top: 2px solid #333;
+        border-bottom: 2px solid #333;
+        padding: 20px 0;
+      }
+      .infobox-row {
+        margin: 10px 0;
+        font-size: 16px;
+      }
+      .infobox-attribute {
+        display: inline-block;
+        width: 100px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .start-btn {
+        box-sizing: border-box;
+        display: block;
+        width: 180px;
+        margin: 50px auto;
+        padding: 14px;
+        font-size: 14px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 8px;
+        color: #fff;
+        background-color: #4379f2;
+      }
+
+      a {
+        text-decoration: none;
+        color: #fff;
+      }
+
+      a:visited,
+      a:active,
+      a:link,
+      a:hover,
+      a:focus {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div>
+        <img
+          src="http://www.altumpartners.co.kr/images/ci/img-ci.png"
+          class="img-ci"
+        />
+      </div>
+      <h1>
+        <span class="highlight">Altumpartners.&#8203;co.&#8203;kr</span> 계정이
+        생성되었습니다.
+      </h1>
+
+      <p><span class="highlight">{{name}}</span>님의 계정이 생성되었습니다.</p>
+      <p>
+        생성된 계정과 비밀번호로 로그인하여 서비스를 시작해 주세요.<br />
+        도용방지를 위해 로그인 후 <span class="highlight">비밀번호</span>를
+        변경해주세요.
+      </p>
+
+      <div class="infobox">
+        <div class="infobox-row">
+          <p><span class="infobox-attribute">이름</span> {{name}}</p>
+        </div>
+        <div class="infobox-row">
+          <p><span class="infobox-attribute">계정</span> {{email}}</p>
+        </div>
+        <div class="infobox-row">
+          <p><span class="infobox-attribute">비밀번호</span> {{password}}</p>
+        </div>
+      </div>
+      <div class="start-btn">
+        <a
+          style="color: #fff"
+          href="http://www.altumpartners.co.kr/"
+          target="_blank"
+          >시작하기</a
+        >
+      </div>
+      <div class="footer">&copy; 2024 Altumpartners, All rights reserved.</div>
+    </div>
+
+    <!-- <script>
+        const email = {{email}};
+      document.getElementById('email').textContent = email;
+    </script> -->
+  </body>
+</html>

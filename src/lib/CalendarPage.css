@@ -1,7 +1,23 @@
 /* CalendarPage.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 div .rbc-calendar {
   padding: 0;
+}
+
+.rbc-date-cell {
+  text-align: left;
+  padding-left: 4px;
+}
+.rbc-event {
+  padding: 4px 4px 2px;
+  border-radius: 4px;
+  /* font-size: 16px; */
+  line-height: 16px;
 }
 
 .toolbar {
@@ -14,7 +30,7 @@ div .rbc-calendar {
 }
 
 .rbc-toolbar-label {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 600;
   margin-right: 20px;
   vertical-align: middle;
@@ -30,15 +46,80 @@ div .rbc-calendar {
   background-color: red;
 } */
 
+.main-page {
+  height: 100vh;
+  /* min-width: 500px; */
+}
+
+.page-header {
+  padding: 20px 10px 10px 20px;
+  /* z-index: 10; */
+  background-color: #fff;
+  height: 65px;
+  border-bottom: 1px solid #ccc;
+}
+
+.page-header > * {
+  display: inline-block;
+}
+
+.lunarDate {
+  width: 100%;
+}
+
+.header-title {
+  font-size: 28px;
+  vertical-align: middle;
+}
+
+.header-btn-user {
+  padding: 4px;
+  margin-right: 10px;
+}
+
+.header-btn-group {
+  float: right;
+  /* margin: 20px; */
+}
+
+.header-btn-admin {
+  padding: 0 20px;
+  background-color: #fff;
+  border: none;
+}
+
+.header-btn-logout {
+  margin: 0 4px;
+  padding: 8px 12px;
+  border: 1px solid #666;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0);
+}
+
 .page-container {
+  width: 100%;
   display: flex;
-  height: 650px;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 600px;
+}
+
+.userInfo-container {
+  /* flex: 1; */
+  /* display: inline-block; */
+  padding: 16px;
+  background-color: #f7f7f7;
+  border-right: 1px solid #bbb;
+  width: 200px;
+  box-sizing: border-box;
+  background-color: #fff;
+  height: 100%;
 }
 
 .calendar-container {
   flex: 1;
-  padding: 30px;
-  z-index: 0;
+  padding: 10px;
+  align-items: stretch;
 }
 
 .content {
@@ -52,13 +133,31 @@ div .rbc-calendar {
   z-index: 1000;
   background-color: #fff;
   border-radius: 8px;
-  padding: 30px 5%;
+  padding: 30px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  /* text-align: center; */
+}
+
+.text-center {
+  text-align: center;
+}
+
+.rbc-btn-group > button {
+  padding: 4px;
 }
 
 .modal-content {
   max-width: 500px;
   width: 80%;
+}
+
+.modal-btn {
+  padding: 8px 20px;
+  margin: 30px 4px 0;
+  /* border: 0; */
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid #999;
 }
 
 .overlay {
@@ -75,6 +174,10 @@ div .rbc-calendar {
   border-radius: 8px;
 }
 
+.visible {
+  display: none;
+}
+
 .modal-overlay {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
@@ -82,6 +185,18 @@ div .rbc-calendar {
 
 .confirm-dialog {
   width: 300px;
+}
+
+.confirm {
+  background-color: #4379f2;
+  color: #fff;
+  border: 1px solid #4379f2;
+}
+
+.confirm_reverse {
+  color: #4379f2;
+  border: 1px solid #4379f2;
+  background-color: #fff;
 }
 
 .modal-title {
@@ -118,4 +233,9 @@ hr {
 .attendees-list > li {
   margin-bottom: 4px;
   padding: 0;
+}
+
+.main_button {
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
 }
