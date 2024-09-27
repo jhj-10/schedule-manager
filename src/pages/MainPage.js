@@ -2,12 +2,19 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
-import CalendarPage from "./CalendarPage copy";
+import CalendarPage from "./CalendarPage";
 import { UserColors } from "../lib/UserColors";
+import UserInfoViewPage from "./UserInfoViewPage";
+import EditUserInfo from "./EditUserInfo";
+// import "../lib/CalendarPage.css";
+import "../lib/UserInfo.css";
 
-function MainPage() {
+function MainPage({ endPoint }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const END_POINT = endPoint;
+
   const [reset, setReset] = useState(false);
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,22 +23,43 @@ function MainPage() {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [visibleMenu, setVisibleMenu] = useState(null);
   const [colorset, setColorset] = useState([]);
+  const [view, setView] = useState("calendar");
+  const [mode, setMode] = useState("");
+  const [infoViewUser, setInfoViewUser] = useState({});
 
   // 사용자별 색상 추출
   const COLORS = UserColors;
 
-  // ++++ 관리자페이지로 이동하는 메뉴로 변경해야 함 +++
+  // 관리자페이지로 이동
   const handleAddNewUser = () => {
     navigate("/admin", {});
   };
+
+  // 화면 너비에 따라 유저인포 창 보이기여부
+  const [userInfovisible, setUserInfoVisible] = useState("");
+
+  const handleUserInfoVisible = () => {
+    console.log("handleUserInfoVisible!!!!");
+    if (window.innerWidth < 650) {
+      setUserInfoVisible("visible");
+    } else {
+      setUserInfoVisible("");
+    }
+  };
+
+  useEffect(() => {
+    handleUserInfoVisible();
+    window.addEventListener("resize", handleUserInfoVisible);
+
+    return () => {
+      window.removeEventListener("resize", handleUserInfoVisible);
+    };
+  }, []);
 
   // 버튼클릭으로 유저인포 창 보이기 여부
   const handleVisible = () => {
     setUserInfoVisible(userInfovisible === "visible" ? "" : "visible");
   };
-
-  // 화면 너비에 따라 유저인포 창 보이기여부
-  const [userInfovisible, setUserInfoVisible] = useState("");
 
   // 달력 높이 화면에 맞추기
   const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
@@ -44,21 +72,6 @@ function MainPage() {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleUserInfoVisible = () => {
-      if (window.innerWidth < 650) {
-        setUserInfoVisible("visible");
-      } else {
-        setUserInfoVisible("");
-      }
-    };
-    window.addEventListener("resize", handleUserInfoVisible);
-
-    return () => {
-      window.removeEventListener("resize", handleUserInfoVisible);
     };
   }, []);
 
@@ -78,7 +91,7 @@ function MainPage() {
   // 사용자 목록 가져오기 및 컬러셋 저장
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/users?userId=${user.id}`)
+      .get(`${END_POINT}/api/users?userId=${user.id}`)
       .then((response) => {
         console.log("userList response:", response);
         setUserList(response.data);
@@ -104,11 +117,6 @@ function MainPage() {
       });
   }, [reset]);
 
-  // 사용자 정보 페이지로 이동
-  const handleEditUserinfo = () => {
-    navigate("/user/userinfo");
-  };
-
   // 사용자 선택(체크박스)
   const handleCheckboxChange = (e) => {
     const value = Number(e.target.value);
@@ -130,6 +138,20 @@ function MainPage() {
     }
   };
 
+  // 상세정보보기
+  const hadleUserInfoView = (userId, mode) => {
+    // console.log("hadleUserInfoView:", userId);
+
+    const ivu = userList.find((user) => user.id === userId);
+    console.log("hadleUserInfoView:", userId, ivu);
+
+    setInfoViewUser(ivu);
+    setVisibleMenu(null);
+    setView("userInfo");
+    setMode(mode);
+    UserInfoPageLoad(infoViewUser, mode);
+  };
+
   // 사용자별 색상 선택/변경
   const handleClickColorBox = (userId, color) => {
     for (const element of colorset) {
@@ -148,7 +170,7 @@ function MainPage() {
       if (element.id === userId) {
         if (!element.color_user_id) {
           axios
-            .post("http://localhost:5000/api/users/colorset", colorsetData)
+            .post(`${END_POINT}/api/users/colorset`, colorsetData)
             .then((response) => {
               console.log("Create colorset response:", response);
               setReset(!reset);
@@ -158,7 +180,7 @@ function MainPage() {
             });
         } else {
           axios
-            .put("http://localhost:5000/api/users/colorset", colorsetData)
+            .put(`${END_POINT}/api/users/colorset`, colorsetData)
             .then((response) => {
               console.log("update colorset response:", response);
               setReset(!reset);
@@ -178,8 +200,32 @@ function MainPage() {
         selectedUsers={selectedUsers}
         colorset={colorset}
         className="calendar-container"
+        endPoint={END_POINT}
       />
     );
+  };
+
+  // 유저정보 로드
+  const UserInfoPageLoad = (infoViewUser, mode) => {
+    console.log("infoViewUser:", infoViewUser);
+    if (mode === "view") {
+      return (
+        <UserInfoViewPage
+          infoViewUser={infoViewUser}
+          className="calendar-container"
+        />
+      );
+    }
+    if (mode === "edit") {
+      return (
+        <EditUserInfo
+          funnels="mainPage"
+          infoViewUserId={infoViewUser.id}
+          className="calendar-container"
+          endPoint={END_POINT}
+        />
+      );
+    }
   };
 
   // 사용자별 메뉴 Ref
@@ -199,18 +245,6 @@ function MainPage() {
     };
   }, [menuRef]);
 
-  //   const usersColor = userList.map((user) => {
-  //     const colorUserId = user.color_user_id ? user.color_user_id : user.id;
-  //     const colorCd = user.color_cd
-  //       ? user.color_cd
-  //       : COLORS[(COLORS.length % colorUserId) + 2];
-  //     return {
-  //       userID: user.id,
-  //       colorUserId: colorUserId,
-  //       colorCd: colorCd,
-  //     };
-  //   });
-
   return (
     <div className="main-page" ref={pageRef}>
       {/* 상단 헤더 */}
@@ -221,10 +255,23 @@ function MainPage() {
             ▒{" "}
           </button>
         </div>
-        <h2 className="header-title">Calendar</h2>
+        <button
+          onClick={() => {
+            setSelectedUsers([]);
+            setView("calendar");
+            navigate("/");
+          }}
+          className="main_button"
+        >
+          <h2 className="header-title">Calendar</h2>
+        </button>
         <div className="header-btn-group">
           {user.authority === "admin" ? (
-            <button className="header-btn-admin" onClick={handleAddNewUser}>
+            <button
+              className="header-btn-admin"
+              onClick={handleAddNewUser}
+              style={{ cursor: "pointer" }}
+            >
               관리자페이지
             </button>
           ) : (
@@ -236,7 +283,18 @@ function MainPage() {
         </div>
       </div>
       <div className="page-container" style={{ height: `${pageHeight}px` }}>
-        <div className={userInfovisible}>
+        <div
+          className={userInfovisible}
+          style={
+            window.innerWidth < 650
+              ? {
+                  position: "absolute",
+                  zIndex: "10",
+                  height: `${pageHeight}px`,
+                }
+              : {}
+          }
+        >
           {/* 좌측 사이드 유저정보 */}
           <div className="userInfo-container">
             <div className="ui-user">
@@ -248,7 +306,10 @@ function MainPage() {
 
               <button
                 className="btn-userInfo ui-btn"
-                onClick={handleEditUserinfo}
+                onClick={() => {
+                  setUserInfoVisible(window.innerWidth < 650 ? "visible" : "");
+                  hadleUserInfoView(user.id, "edit");
+                }}
               >
                 개인정보수정
               </button>
@@ -259,6 +320,8 @@ function MainPage() {
               className="btn-checkReset ui-btn"
               onClick={() => {
                 setSelectedUsers([]);
+                setView("calendar");
+                setUserInfoVisible(window.innerWidth < 650 ? "visible" : "");
               }}
             >
               전체일정보기
@@ -275,7 +338,11 @@ function MainPage() {
                         id={user.id}
                         value={user.id}
                         onChange={handleCheckboxChange}
-                        style={{ backgroundColor: "#ff0000" }}
+                        style={{
+                          backgroundColor: `${user.color_cd}`,
+                          accentColor: `${user.color_cd}`,
+                          color: `${user.color_cd}`,
+                        }}
                         checked={selectedUsers.includes(user.id)}
                       />
                       {user.name}
@@ -289,7 +356,16 @@ function MainPage() {
                   </button>
                   {visibleMenu === user.id && (
                     <div className="user-menu" ref={menuRef}>
-                      <div>상세정보보기</div>
+                      <div
+                        onClick={() => {
+                          setUserInfoVisible(
+                            window.innerWidth < 650 ? "visible" : ""
+                          );
+                          hadleUserInfoView(user.id, "view");
+                        }}
+                      >
+                        상세정보보기
+                      </div>
                       <hr />
                       <div className="user-colors">
                         {COLORS.map((color) => (
@@ -310,12 +386,17 @@ function MainPage() {
           </div>
         </div>
         {/* 달력 */}
-        {loading ? (
-          <p>Loading...</p> // Show loading indicator while waiting for the data
-        ) : (
+        {view === "calendar" && !loading && (
           <>
             {console.log("CalendarPage loading!!!")}
             {CalendarPageLoad(selectedUsers, colorset)}
+          </>
+        )}
+        {/* 개인정보보기 */}
+        {view === "userInfo" && (
+          <>
+            {console.log("userInfoPage loading!!!")}
+            {UserInfoPageLoad(infoViewUser, mode)}
           </>
         )}
       </div>

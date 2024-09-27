@@ -1,0 +1,145 @@
+.admin-container {
+  padding: 10px 20px;
+  margin: 0;
+}
+
+.admin-title {
+  margin-bottom: 20px;
+}
+
+.admin-search-add-bar {
+  height: 34px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.admin-search {
+  padding: 8px 12px;
+  border: 1px solid #999;
+  display: inline-block;
+  border-radius: 4px;
+  margin-right: 4px;
+  margin-bottom: 10px;
+  height: 34px;
+  max-width: 180px;
+}
+
+.admin-search-button {
+  height: 34px;
+  border: 1px solid #999;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.admin-search-result {
+  display: inline-block;
+  font-size: 12px;
+  color: #666;
+  margin-left: 10px;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+}
+
+.admin-add-button {
+  border: 1px solid #999;
+  padding: 4px 8px;
+  border-radius: 4px;
+  height: inherit;
+}
+
+.cursor-point {
+  cursor: pointer;
+}
+
+.th {
+  padding: 8px 0;
+  width: 100%;
+  display: flex;
+  background-color: #efefef;
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+  /* margin-top: 10px; */
+}
+
+.tr {
+  display: flex;
+  line-height: 28px;
+  text-align: center;
+  vertical-align: middle;
+  padding: 4px 0;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.admin-add-holiday-box {
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  height: auto;
+}
+.wrap {
+  flex-wrap: wrap;
+}
+.admin-add-holiday-title {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.holiday-contents-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.holiday-input-label {
+  flex: 1.5;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.holiday-input-box {
+  height: 36px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  margin: 4px 0;
+  margin-right: 4px;
+  /* margin-bottom: 4px; */
+  padding: 4px 8px;
+  box-sizing: border-box;
+}
+
+.tr:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dataCell {
+  /* display: inline-block; */
+  flex: 1;
+  text-align: center;
+  display: table-cell;
+  padding-top: 2px;
+  justify-content: space-between;
+}
+
+.email {
+  flex: 2;
+  min-width: 80px;
+  text-align: center;
+  padding-top: 2px;
+}
+
+.deleteCell {
+  flex: 0.5;
+  padding: 2px 0px;
+}
+
+.row {
+  font-size: 14px;
+  /* border: 1px solid red; */
+}
