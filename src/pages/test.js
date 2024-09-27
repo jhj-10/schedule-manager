@@ -1,24 +1,32 @@
-const start = new Date("2024-08-14 00:00:00");
-const end = new Date();
+// const today = new Date();
 
-const currentTime = new Date().toTimeString();
-const startDt = new Date(start.toDateString() + " " + currentTime);
-const endDt = new Date(
-  new Date(end.setDate(end.getDate() - 1)).toDateString() + " " + currentTime
-);
-// const endDt = new Date(end.getDate() - 1 + " " + time);
+import { solarlunar } from "solarlunar";
 
-console.log(currentTime);
-console.log(startDt);
-console.log(endDt);
+// console.log(today);
 
-const str = "str".repeat(3);
+// const firstDay = new Date("2024-1-1");
+// console.log(new Date(new Date("2024-1-1").setDate(firstDay.getDate() + 253)));
 
-console.log(str);
+// // console.log((today - firstDay) / (1000 * 60 * 60 * 24));
+// // const lunarMonth = [[1,]]
 
-let arr1 = [1, 2, 3];
+// function lunarDate(date) {
+//   const dt = new Date(date);
+//   const lunarYear = [
+//     { year: 2023, startDate: "2023-1-22", endDate: "2024-2-9" },
+//     { year: 2024, startDate: "2024-2-10", endDate: "2025-1-28" },
+//     { year: 2025, startDate: "2025-1-29", endDate: "2026-2-16" },
+//   ];
+//   for (const ly of lunarYear) {
+//     if (dt > new Date(ly.startDate) && dt < new Date(ly.endDate))
+//       return ly.year;
+//     return "";
+//   }
+// }
 
-arr1 = [...arr1, 1, 2, 3];
-console.log(arr1);
+// console.log(lunarDate(new Date("2024-1-1")));
 
-console.log(arr1.includes(1));
+const lunar = solarlunar.solar2lunar(2024, 2, 10);
+const solar = solarlunar.lunar2solar(2024, 1, 1);
+
+console.log(solar);

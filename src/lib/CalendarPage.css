@@ -9,9 +9,15 @@ div .rbc-calendar {
   padding: 0;
 }
 
+.rbc-date-cell {
+  text-align: left;
+  padding-left: 4px;
+}
 .rbc-event {
-  padding: 0 4px;
+  padding: 4px 4px 2px;
   border-radius: 4px;
+  /* font-size: 16px; */
+  line-height: 16px;
 }
 
 .toolbar {
@@ -42,6 +48,7 @@ div .rbc-calendar {
 
 .main-page {
   height: 100vh;
+  /* min-width: 500px; */
 }
 
 .page-header {
@@ -54,6 +61,10 @@ div .rbc-calendar {
 
 .page-header > * {
   display: inline-block;
+}
+
+.lunarDate {
+  width: 100%;
 }
 
 .header-title {
@@ -122,8 +133,13 @@ div .rbc-calendar {
   z-index: 1000;
   background-color: #fff;
   border-radius: 8px;
-  padding: 30px 5%;
+  padding: 30px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  /* text-align: center; */
+}
+
+.text-center {
+  text-align: center;
 }
 
 .rbc-btn-group > button {
@@ -133,6 +149,15 @@ div .rbc-calendar {
 .modal-content {
   max-width: 500px;
   width: 80%;
+}
+
+.modal-btn {
+  padding: 8px 20px;
+  margin: 30px 4px 0;
+  /* border: 0; */
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid #999;
 }
 
 .overlay {
@@ -160,6 +185,18 @@ div .rbc-calendar {
 
 .confirm-dialog {
   width: 300px;
+}
+
+.confirm {
+  background-color: #4379f2;
+  color: #fff;
+  border: 1px solid #4379f2;
+}
+
+.confirm_reverse {
+  color: #4379f2;
+  border: 1px solid #4379f2;
+  background-color: #fff;
 }
 
 .modal-title {
@@ -196,4 +233,9 @@ hr {
 .attendees-list > li {
   margin-bottom: 4px;
   padding: 0;
+}
+
+.main_button {
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
 }

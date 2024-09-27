@@ -1,0 +1,105 @@
+.userInfoView-container {
+  padding: 10px 30px;
+  width: 100%;
+  font-size: 14px;
+  height: inherit;
+}
+
+.userinfo-title {
+  color: #666;
+  padding: 0px 0 20px;
+}
+
+.userinfo-contents {
+  margin: 0 auto;
+}
+
+.userinfo-contents-row {
+  /* padding: 4px 0; */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 48px;
+}
+
+.add-userInfo-box {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.add-userInfo-row {
+  padding: 6px 0;
+}
+
+.userinfo-attribute,
+.add-userinfo-attribute,
+.userinfo-values {
+  display: inline-block;
+  /* font-size: 14px; */
+}
+
+.row-margin {
+  margin-bottom: 12px;
+}
+
+.userinfo-attribute {
+  flex: 1;
+  max-width: 130px;
+  font-weight: 500;
+}
+
+.userinfo-values {
+  flex: 3;
+  /* max-width: 250px; */
+  color: #666;
+}
+
+.add-userinfo-attribute {
+  width: 100px;
+  font-weight: 500;
+  color: #666;
+}
+
+.addUser-email-form {
+  display: flex;
+  justify-items: stretch;
+  height: 36px;
+  margin: 8px 0;
+}
+
+.addUser-email-inputBox {
+  flex: 1;
+  width: 250px;
+  padding: 0 12px;
+  margin-right: 8px;
+  border-radius: 4px;
+  border: 1px solid #4379f2;
+}
+
+.addUser-email-submit-btn {
+  flex: 1;
+  border-radius: 4px;
+}
+
+.edit-userinfo-box {
+  border: 1px solid #ccc;
+  padding: 10px 16px;
+  border-radius: 4px;
+  margin: 4px 0px;
+  margin-right: 10px;
+  /* max-width: 250px; */
+}
+
+.btn-change-password {
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.userinfo-err {
+  margin-left: 130px;
+}

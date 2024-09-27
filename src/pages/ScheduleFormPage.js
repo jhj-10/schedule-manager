@@ -6,10 +6,12 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import "../lib/ScheduleFormPage.css";
 
-function ScheduleFormPage() {
+function ScheduleFormPage({ endPoint }) {
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const END_POINT = endPoint;
 
   const [initialValues, setInitialValues] = useState({
     title: "",
@@ -22,6 +24,8 @@ function ScheduleFormPage() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [recipients, setRecipients] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   useEffect(() => {
     if (location.state) {
@@ -95,7 +99,7 @@ function ScheduleFormPage() {
     }
 
     axios
-      .get(`http://localhost:5000/api/users?search=${value}`)
+      .get(`${END_POINT}/api/users?search=${value}`)
       .then((response) => {
         setFilteredUsers(response.data);
       })
@@ -189,37 +193,35 @@ function ScheduleFormPage() {
           console.log("scheduleData:", scheduleData);
 
           // location.state.id 존재 시 기존 일정 수정, 없으면 새로운 일정 생성
-          const request = location.state.pid
+          console.log("location.state: ", location.state);
+          const request = location.state.projectId
             ? Promise.all([
                 // Update schedule
                 axios.put(
-                  `http://localhost:5000/api/schedules/${location.state.pid}`,
+                  `${END_POINT}/api/schedules/${location.state.projectId}`,
                   scheduleData
                 ),
                 // Delete manpower_status
                 axios.delete(
-                  `http://localhost:5000/api/manpower-status/${location.state.pid}`
+                  `${END_POINT}/api/manpower-status/${location.state.projectId}`
                 ),
                 // Insert manpower_status
-                axios.post(`http://localhost:5000/api/manpower-status`, {
-                  project_id: location.state.pid,
+                axios.post(`${END_POINT}/api/manpower-status`, {
+                  project_id: location.state.projectId,
                   attendees: scheduleData.attendees,
                 }),
               ])
             : axios
-                .post("http://localhost:5000/api/schedules", scheduleData) // Create new schedule
+                .post(`${END_POINT}/api/schedules`, scheduleData) // Create new schedule
                 .then((response) => {
                   // response 로 받은 project_id를 이용하여 Create new manpower_status
                   console.log("response:", response);
                   const projectId = response.data.insertId;
-                  console.log("projectId:", projectId);
-                  return axios.post(
-                    `http://localhost:5000/api/manpower-status`,
-                    {
-                      project_id: projectId,
-                      attendees: scheduleData.attendees,
-                    }
-                  );
+                  console.log("Create new schedule projectId:", projectId);
+                  return axios.post(`${END_POINT}/api/manpower-status`, {
+                    project_id: projectId,
+                    attendees: scheduleData.attendees,
+                  });
                 });
 
           request
@@ -235,8 +237,8 @@ function ScheduleFormPage() {
             });
         }}
       >
-        {({ values, isSubmitting }) => (
-          <Form className="form-contents">
+        {({ values, isSubmitting, handleSubmit, errors, touched, isValid }) => (
+          <Form className="form-contents" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="title" className="attributes">
                 일정명
@@ -354,9 +356,14 @@ function ScheduleFormPage() {
             </div>
             <div className="button-div">
               <button
-                type="submit"
                 className="modal-btn confirm"
-                disabled={isSubmitting}
+                disabled={
+                  !isValid || !Object.keys(touched).length || isSubmitting
+                }
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowConfirm(true);
+                }}
               >
                 저장
               </button>
@@ -367,6 +374,28 @@ function ScheduleFormPage() {
               >
                 취소
               </button>
+
+              {showConfirm && (
+                <div className="overlay">
+                  <div className="content confirm-dialog">
+                    <p>일정을 저장하시겠습니까?</p>
+
+                    <button
+                      type="submit"
+                      className="modal-btn confirm"
+                      disabled={isSubmitting}
+                    >
+                      확인
+                    </button>
+                    <button
+                      className="modal-btn cancle"
+                      onClick={() => setShowConfirm(false)}
+                    >
+                      취소
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </Form>
         )}

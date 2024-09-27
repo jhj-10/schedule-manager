@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
-import CalendarPage from "./pages/CalendarPage";
 import LoginPage from "./pages/LoginPage";
 import ScheduleFormPage from "./pages/ScheduleFormPage";
 import { useContext } from "react";
@@ -16,6 +15,8 @@ import AdminPage from "./pages/AdminPage";
 import MainPage from "./pages/MainPage";
 
 function App() {
+  const END_POINT = "http://localhost:5000";
+
   return (
     <AuthProvider>
       <Router>
@@ -25,7 +26,7 @@ function App() {
             path="/schedule/write"
             element={
               <ProtectedRoute>
-                <ScheduleFormPage />
+                <ScheduleFormPage endPoint={END_POINT} />
               </ProtectedRoute>
             }
           />
@@ -33,7 +34,7 @@ function App() {
             path="/user/userinfo"
             element={
               <ProtectedRoute>
-                <EditUserInfo />
+                <EditUserInfo endPoint={END_POINT} />
               </ProtectedRoute>
             }
           />
@@ -41,7 +42,7 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoute>
-                <AdminPage />
+                <AdminPage endPoint={END_POINT} />
               </ProtectedRoute>
             }
           />
@@ -49,19 +50,11 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <MainPage />
+                <MainPage endPoint={END_POINT} />
                 {/* <CalendarPage /> */}
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/main"
-            element={
-              <ProtectedRoute>
-                <MainPage />
-              </ProtectedRoute>
-            }
-          /> */}
         </Routes>
       </Router>
     </AuthProvider>

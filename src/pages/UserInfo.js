@@ -165,7 +165,7 @@ function UserInfo({ users }) {
                   id={user.id}
                   value={user.id}
                   onChange={handleCheckboxChange}
-                  style={{ backgroundColor: "#ff0000" }}
+                  style={{ accentColor: `${user.color_cd}` }}
                 />
                 {user.name}
               </label>
