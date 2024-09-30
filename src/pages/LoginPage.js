@@ -8,7 +8,8 @@ import "../lib/LoginPage.css";
 
 function LoginPage() {
   const { login } = useContext(AuthContext);
-  const END_POINT = "http://localhost:5000";
+  const END_POINT = "https://sc-manager.netlify.app";
+  // const END_POINT = "http://localhost:5000";
 
   return (
     <div className="form-body">
