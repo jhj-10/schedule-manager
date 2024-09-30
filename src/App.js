@@ -15,7 +15,8 @@ import AdminPage from "./pages/AdminPage";
 import MainPage from "./pages/MainPage";
 
 function App() {
-  const END_POINT = "http://localhost:5000";
+  const END_POINT = "https://sc-manager.netlify.app";
+  // const END_POINT = "http://localhost:5000";
 
   return (
     <AuthProvider>
