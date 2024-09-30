@@ -25,20 +25,20 @@ function ScheduleFormPage({ endPoint }) {
   const [recipients, setRecipients] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [disabled, setDisabled] = useState(true);
+  // const [disabled, setDisabled] = useState(true);
+
+  // 한국시간으로 변환환
+  const dateToKST = (date) => {
+    const startDate = new Date(date);
+    const newDate = new Date(startDate.getTime() + 9 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, -8);
+    return newDate;
+  };
 
   useEffect(() => {
     if (location.state) {
       const { title, start, end, notes } = location.state;
-
-      // 한국시간으로 변환환
-      const dateToKST = (date) => {
-        const startDate = new Date(date);
-        const newDate = new Date(startDate.getTime() + 9 * 60 * 60 * 1000)
-          .toISOString()
-          .slice(0, -8);
-        return newDate;
-      };
 
       const startKST = dateToKST(start);
       const endKST = dateToKST(end);
@@ -84,11 +84,11 @@ function ScheduleFormPage({ endPoint }) {
         notes: notes || "",
       });
 
-      console.log("initialValues:", initialValues);
-      console.log("attendees:", attendees);
+      // console.log("initialValues:", initialValues);
+      // console.log("attendees:", attendees);
       setRecipients(attendees);
     }
-  }, [location.state]);
+  }, [location.state, user.id, user.name, user.email]);
 
   // 사용자 검색, 상하키를 이용하여 사용자 고르기
   const handleSearch = (value) => {
@@ -172,11 +172,11 @@ function ScheduleFormPage({ endPoint }) {
           notes: Yup.string(),
         })}
         onSubmit={(values, { setSubmitting }) => {
-          const attendees = recipients.map((recipient, index) => ({
-            ...recipient,
-            start_dt: values.attendees[index]?.start_dt || initialValues.start,
-            end_dt: values.attendees[index]?.end_dt || initialValues.end,
-          }));
+          // const attendees = recipients.map((recipient, index) => ({
+          //   ...recipient,
+          //   start_dt: values.attendees[index]?.start_dt || initialValues.start,
+          //   end_dt: values.attendees[index]?.end_dt || initialValues.end,
+          // }));
 
           const scheduleData = {
             ...values,

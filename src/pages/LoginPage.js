@@ -8,6 +8,7 @@ import "../lib/LoginPage.css";
 
 function LoginPage() {
   const { login } = useContext(AuthContext);
+  const END_POINT = "http://localhost:5000";
 
   return (
     <div className="form-body">
@@ -22,7 +23,7 @@ function LoginPage() {
         })}
         onSubmit={(values, { setSubmitting }) => {
           axios
-            .post("http://localhost:5000/api/login", values)
+            .post(`${END_POINT}/api/login`, values)
             .then((response) => {
               if (response.data.success) {
                 login(response.data.user); // Call the login function from AuthContext
@@ -71,7 +72,7 @@ function LoginPage() {
           </Form>
         )}
       </Formik>
-      <a className="forgotten">비밀번호찾기</a>
+      <div className="forgotten">비밀번호찾기</div>
     </div>
   );
 }

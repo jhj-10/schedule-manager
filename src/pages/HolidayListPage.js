@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "../lib/AdminPage.css";
 import axios from "axios";
 import solarlunar from "solarlunar";
-import { number } from "yup";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 
 function HolidayListPage({ endPoint }) {
@@ -17,7 +16,7 @@ function HolidayListPage({ endPoint }) {
     dt: "",
   };
 
-  const [visible, setVisible] = useState(true);
+  // const [visible, setVisible] = useState(true);
   const [mode, setMode] = useState("");
   const [initialValues, setInitialValues] = useState(TEMP_INITIALVALUES);
   const [modifyValues, setModifyValues] = useState({});
@@ -50,20 +49,34 @@ function HolidayListPage({ endPoint }) {
     setFilteredHolidays(filterResult);
   };
 
-  const transHday = (day) => {
+  const conversionLunarDt = (year, dt) => {
+    const [month, day] = dt.split("-");
+    const lunarToSolar = solarlunar.lunar2solar(
+      Number(year),
+      Number(month),
+      Number(day)
+    );
+    const solarDt = `${lunarToSolar.cYear}-${lunarToSolar.cMonth}-${lunarToSolar.cDay}`;
+    return solarDt;
+  };
+
+  const transHday = useCallback((day) => {
     const year = new Date().getFullYear();
     console.log("transHday day:", day);
     let hday = {};
 
+    const isLunar = day.lunarYn === "Y" || day.lunar_yn === "Y";
+    const isSolar = day.lunarYn === "N" || day.lunar_yn === "N";
+
     if (day.type === "public") {
-      if (day.lunarYn ? day.lunarYn === "Y" : day.lunar_yn === "Y") {
+      if (isLunar) {
         hday = {
           ...day,
           type: "공휴일",
           lunarDt: `음력 ${day.dt}`,
           solarDt: conversionLunarDt(year, day.dt),
         };
-      } else if (day.lunarYn ? day.lunarYn === "N" : day.lunar_yn === "N") {
+      } else if (isSolar) {
         hday = {
           ...day,
           type: "공휴일",
@@ -80,60 +93,55 @@ function HolidayListPage({ endPoint }) {
       };
     }
     return hday;
-  };
+  }, []);
 
-  const calHdayPeriod = (day) => {
-    let pd = "";
-    if (day.name === "설날" || day.name === "추석") {
-      const current = new Date(day.solarDt);
-      const start = new Date(current);
-      start.setDate(start.getDate() - 1);
-      const end = new Date(current);
-      end.setDate(end.getDate() + 1);
-      const startDt = dateFormat(start);
-      const endDt = dateFormat(end);
-      pd = `${startDt}~${endDt}`;
-    }
-    return {
-      ...day,
-      period: pd ? pd : day.solarDt,
-    };
-  };
-
-  const handleHolidays = (list) => {
-    const tempHlist = list.filter((day) => !day.name.includes("연휴"));
-    const transHlist = tempHlist.map((day) => transHday(day));
-    console.log("tempHlist:", tempHlist);
-
-    const result = transHlist.map((day) => calHdayPeriod(day));
-
-    return result.sort((a, b) => {
-      const aArr = a.solarDt.split("-");
-      const bArr = b.solarDt.split("-");
-      if (aArr[0] !== bArr[0]) {
-        return Number(Number(bArr[0] - Number(aArr[0])));
-      } else if (aArr[1] !== bArr[1]) {
-        return Number(aArr[1]) - Number(bArr[1]);
-      } else {
-        return Number(aArr[2]) - Number(bArr[2]);
-      }
-    });
-  };
-
-  const dateFormat = (date) => {
+  const dateFormat = useCallback((date) => {
     return date.toLocaleString().replaceAll(". ", "-").split("-오전")[0];
-  };
+  }, []);
 
-  const conversionLunarDt = (year, dt) => {
-    const [month, day] = dt.split("-");
-    const lunarToSolar = solarlunar.lunar2solar(
-      Number(year),
-      Number(month),
-      Number(day)
-    );
-    const solarDt = `${lunarToSolar.cYear}-${lunarToSolar.cMonth}-${lunarToSolar.cDay}`;
-    return solarDt;
-  };
+  const calHdayPeriod = useCallback(
+    (day) => {
+      let pd = "";
+      if (day.name === "설날" || day.name === "추석") {
+        const current = new Date(day.solarDt);
+        const start = new Date(current);
+        start.setDate(start.getDate() - 1);
+        const end = new Date(current);
+        end.setDate(end.getDate() + 1);
+        const startDt = dateFormat(start);
+        const endDt = dateFormat(end);
+        pd = `${startDt}~${endDt}`;
+      }
+      return {
+        ...day,
+        period: pd ? pd : day.solarDt,
+      };
+    },
+    [dateFormat]
+  );
+
+  const handleHolidays = useCallback(
+    (list) => {
+      const tempHlist = list.filter((day) => !day.name.includes("연휴"));
+      const transHlist = tempHlist.map((day) => transHday(day));
+      console.log("tempHlist:", tempHlist);
+
+      const result = transHlist.map((day) => calHdayPeriod(day));
+
+      return result.sort((a, b) => {
+        const aArr = a.solarDt.split("-");
+        const bArr = b.solarDt.split("-");
+        if (aArr[0] !== bArr[0]) {
+          return Number(Number(bArr[0] - Number(aArr[0])));
+        } else if (aArr[1] !== bArr[1]) {
+          return Number(aArr[1]) - Number(bArr[1]);
+        } else {
+          return Number(aArr[2]) - Number(bArr[2]);
+        }
+      });
+    },
+    [calHdayPeriod, transHday]
+  );
 
   const handleModify = (holiday, mode) => {
     console.log("handleModify holiday:", holiday);
@@ -236,21 +244,29 @@ function HolidayListPage({ endPoint }) {
     setShowConfirm(false);
   };
 
+  // const fetchHolidays = useCallback(() => {
+
+  //   // const validate = window.innerWidth < 650 ? false : true;
+  //   // setVisible(validate);
+  // }, [reload, END_POINT, handleHolidays]);
+
   useEffect(() => {
-    axios
-      .get(`${END_POINT}/api/holidays`)
-      .then((response) => {
-        // console.log("holidayList response:", response);
-        setHolidays(handleHolidays(response.data));
-        setFilteredHolidays(handleHolidays(response.data));
-        console.log("filteredHolidays: ", filteredHolidays);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the holidays!", error);
-      });
-    const validate = window.innerWidth < 650 ? false : true;
-    setVisible(validate);
-  }, [reload]);
+    const fetchHolidays = async () => {
+      axios
+        .get(`${END_POINT}/api/holidays`)
+        .then((response) => {
+          // console.log("holidayList response:", response);
+          const processedHolidays = handleHolidays(response.data);
+          setHolidays(processedHolidays);
+          setFilteredHolidays(processedHolidays);
+          // console.log("filteredHolidays: ", filteredHolidays);
+        })
+        .catch((error) => {
+          console.error("There was an error fetching the holidays!", error);
+        });
+    };
+    fetchHolidays();
+  }, [END_POINT, handleHolidays]);
 
   return (
     <div ref={pageRef} style={{ height: "100%", overflow: "auto" }}>
