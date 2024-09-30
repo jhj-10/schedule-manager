@@ -1,8 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 
 function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   const END_POINT = endPoint;
@@ -93,27 +91,54 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   };
 
   useEffect(() => {
-    axios
-      .get(`${END_POINT}/api/user/${infoViewUserId}`)
-      .then((response) => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get(
+          `${END_POINT}/api/user/${infoViewUserId}`
+        );
         console.log("infoViewUserId:", infoViewUserId);
         const userInfo = response.data[0];
         console.log("userInfo:", userInfo);
+
+        // Set user status and initial values
         setStatus(userInfo.status);
-        // setQuitDt(userInfo.quit_dt);
         setInitialValues({
           ...userInfo,
           checkPassword: isAdmin ? userInfo.password : "",
           subemail: userInfo.email_sub ? userInfo.email_sub.split("@")[0] : "",
-          joinDt: userInfo.join_dt ? userInfo.join_dt : "",
-          quitDt: userInfo.quit_dt ? userInfo.quit_dt : "",
+          joinDt: userInfo.join_dt || "",
+          quitDt: userInfo.quit_dt || "",
         });
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("There was an error fetching the userInfo!", error);
-      });
-    console.log("initialValues:", initialValues);
-  }, [reload]);
+      }
+    };
+
+    fetchUserInfo();
+  }, [END_POINT, infoViewUserId, isAdmin, reload]);
+
+  // useEffect(() => {
+  //   axios
+  //     .get(`${END_POINT}/api/user/${infoViewUserId}`)
+  //     .then((response) => {
+  //       console.log("infoViewUserId:", infoViewUserId);
+  //       const userInfo = response.data[0];
+  //       console.log("userInfo:", userInfo);
+  //       setStatus(userInfo.status);
+  //       // setQuitDt(userInfo.quit_dt);
+  //       setInitialValues({
+  //         ...userInfo,
+  //         checkPassword: isAdmin ? userInfo.password : "",
+  //         subemail: userInfo.email_sub ? userInfo.email_sub.split("@")[0] : "",
+  //         joinDt: userInfo.join_dt ? userInfo.join_dt : "",
+  //         quitDt: userInfo.quit_dt ? userInfo.quit_dt : "",
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the userInfo!", error);
+  //     });
+  //   console.log("initialValues:", initialValues);
+  // }, [reload]);
 
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
   const handleCancle = (e) => {

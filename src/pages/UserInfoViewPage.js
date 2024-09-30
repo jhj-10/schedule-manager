@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React, { useEffect, useState } from "react";
+// import { AuthContext } from "../context/AuthContext";
 import "../lib/UserInfoView.css";
 
 function UserInfoViewPage({ infoViewUser }) {
-  const { user } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext);
   const [initialValues, setInitialValues] = useState(infoViewUser);
 
   console.log("initialValues:", initialValues);
 
-  const userVerification = user.id === initialValues.id ? true : false;
+  // const userVerification = user.id === initialValues.id ? true : false;
 
   useEffect(() => {
     setInitialValues(infoViewUser);
