@@ -67,21 +67,43 @@ function AdminUserListPage({ endPoint }) {
   };
 
   useEffect(() => {
+    const handleResize = () => {
+      const validate = window.innerWidth < 650 ? false : true;
+      setVisible(validate);
+    };
+
     axios
       .get(`${END_POINT}/api/users?auth=admin`)
       .then((response) => {
         console.log("userList response:", response);
         setUserList(response.data);
         setFilteredUsers(response.data);
-        console.log("userList:", userList);
       })
       .catch((error) => {
         console.error("There was an error fetching the userList!", error);
       });
 
-    const validate = window.innerWidth < 650 ? false : true;
-    setVisible(validate);
-  }, [window.innerWidth]);
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [END_POINT]); // Include END_POINT as a dependency
+
+  // useEffect(() => {
+  //   axios
+  //     .get(`${END_POINT}/api/users?auth=admin`)
+  //     .then((response) => {
+  //       console.log("userList response:", response);
+  //       setUserList(response.data);
+  //       setFilteredUsers(response.data);
+  //       console.log("userList:", userList);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was an error fetching the userList!", error);
+  //     });
+
+  //   const validate = window.innerWidth < 650 ? false : true;
+  //   setVisible(validate);
+  // }, [window.innerWidth]);
 
   return (
     <div ref={pageRef} style={{ height: "100%", overflow: "auto" }}>

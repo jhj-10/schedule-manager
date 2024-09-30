@@ -13,7 +13,8 @@ function AdminPage({ endPoint }) {
   const [reloadKey, setReloadKey] = useState(0); // Add a key to trigger re-render of AdminUserListPage
 
   // 달력 높이 화면에 맞추기
-  const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
+  // const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
+  const pageHeight = useState(window.innerHeight - 65);
 
   // 관리자페이지로 이동
   const handleAdminPage = () => {
@@ -66,7 +67,7 @@ function AdminPage({ endPoint }) {
             ▒{" "}
           </button>
         </div>
-        <button onClick={() => (navigate("/"), {})} className="main_button">
+        <button onClick={() => navigate("/")} className="main_button">
           <h2 className="header-title">Calendar</h2>
         </button>
         <div className="header-btn-group">

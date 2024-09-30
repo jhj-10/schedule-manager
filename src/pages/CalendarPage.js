@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
 import Modal from "react-modal";
@@ -226,7 +232,7 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
       backgroundColor = isCreator ? cs.colorCd : "#bfbfc3";
     } else {
       // console.log("eventPropGetter event:", colorset, event);
-      const cs = colorset.find((item) => item.colorUserId == event.userId);
+      const cs = colorset.find((item) => item.colorUserId === event.userId);
       backgroundColor = cs ? cs.colorCd : "#bfbfc3";
     }
     return {
@@ -366,10 +372,10 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
     navigate("/schedule/write", { state: selectedEvent });
   };
 
-  // ++++ 관리자페이지로 이동하는 메뉴로 변경해야 함 +++
-  const handleAddNewUser = () => {
-    navigate("/admin", {});
-  };
+  // // ++++ 관리자페이지로 이동하는 메뉴로 변경해야 함 +++
+  // const handleAddNewUser = () => {
+  //   navigate("/admin", {});
+  // };
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -410,41 +416,41 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
   };
 
   // 달력 높이 화면에 맞추기
-  const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
+  // const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setPageHeight(window.innerHeight - 65);
-    };
-    window.addEventListener("resize", handleResize);
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setPageHeight(window.innerHeight - 65);
+  //   };
+  //   window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   // 화면 너비에 따라 유저인포 창 보이기여부
-  const [userInfovisible, setUserInfoVisible] = useState("");
+  // const [userInfovisible, setUserInfoVisible] = useState("");
 
-  useEffect(() => {
-    const handleUserInfoVisible = () => {
-      if (window.innerWidth < 650) {
-        setUserInfoVisible("visible");
-      } else {
-        setUserInfoVisible("");
-      }
-    };
-    window.addEventListener("resize", handleUserInfoVisible);
+  // useEffect(() => {
+  //   const handleUserInfoVisible = () => {
+  //     if (window.innerWidth < 650) {
+  //       setUserInfoVisible("visible");
+  //     } else {
+  //       setUserInfoVisible("");
+  //     }
+  //   };
+  //   window.addEventListener("resize", handleUserInfoVisible);
 
-    return () => {
-      window.removeEventListener("resize", handleUserInfoVisible);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", handleUserInfoVisible);
+  //   };
+  // }, []);
 
   // 버튼클릭으로 유저인포 창 보이기 여부
-  const handleVisible = () => {
-    setUserInfoVisible(userInfovisible === "visible" ? "" : "visible");
-  };
+  // const handleVisible = () => {
+  //   setUserInfoVisible(userInfovisible === "visible" ? "" : "visible");
+  // };
 
   // 일정가져오기
   useEffect(() => {
@@ -469,7 +475,7 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
       .catch((error) => {
         console.error("There was an error fetching the schedules!", error);
       });
-  }, [selectedUsers]);
+  }, [selectedUsers, END_POINT]);
 
   // 달력이 바뀔 때 마다 년,월 추출
   useEffect(() => {
@@ -490,66 +496,39 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
     setCalendarMonth(labelMonth);
   }, [calendarRef, calendarStatus]);
 
-  // 공휴일데이터 가져오기
-  useEffect(() => {
-    const fetchHolidays = async () => {
-      try {
-        const response = await axios.get(`${END_POINT}/api/holidays`);
-        const holidaysData = response.data;
-
-        const holidaysList = holidaysData.map((day) => convertToSolarDate(day));
-
-        // 지난해 말일 설날연휴 추가
-        addLunarNewYearEve(holidaysList);
-
-        // 중복된 공휴일 날짜 합치기
-        const mergedHolidays = mergeHolidays(holidaysList);
-
-        // 대체공휴일 추가
-        const finalHolidays = addSubstituteHolidays(mergedHolidays);
-
-        setHolidays(finalHolidays);
-      } catch (error) {
-        console.error("There was an error fetching the holidays!", error);
-      }
-    };
-
-    // Call the fetch function
-    fetchHolidays();
-  }, [calendarYear, calendarRef, calendarStatus]);
-
   // 음력공휴일 양력일자로 변환
-  const convertToSolarDate = (day) => {
-    const data = { dt: "", name: "", substituteYn: "", substitute: [] };
+  const convertToSolarDate = useCallback(
+    (day) => {
+      const data = { dt: "", name: "", substituteYn: "", substitute: [] };
 
-    if (day.lunar_yn === "Y") {
-      // 음력 날짜 -> 양력날짜 변환
-      const year = calendarYear;
-      const [month, dayOfMonth] = day.dt.split("-");
-      const solarDate = solarlunar.lunar2solar(
-        Number(year),
-        Number(month),
-        Number(dayOfMonth)
-      );
-      data.dt = `${solarDate.cYear}-${solarDate.cMonth}-${solarDate.cDay}`;
-    } else {
-      const dateParts = day.dt.split("-");
-      const year = dateParts.length > 2 ? dateParts[0] : calendarYear;
-      const [month, dayOfMonth] = dateParts.slice(-2);
-      data.dt = `${year}-${month}-${dayOfMonth}`;
-    }
+      if (day.lunar_yn === "Y") {
+        const [month, dayOfMonth] = day.dt.split("-");
+        const solarDate = solarlunar.lunar2solar(
+          Number(calendarYear),
+          Number(month),
+          Number(dayOfMonth)
+        );
+        data.dt = `${solarDate.cYear}-${solarDate.cMonth}-${solarDate.cDay}`;
+      } else {
+        const dateParts = day.dt.split("-");
+        const year = dateParts.length > 2 ? dateParts[0] : calendarYear;
+        const [month, dayOfMonth] = dateParts.slice(-2);
+        data.dt = `${year}-${month}-${dayOfMonth}`;
+      }
 
-    if (day.substitute_yn === "Y") {
-      data.substitute = day.substitute
-        .split(",")
-        .map((sub) => (sub === "토" ? 6 : sub === "일" ? 0 : sub));
-    }
+      if (day.substitute_yn === "Y") {
+        data.substitute = day.substitute
+          .split(",")
+          .map((sub) => (sub === "토" ? 6 : sub === "일" ? 0 : sub));
+      }
 
-    data.name = day.name;
-    data.substituteYn = day.substitute_yn;
+      data.name = day.name;
+      data.substituteYn = day.substitute_yn;
 
-    return data;
-  };
+      return data;
+    },
+    [calendarYear] // This ensures that the function only changes if calendarYear changes
+  );
 
   // 지난해 말일 설날 연휴로 추가
   const addLunarNewYearEve = (holidaysList) => {
@@ -592,53 +571,23 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
     return mergedHolidays;
   };
 
-  // 대체공휴일 추가
-  const addSubstituteHolidays = (holidaysList) => {
-    const updatedHolidays = [...holidaysList];
-
-    holidaysList.forEach((holiday) => {
-      let substituteNeeded = false;
-
-      // 대체공휴일 여부 확인
-      // - 두 개 연휴가 합쳐진 날인지 체크
-      if (holiday.name.includes(",")) substituteNeeded = true;
-      // - 대체공휴일로 인정되는 날인지 체크
-      if (holiday.substituteYn === "Y") {
-        const dayOfWeek = new Date(holiday.dt).getDay();
-        if (holiday.substitute.includes(dayOfWeek)) substituteNeeded = true;
-      }
-
-      if (substituteNeeded) {
-        const substituteHoliday = calculateSubstituteHoliday(
-          holiday,
-          updatedHolidays
-        );
-        if (!checkHoliday(substituteHoliday.dt, updatedHolidays)) {
-          updatedHolidays.push(substituteHoliday);
-        }
-      }
-    });
-
-    return updatedHolidays;
-  };
-
   // 대체공휴일 지정이 가능한 날짜 확인
-  const calculateSubstituteHoliday = (holiday, holidaysList) => {
-    let newDate = new Date(holiday.dt);
+  // const calculateSubstituteHoliday = (holiday, holidaysList) => {
+  //   let newDate = new Date(holiday.dt);
 
-    while (true) {
-      newDate.setDate(newDate.getDate() + 1);
-      const newDateString = formatDate(newDate);
-      const newDayOfWeek = newDate.getDay();
+  //   while (true) {
+  //     newDate.setDate(newDate.getDate() + 1);
+  //     const newDateString = formatDate(newDate);
+  //     const newDayOfWeek = newDate.getDay();
 
-      if (
-        !holiday.substitute.includes(newDayOfWeek) &&
-        !checkHoliday(newDateString, holidaysList)
-      ) {
-        return { dt: newDateString, name: "대체공휴일" };
-      }
-    }
-  };
+  //     if (
+  //       !holiday.substitute.includes(newDayOfWeek) &&
+  //       !checkHoliday(newDateString, holidaysList)
+  //     ) {
+  //       return { dt: newDateString, name: "대체공휴일" };
+  //     }
+  //   }
+  // };
 
   // 공휴일 확인
   const checkHoliday = (day, list) => {
@@ -649,6 +598,81 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
   const formatDate = (date) => {
     return date.toLocaleString().replaceAll(". ", "-").split("-오전")[0];
   };
+
+  // 대체공휴일 추가
+  const addSubstituteHolidays = useCallback(
+    (holidaysList) => {
+      const updatedHolidays = [...holidaysList];
+
+      holidaysList.forEach((holiday) => {
+        let substituteNeeded = false;
+
+        if (holiday.name.includes(",")) substituteNeeded = true;
+
+        if (holiday.substituteYn === "Y") {
+          const dayOfWeek = new Date(holiday.dt).getDay();
+          if (holiday.substitute.includes(dayOfWeek)) substituteNeeded = true;
+        }
+
+        if (substituteNeeded) {
+          // const substituteHoliday = calculateSubstituteHoliday(
+          //   holiday,
+          //   updatedHolidays
+          // );
+          const substituteHoliday = (holiday, updatedHolidays) => {
+            let newDate = new Date(holiday.dt);
+
+            while (true) {
+              newDate.setDate(newDate.getDate() + 1);
+              const newDateString = formatDate(newDate);
+              const newDayOfWeek = newDate.getDay();
+
+              if (
+                !holiday.substitute.includes(newDayOfWeek) &&
+                !checkHoliday(newDateString, holidaysList)
+              ) {
+                return { dt: newDateString, name: "대체공휴일" };
+              }
+            }
+          };
+          if (!checkHoliday(substituteHoliday.dt, updatedHolidays)) {
+            updatedHolidays.push(substituteHoliday);
+          }
+        }
+      });
+
+      return updatedHolidays;
+    },
+    [] // No dependencies for this function
+  );
+
+  // 공휴일데이터 가져오기
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      try {
+        const response = await axios.get(`${END_POINT}/api/holidays`);
+        const holidaysData = response.data;
+
+        const holidaysList = holidaysData.map((day) => convertToSolarDate(day));
+
+        // 지난해 말일 설날연휴 추가
+        addLunarNewYearEve(holidaysList);
+
+        // 중복된 공휴일 날짜 합치기
+        const mergedHolidays = mergeHolidays(holidaysList);
+
+        // 대체공휴일 추가
+        const finalHolidays = addSubstituteHolidays(mergedHolidays);
+
+        setHolidays(finalHolidays);
+      } catch (error) {
+        console.error("There was an error fetching the holidays!", error);
+      }
+    };
+
+    // Call the fetch function
+    fetchHolidays();
+  }, [END_POINT, convertToSolarDate, addSubstituteHolidays]);
 
   return (
     <>

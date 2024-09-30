@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
@@ -88,35 +94,6 @@ function MainPage({ endPoint }) {
     };
   }, [logout]);
 
-  // 사용자 목록 가져오기 및 컬러셋 저장
-  useEffect(() => {
-    axios
-      .get(`${END_POINT}/api/users?userId=${user.id}`)
-      .then((response) => {
-        console.log("userList response:", response);
-        setUserList(response.data);
-
-        // Initialize colorset
-        const initialColorset = response.data.map((colorUser) => {
-          const colorUserId = colorUser.color_user_id || colorUser.id;
-          const colorCd =
-            colorUser.color_cd || COLORS[(COLORS.length % colorUserId) + 2];
-          return {
-            userID: user.id,
-            colorUserId: colorUserId,
-            colorCd: colorCd,
-          };
-        });
-        setColorset(initialColorset);
-        CalendarPageLoad(selectedUsers, colorset);
-        setLoading(false); // Set loading to false once data is fetched
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the userList!", error);
-        setLoading(false);
-      });
-  }, [reset]);
-
   // 사용자 선택(체크박스)
   const handleCheckboxChange = (e) => {
     const value = Number(e.target.value);
@@ -194,16 +171,19 @@ function MainPage({ endPoint }) {
   };
 
   // 캘린더 로드
-  const CalendarPageLoad = (selectedUsers, colorset) => {
-    return (
-      <CalendarPage
-        selectedUsers={selectedUsers}
-        colorset={colorset}
-        className="calendar-container"
-        endPoint={END_POINT}
-      />
-    );
-  };
+  const CalendarPageLoad = useCallback(
+    (selectedUsers, colorset) => {
+      return (
+        <CalendarPage
+          selectedUsers={selectedUsers}
+          colorset={colorset}
+          className="calendar-container"
+          endPoint={END_POINT}
+        />
+      );
+    },
+    [END_POINT]
+  );
 
   // 유저정보 로드
   const UserInfoPageLoad = (infoViewUser, mode) => {
@@ -244,6 +224,46 @@ function MainPage({ endPoint }) {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [menuRef]);
+
+  // 사용자 목록 가져오기 및 컬러셋 저장
+  useEffect(() => {
+    const fetchUserData = async () => {
+      axios
+        .get(`${END_POINT}/api/users?userId=${user.id}`)
+        .then((response) => {
+          console.log("userList response:", response);
+          setUserList(response.data);
+
+          // Initialize colorset
+          const initialColorset = response.data.map((colorUser) => {
+            const colorUserId = colorUser.color_user_id || colorUser.id;
+            const colorCd =
+              colorUser.color_cd || COLORS[(COLORS.length % colorUserId) + 2];
+            return {
+              userID: user.id,
+              colorUserId: colorUserId,
+              colorCd: colorCd,
+            };
+          });
+          setColorset(initialColorset);
+          CalendarPageLoad(selectedUsers, colorset);
+          setLoading(false); // Set loading to false once data is fetched
+        })
+        .catch((error) => {
+          console.error("There was an error fetching the userList!", error);
+          setLoading(false);
+        });
+    };
+    fetchUserData();
+  }, [
+    reset,
+    END_POINT,
+    user.id,
+    COLORS,
+    selectedUsers,
+    colorset,
+    CalendarPageLoad,
+  ]);
 
   return (
     <div className="main-page" ref={pageRef}>
