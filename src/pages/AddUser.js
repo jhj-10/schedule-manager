@@ -11,10 +11,10 @@ const today = () => {
   return [year, month, day].join("-");
 };
 
-function AddUser({ onCancle, userList }) {
+function AddUser({ onCancle, userList, endPoint }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const END_POINT = "http://localhost:5000";
+  const END_POINT = endPoint;
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);

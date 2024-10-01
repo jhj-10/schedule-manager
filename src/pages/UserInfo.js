@@ -5,9 +5,11 @@ import "../lib/UserInfo.css";
 import axios from "axios";
 import { UserColors } from "../lib/UserColors";
 
-function UserInfo({ users }) {
+function UserInfo({ users, endPoint }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const END_POINT = endPoint;
+
   const [userList, setUserList] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [visibleMenu, setVisibleMenu] = useState(null);
@@ -60,7 +62,7 @@ function UserInfo({ users }) {
       if (element.id === userId) {
         if (!element.color_user_id) {
           axios
-            .post(`http://localhost:5000/api/users/colorset`, colorsetData)
+            .post(`${END_POINT}/api/users/colorset`, colorsetData)
             .then((response) => {
               console.log("Create colorset response:", response);
               setColorset(response.data);
@@ -70,7 +72,7 @@ function UserInfo({ users }) {
             });
         } else {
           axios
-            .put(`http://localhost:5000/api/users/colorset`, colorsetData)
+            .put(`${END_POINT}/api/users/colorset`, colorsetData)
             .then((response) => {
               console.log("update colorset response:", response);
               setColorset(response.data);

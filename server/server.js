@@ -6,15 +6,18 @@ const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
 
+const PORT = process.env.PORT || 5000;
+
 const app = express();
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors());
 
 const pool = mariadb.createPool({
-  // host: "localhost",
-  // port: 3306,
-  host: "svc.sel4.cloudtype.app",
-  port: 32441,
+  host: "localhost",
+  port: 3306,
+  // host: "svc.sel4.cloudtype.app",
+  // port: 32441,
   user: "root",
   password: "111111",
   database: "schedule_manager",
@@ -604,6 +607,6 @@ app.post("/api/send-email", async (req, res) => {
 });
 
 // Start the server
-app.listen(5000, () => {
+app.listen(PORT, () => {
   console.log("Server is running on port 5000");
 });
