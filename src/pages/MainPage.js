@@ -131,9 +131,12 @@ function MainPage({ endPoint }) {
 
   // 사용자별 색상 선택/변경
   const handleClickColorBox = (userId, color) => {
-    for (const element of colorset) {
-      if (element.colorUserId === userId) element.colorCd = color;
-    }
+    const updatedColorset = colorset.map((element) => {
+      if (element.colorUserId === userId) {
+        return { ...element, colorCd: color };
+      }
+      return element;
+    });
 
     const colorsetData = {
       userId: user.id,
@@ -143,30 +146,30 @@ function MainPage({ endPoint }) {
 
     console.log("handleClickColorBox colorsetData:", colorsetData);
 
-    for (const element of userList) {
-      if (element.id === userId) {
-        if (!element.color_user_id) {
-          axios
-            .post(`${END_POINT}/api/users/colorset`, colorsetData)
-            .then((response) => {
-              console.log("Create colorset response:", response);
-              setReset(!reset);
-            })
-            .catch((error) => {
-              console.error("There was an error create colorset!", error);
-            });
-        } else {
-          axios
-            .put(`${END_POINT}/api/users/colorset`, colorsetData)
-            .then((response) => {
-              console.log("update colorset response:", response);
-              setReset(!reset);
-            })
-            .catch((error) => {
-              console.error("There was an error update colorset!", error);
-            });
-        }
-      }
+    const existingUser = userList.find((element) => element.id === userId);
+
+    if (existingUser && !existingUser.color_user_id) {
+      axios
+        .post(`${END_POINT}/api/users/colorset`, colorsetData)
+        .then((response) => {
+          console.log("Create colorset response:", response);
+          setColorset(updatedColorset); // Update colorset immutably
+          setReset(!reset);
+        })
+        .catch((error) => {
+          console.error("There was an error creating colorset!", error);
+        });
+    } else {
+      axios
+        .put(`${END_POINT}/api/users/colorset`, colorsetData)
+        .then((response) => {
+          console.log("Update colorset response:", response);
+          setColorset(updatedColorset); // Update colorset immutably
+          setReset(!reset);
+        })
+        .catch((error) => {
+          console.error("There was an error updating colorset!", error);
+        });
     }
   };
 
@@ -234,7 +237,7 @@ function MainPage({ endPoint }) {
           console.log("userList response:", response);
           setUserList(response.data);
 
-          // Initialize colorset
+          // Initialize colorset without causing a re-render loop
           const initialColorset = response.data.map((colorUser) => {
             const colorUserId = colorUser.color_user_id || colorUser.id;
             const colorCd =
@@ -245,8 +248,8 @@ function MainPage({ endPoint }) {
               colorCd: colorCd,
             };
           });
+
           setColorset(initialColorset);
-          CalendarPageLoad(selectedUsers, colorset);
           setLoading(false); // Set loading to false once data is fetched
         })
         .catch((error) => {
@@ -255,15 +258,14 @@ function MainPage({ endPoint }) {
         });
     };
     fetchUserData();
-  }, [
-    reset,
-    END_POINT,
-    user.id,
-    COLORS,
-    selectedUsers,
-    colorset,
-    CalendarPageLoad,
-  ]);
+  }, [reset, END_POINT, user.id, COLORS]);
+
+  // Separate useEffect to handle CalendarPage loading logic
+  useEffect(() => {
+    if (!loading) {
+      CalendarPageLoad(selectedUsers, colorset); // Only trigger when selectedUsers or colorset changes
+    }
+  }, [selectedUsers, colorset, CalendarPageLoad, loading]);
 
   return (
     <div className="main-page" ref={pageRef}>
