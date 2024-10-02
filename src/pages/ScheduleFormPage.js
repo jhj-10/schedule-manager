@@ -99,7 +99,7 @@ function ScheduleFormPage({ endPoint }) {
     }
 
     axios
-      .get(`${END_POINT}/api/users?search=${value}`)
+      .get(`${END_POINT}api/users?search=${value}`)
       .then((response) => {
         setFilteredUsers(response.data);
       })
@@ -198,27 +198,27 @@ function ScheduleFormPage({ endPoint }) {
             ? Promise.all([
                 // Update schedule
                 axios.put(
-                  `${END_POINT}/api/schedules/${location.state.projectId}`,
+                  `${END_POINT}api/schedules/${location.state.projectId}`,
                   scheduleData
                 ),
                 // Delete manpower_status
                 axios.delete(
-                  `${END_POINT}/api/manpower-status/${location.state.projectId}`
+                  `${END_POINT}api/manpower-status/${location.state.projectId}`
                 ),
                 // Insert manpower_status
-                axios.post(`${END_POINT}/api/manpower-status`, {
+                axios.post(`${END_POINT}api/manpower-status`, {
                   project_id: location.state.projectId,
                   attendees: scheduleData.attendees,
                 }),
               ])
             : axios
-                .post(`${END_POINT}/api/schedules`, scheduleData) // Create new schedule
+                .post(`${END_POINT}api/schedules`, scheduleData) // Create new schedule
                 .then((response) => {
                   // response 로 받은 project_id를 이용하여 Create new manpower_status
                   console.log("response:", response);
                   const projectId = response.data.insertId;
                   console.log("Create new schedule projectId:", projectId);
-                  return axios.post(`${END_POINT}/api/manpower-status`, {
+                  return axios.post(`${END_POINT}api/manpower-status`, {
                     project_id: projectId,
                     attendees: scheduleData.attendees,
                   });
