@@ -62,7 +62,7 @@ function UserInfo({ users, endPoint }) {
       if (element.id === userId) {
         if (!element.color_user_id) {
           axios
-            .post(`${END_POINT}/api/users/colorset`, colorsetData)
+            .post(`${END_POINT}api/users/colorset`, colorsetData)
             .then((response) => {
               console.log("Create colorset response:", response);
               setColorset(response.data);
@@ -72,7 +72,7 @@ function UserInfo({ users, endPoint }) {
             });
         } else {
           axios
-            .put(`${END_POINT}/api/users/colorset`, colorsetData)
+            .put(`${END_POINT}api/users/colorset`, colorsetData)
             .then((response) => {
               console.log("update colorset response:", response);
               setColorset(response.data);
