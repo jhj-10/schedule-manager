@@ -73,7 +73,7 @@ function AdminUserListPage({ endPoint }) {
     };
 
     axios
-      .get(`${END_POINT}/api/users?auth=admin`)
+      .get(`${END_POINT}api/users?auth=admin`)
       .then((response) => {
         console.log("userList response:", response);
         setUserList(response.data);
