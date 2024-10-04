@@ -11,7 +11,14 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    origin: "https://web-schedule-manager-m1u0hx1t4ea25b62.sel4.cloudtype.app", // 허용할 도메인
+    methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 메서드
+    credentials: true, // 자격 증명 허용 (필요한 경우)
+  })
+);
 
 const pool = mariadb.createPool({
   // host: "localhost",
