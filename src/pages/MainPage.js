@@ -150,7 +150,7 @@ function MainPage({ endPoint }) {
 
     if (existingUser && !existingUser.color_user_id) {
       axios
-        .post(`${END_POINT}api/users/colorset`, colorsetData)
+        .post(`${END_POINT}/api/users/colorset`, colorsetData)
         .then((response) => {
           console.log("Create colorset response:", response);
           setColorset(updatedColorset); // Update colorset immutably
@@ -161,7 +161,7 @@ function MainPage({ endPoint }) {
         });
     } else {
       axios
-        .put(`${END_POINT}api/users/colorset`, colorsetData)
+        .put(`${END_POINT}/api/users/colorset`, colorsetData)
         .then((response) => {
           console.log("Update colorset response:", response);
           setColorset(updatedColorset); // Update colorset immutably
@@ -232,7 +232,7 @@ function MainPage({ endPoint }) {
   useEffect(() => {
     const fetchUserData = async () => {
       axios
-        .get(`${END_POINT}api/users?userId=${user.id}`)
+        .get(`${END_POINT}/api/users?userId=${user.id}`)
         .then((response) => {
           console.log("userList response:", response);
           setUserList(response.data);
