@@ -60,7 +60,5 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
-  },
-  "proxy": "http://test-app-env.eba-skbdi49c.ap-northeast-2.elasticbeanstalk.com",
-  "homepage": "http://test-app-env.eba-skbdi49c.ap-northeast-2.elasticbeanstalk.com"
+  }
 }
