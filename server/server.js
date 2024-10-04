@@ -15,14 +15,16 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
+      "https://port-0-node-express-m1u0hx1t4ea25b62.sel4.cloudtype.app",
       "https://web-schedule-manager-m1u0hx1t4ea25b62.sel4.cloudtype.app",
       "http://localhost:8080",
     ], // 허용할 도메인
-    methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 메서드
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // 허용할 메서드
     credentials: true, // 자격 증명 허용 (필요한 경우)
     preflightContinue: false,
     optionsSuccessStatus: 204,
-    credentials: true,
+    credentials: true, // 자격 증명 허용 (필요한 경우)
+    allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더 설정
   })
 );
 
