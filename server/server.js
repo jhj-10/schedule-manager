@@ -19,14 +19,15 @@ app.use(
       "https://web-schedule-manager-m1u0hx1t4ea25b62.sel4.cloudtype.app",
       "http://localhost:8080",
     ], // 허용할 도메인
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // 허용할 메서드
-    credentials: true, // 자격 증명 허용 (필요한 경우)
+    methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 메서드
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true, // 자격 증명 허용 (필요한 경우)
     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더 설정
   })
 );
+
+app.options("*", cors());
 
 const pool = mariadb.createPool({
   // host: "localhost",
@@ -573,8 +574,8 @@ app.delete("/api/manpower-status/:projectId", async (req, res) => {
 });
 
 // send email
-const GMAIL_ID = "ojhjhjo@gmail.com";
-const GMAIL_APP_PASSWORD = "uqdoizunhtxepgij"; // 지메일 보안 > 앱 비밀번호 16자리
+const GMAIL_ID = process.env.GMAIL_ID;
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD; // 지메일 보안 > 앱 비밀번호 16자리
 
 // html 파일에서 name, email, password 변경
 function getEmailTemplate(name, email, password) {
