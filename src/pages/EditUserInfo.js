@@ -77,7 +77,7 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   const handleConfirm = () => {
     console.log("updateUserInfo:", updateUserInfo);
     axios
-      .put(`${END_POINT}/api/user`, updateUserInfo)
+      .put(`${END_POINT}/api/user`, updateUserInfo, { withCredentials: true })
       .then(() => {
         setIsPwChange(false);
         setShowConfirm(false);
@@ -94,7 +94,8 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          `${END_POINT}/api/user/${infoViewUserId}`
+          `${END_POINT}/api/user/${infoViewUserId}`,
+          { withCredentials: true }
         );
         console.log("infoViewUserId:", infoViewUserId);
         const userInfo = response.data[0];

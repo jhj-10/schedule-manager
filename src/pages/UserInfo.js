@@ -61,18 +61,20 @@ function UserInfo({ users, endPoint }) {
     for (const element of userList) {
       if (element.id === userId) {
         if (!element.color_user_id) {
-          axios
-            .post(`${END_POINT}/api/users/colorset`, colorsetData)
-            .then((response) => {
-              console.log("Create colorset response:", response);
-              setColorset(response.data);
-            })
-            .catch((error) => {
-              console.error("There was an error create colorset!", error);
-            });
+          axios.post(`${END_POINT}/api/users/colorset`, colorsetData),
+            { withCredentials: true }
+              .then((response) => {
+                console.log("Create colorset response:", response);
+                setColorset(response.data);
+              })
+              .catch((error) => {
+                console.error("There was an error create colorset!", error);
+              });
         } else {
           axios
-            .put(`${END_POINT}/api/users/colorset`, colorsetData)
+            .put(`${END_POINT}/api/users/colorset`, colorsetData, {
+              withCredentials: true,
+            })
             .then((response) => {
               console.log("update colorset response:", response);
               setColorset(response.data);
