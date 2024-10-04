@@ -17,7 +17,7 @@ const pool = mariadb.createPool({
   // host: "localhost",
   // port: 3306,
   host: "svc.sel4.cloudtype.app",
-  port: 32441,
+  port: 31849,
   user: "root",
   password: "111111",
   database: "schedule_manager",
