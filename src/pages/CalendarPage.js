@@ -347,7 +347,9 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
 
     if (attendees && attendees.length > 0) {
       axios
-        .get(`${END_POINT}/api/attendees?scheculeId=${event.projectId}`)
+        .get(`${END_POINT}/api/attendees?scheculeId=${event.projectId}`, {
+          withCredentials: true,
+        })
         .then((response) => {
           // console.log("modal response.data: ", event.projectId, response.data);
           const updatedEvent = { ...event, attendees: response.data };
@@ -386,9 +388,12 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
     setShowConfirm(false);
     // console.log("delete event:", events, selectedEvent);
     Promise.all([
-      axios.delete(`${END_POINT}/api/schedules/${selectedEvent.projectId}`),
+      axios.delete(`${END_POINT}/api/schedules/${selectedEvent.projectId}`, {
+        withCredentials: true,
+      }),
       axios.delete(
-        `${END_POINT}/api/manpower-status/${selectedEvent.projectId}`
+        `${END_POINT}/api/manpower-status/${selectedEvent.projectId}`,
+        { withCredentials: true }
       ),
     ])
       .then(() => {
@@ -456,7 +461,9 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
   useEffect(() => {
     // console.log("useEffect selectedUsers:", `${selectedUsers}`);
     axios
-      .get(`${END_POINT}/api/schedules?userId=${selectedUsers}`)
+      .get(`${END_POINT}/api/schedules?userId=${selectedUsers}`, {
+        withCredentials: true,
+      })
       .then((response) => {
         const fetchedEvents = response.data.map((event) => ({
           projectId: event.pid || "",
@@ -650,7 +657,9 @@ function CalendarPage({ selectedUsers, colorset, endPoint }) {
   useEffect(() => {
     const fetchHolidays = async () => {
       try {
-        const response = await axios.get(`${END_POINT}/api/holidays`);
+        const response = await axios.get(`${END_POINT}/api/holidays`, {
+          withCredentials: true,
+        });
         const holidaysData = response.data;
 
         const holidaysList = holidaysData.map((day) => convertToSolarDate(day));

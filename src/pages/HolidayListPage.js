@@ -186,7 +186,7 @@ function HolidayListPage({ endPoint }) {
   const handleAddHoliday = (values) => {
     console.log("handleAddHoliday@!!!", values);
     axios
-      .post(`${END_POINT}/api/holiday`, values)
+      .post(`${END_POINT}/api/holiday`, values, { withCredentials: true })
       .then((response) => {
         console.log("Create new holiday result:", response.data);
         setMode("create");
@@ -200,7 +200,7 @@ function HolidayListPage({ endPoint }) {
   const handleModifyHoliday = (values) => {
     console.log("handleModifyHoliday!!!", values);
     axios
-      .put(`${END_POINT}/api/holiday/`, values)
+      .put(`${END_POINT}/api/holiday/`, values, { withCredentials: true })
       .then((response) => {
         console.log("Update holiday result:", response.data);
       })
@@ -214,7 +214,9 @@ function HolidayListPage({ endPoint }) {
   const handleDeleteHoliday = () => {
     console.log("handleDeleteHoliday!!!", modifyValues);
     axios
-      .delete(`${END_POINT}/api/holiday/${modifyValues.hid}`)
+      .delete(`${END_POINT}/api/holiday/${modifyValues.hid}`, {
+        withCredentials: true,
+      })
       .then((response) => {
         console.log("Delete holiday result:", response.data);
       })
@@ -253,7 +255,7 @@ function HolidayListPage({ endPoint }) {
   useEffect(() => {
     const fetchHolidays = async () => {
       axios
-        .get(`${END_POINT}/api/holidays`)
+        .get(`${END_POINT}/api/holidays`, { withCredentials: true })
         .then((response) => {
           // console.log("holidayList response:", response);
           const processedHolidays = handleHolidays(response.data);
