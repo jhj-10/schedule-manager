@@ -26,7 +26,7 @@ function LoginPage() {
         onSubmit={(values, { setSubmitting }) => {
           axios
             // .post(`/api/login`, values)
-            .post(`${END_POINT}api/login`, values)
+            .post(`${END_POINT}/api/login`, values)
             .then((response) => {
               if (response.data.success) {
                 login(response.data.user); // Call the login function from AuthContext

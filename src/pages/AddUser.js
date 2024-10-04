@@ -97,7 +97,7 @@ function AddUser({ onCancle, userList, endPoint }) {
   const handleConfirm = () => {
     console.log("initialValues:", initialValues);
     axios
-      .post(`${END_POINT}api/user`, initialValues)
+      .post(`${END_POINT}/api/user`, initialValues)
       .then((response) => {
         const userId = response.data.insertId;
         console.log("Create new User id:", userId);
@@ -173,7 +173,7 @@ function AddUser({ onCancle, userList, endPoint }) {
     console.log("handleEmailSubmit emailData: ", emailData);
 
     axios
-      .post(`${END_POINT}api/send-email`, emailData)
+      .post(`${END_POINT}/api/send-email`, emailData)
       .then((response) => {
         alert("Welcome email sent successfully!");
       })
