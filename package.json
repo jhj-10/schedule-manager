@@ -61,5 +61,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
-  }
+  },
+  "proxy": "https://port-0-node-backend-m1u0hx1t4ea25b62.sel4.cloudtype.app"
 }
