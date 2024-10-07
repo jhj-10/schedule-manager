@@ -5,7 +5,7 @@ import EditUserInfo from "./EditUserInfo";
 import AddUser from "./AddUser";
 
 function AdminUserListPage({ endPoint }) {
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [userList, setUserList] = useState([]);
   const [filteredUserList, setFilteredUsers] = useState([]);

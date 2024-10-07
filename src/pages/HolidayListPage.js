@@ -5,7 +5,7 @@ import solarlunar from "solarlunar";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 
 function HolidayListPage({ endPoint }) {
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
   const TEMP_INITIALVALUES = {
     hid: "",
     type: "temp",

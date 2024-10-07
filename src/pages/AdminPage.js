@@ -7,7 +7,7 @@ import HolidayListPage from "./HolidayListPage";
 function AdminPage({ endPoint }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [view, setView] = useState("userList");
   const [reloadKey, setReloadKey] = useState(0); // Add a key to trigger re-render of AdminUserListPage

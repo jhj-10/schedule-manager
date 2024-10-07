@@ -14,7 +14,7 @@ const today = () => {
 function AddUser({ onCancle, userList, endPoint }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);

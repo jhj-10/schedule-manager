@@ -11,7 +11,7 @@ function ScheduleFormPage({ endPoint }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [initialValues, setInitialValues] = useState({
     title: "",

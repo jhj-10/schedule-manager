@@ -8,7 +8,7 @@ import { UserColors } from "../lib/UserColors";
 function UserInfo({ users, endPoint }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [userList, setUserList] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);

@@ -3,7 +3,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import axios from "axios";
 
 function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [initialValues, setInitialValues] = useState({});
   const [isPwChange, setIsPwChange] = useState(false);

@@ -19,7 +19,7 @@ function MainPage({ endPoint }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [reset, setReset] = useState(false);
   const [userList, setUserList] = useState([]);
