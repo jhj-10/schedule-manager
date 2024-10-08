@@ -5,9 +5,21 @@ import axios from "axios";
 function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   const END_POINT = endPoint || "";
 
-  const [initialValues, setInitialValues] = useState({});
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    phone: "",
+    checkPassword: "",
+    changePassword: "",
+    subemail: "",
+    position: "",
+    department: "",
+    joinDt: "",
+    quitDt: "",
+    status: "",
+  });
   const [isPwChange, setIsPwChange] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showFinConfirm, setShowFinConfirm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [updateUserInfo, setUpdateUserInfo] = useState(null);
   const [reload, setReload] = useState(false);
@@ -84,6 +96,7 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
         setShowPassword(false);
         setReload(!reload);
         setUpdateUserInfo(null);
+        setShowFinConfirm(true);
       })
       .catch((error) => {
         console.error("There was an error update the userInfo!", error);
@@ -142,8 +155,11 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   // }, [reload]);
 
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
-  const handleCancle = (e) => {
-    e.preventDefault();
+  const handleCancle = (confirm) => {
+    // e.preventDefault();
+    if (confirm === "confirm") {
+      setShowFinConfirm(false);
+    }
     setShowConfirm(false);
   };
 
@@ -171,7 +187,7 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
           // 유효성 검사가 성공했을 때만 확인 모달을 띄운다.
           setShowConfirm(true);
           setUpdateUserInfo(userInfoData);
-          setSubmitting(false); // Submit 완료 후 비동기 작업이 끝났음을 알림
+          setSubmitting(false); // Submit complete
         }}
       >
         {({
@@ -191,8 +207,10 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                 <div className="userinfo-values">
                   <Field
                     className="edit-userinfo-box"
-                    type="text" // It's better to use "text" and apply validation for numbers
+                    type="text"
                     name="name"
+                    value={values.name || ""}
+                    onChange={handleChange}
                     style={window.innerWidth < 650 ? {} : { width: "230px" }}
                   />
                   <ErrorMessage
@@ -468,8 +486,25 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                   >
                     확인
                   </button>
-                  <button className="modal-btn cancle" onClick={handleCancle}>
+                  <button
+                    className="modal-btn cancle"
+                    onClick={() => handleCancle("cancle")}
+                  >
                     취소
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showFinConfirm && (
+              <div className="overlay">
+                <div className="content confirm-dialog text-center">
+                  <p>저장되었습니다.</p>
+                  <button
+                    className="modal-btn confirm"
+                    onClick={() => handleCancle("confirm")}
+                  >
+                    확인
                   </button>
                 </div>
               </div>

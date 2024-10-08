@@ -99,7 +99,7 @@ function AddUser({ onCancle, userList, endPoint }) {
     axios
       .post(`${END_POINT}/api/user`, initialValues, { withCredentials: true })
       .then((response) => {
-        const userId = response.data.insertId;
+        // const userId = response.data.insertId;
         // console.log("Create new User id:", userId);
         setShowConfirm(false);
         setShowCompletion(true);
@@ -115,7 +115,7 @@ function AddUser({ onCancle, userList, endPoint }) {
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
   const handleCancle = (e) => {
     // console.log("handleCancle event:", e);
-    const innerText = e.target.innerText;
+    const { innerText } = e.target;
     e.preventDefault();
     setShowConfirm(false);
     setShowCompletion(false);
@@ -136,7 +136,7 @@ function AddUser({ onCancle, userList, endPoint }) {
       });
     }
     if (innerText === "확인") {
-      navigate("/admin", {});
+      navigate("/admin", { state: { triggerFunction: true } });
     }
   };
 
@@ -491,7 +491,7 @@ function AddUser({ onCancle, userList, endPoint }) {
                     </div>
                   </div>
                   <div className="text-center">
-                    <button className="modal-btn cancle" onClick={onCancle}>
+                    <button className="modal-btn cancle" onClick={handleCancle}>
                       확인
                     </button>
                     <button
