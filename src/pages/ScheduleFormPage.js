@@ -11,7 +11,7 @@ function ScheduleFormPage({ endPoint }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [initialValues, setInitialValues] = useState({
     title: "",
@@ -65,11 +65,11 @@ function ScheduleFormPage({ endPoint }) {
           };
           attendeesArr.push(temp);
         }
-        console.log("attendeesArr:", attendeesArr);
+        // console.log("attendeesArr:", attendeesArr);
         return attendeesArr;
       };
 
-      console.log("baseAttendees:", baseAttendees);
+      // console.log("baseAttendees:", baseAttendees);
 
       const attendees =
         location.state.attendees !== undefined
@@ -121,7 +121,7 @@ function ScheduleFormPage({ endPoint }) {
       setRecipients([...recipients, recipientInfo]);
     }
 
-    console.log("addrecipients: ", recipients);
+    // console.log("addrecipients: ", recipients);
     setFilteredUsers([]);
   };
 
@@ -190,10 +190,10 @@ function ScheduleFormPage({ endPoint }) {
             }),
             creator_id: user.id,
           };
-          console.log("scheduleData:", scheduleData);
+          // console.log("scheduleData:", scheduleData);
 
           // location.state.id 존재 시 기존 일정 수정, 없으면 새로운 일정 생성
-          console.log("location.state: ", location.state);
+          // console.log("location.state: ", location.state);
           const request = location.state.projectId
             ? Promise.all([
                 // Update schedule
@@ -223,9 +223,9 @@ function ScheduleFormPage({ endPoint }) {
                 }) // Create new schedule
                 .then((response) => {
                   // response 로 받은 project_id를 이용하여 Create new manpower_status
-                  console.log("response:", response);
+                  // console.log("response:", response);
                   const projectId = response.data.insertId;
-                  console.log("Create new schedule projectId:", projectId);
+                  // console.log("Create new schedule projectId:", projectId);
                   return axios.post(
                     `${END_POINT}/api/manpower-status`,
                     {
@@ -322,7 +322,6 @@ function ScheduleFormPage({ endPoint }) {
                   ))}
                 </ul>
               </div>
-              {console.log("recipients:", recipients)}
               {recipients.map((recipient, index) => (
                 <li className="recipients" key={index}>
                   {recipient.name} ({recipient.email})

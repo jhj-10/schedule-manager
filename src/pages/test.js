@@ -29,4 +29,4 @@ import { solarlunar } from "solarlunar";
 const lunar = solarlunar.solar2lunar(2024, 2, 10);
 const solar = solarlunar.lunar2solar(2024, 1, 1);
 
-console.log(solar);
+// console.log(solar);

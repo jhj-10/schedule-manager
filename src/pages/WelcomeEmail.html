@@ -127,9 +127,10 @@
       </div>
       <div class="start-btn">
         <a
+          href="https://web-schedule-manager-m1u0hx1t4ea25b62.sel4.cloudtype.app"
           style="color: #fff"
-          href="http://www.altumpartners.co.kr/"
           target="_blank"
+          id="frontend_url"
           >시작하기</a
         >
       </div>
@@ -137,8 +138,10 @@
     </div>
 
     <!-- <script>
-        const email = {{email}};
-      document.getElementById('email').textContent = email;
+      // const url = "http://www.altumpartners.co.kr";
+      const url = prosess.env.REACT_APP_FRONTEND_URL;
+      console.log("url:", url);
+      document.getElementById("frontend_url").href = url;
     </script> -->
   </body>
 </html>
