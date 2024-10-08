@@ -5,7 +5,7 @@ import EditUserInfo from "./EditUserInfo";
 import AddUser from "./AddUser";
 
 function AdminUserListPage({ endPoint }) {
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [userList, setUserList] = useState([]);
   const [filteredUserList, setFilteredUsers] = useState([]);
@@ -14,7 +14,7 @@ function AdminUserListPage({ endPoint }) {
   const [visible, setVisible] = useState(true);
   const pageRef = useRef(null);
 
-  console.log("AdminUserListPage view:", view);
+  // console.log("AdminUserListPage view:", view);
 
   const handleUserSearch = () => {
     const userListElement = pageRef.current;
@@ -25,7 +25,7 @@ function AdminUserListPage({ endPoint }) {
 
     const searchValue =
       userListElement.querySelectorAll(".admin-search")[0].value;
-    console.log("searchValue:", searchValue);
+    // console.log("searchValue:", searchValue);
 
     const filterResult = searchValue
       ? userList.filter(
@@ -75,7 +75,7 @@ function AdminUserListPage({ endPoint }) {
     axios
       .get(`${END_POINT}/api/users?auth=admin`, { withCredentials: true })
       .then((response) => {
-        console.log("userList response:", response);
+        // console.log("userList response:", response);
         setUserList(response.data);
         setFilteredUsers(response.data);
       })

@@ -90,7 +90,7 @@ const CustomDateHeader = ({ holidays, viewMonth, date, label }) => {
 function CalendarPage({ selectedUsers, colorset, endPoint }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const END_POINT = endPoint;
+  const END_POINT = endPoint || "";
 
   const [events, setEvents] = useState([]);
   const [holidays, setHolidays] = useState([]);

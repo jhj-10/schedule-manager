@@ -17,7 +17,7 @@ import MainPage from "./pages/MainPage";
 function App() {
   // const END_POINT = "https://sc-manager.netlify.app";
   // const END_POINT = "http://localhost:5000";
-  const END_POINT = process.env.REACT_APP_BACKEND_URL;
+  const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
 
   return (
     <AuthProvider>

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import AdminUserListPage from "./AdminUserListPage";
 import HolidayListPage from "./HolidayListPage";
@@ -7,14 +7,32 @@ import HolidayListPage from "./HolidayListPage";
 function AdminPage({ endPoint }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const END_POINT = endPoint;
+  const location = useLocation();
+  const END_POINT = endPoint || "";
 
   const [view, setView] = useState("userList");
   const [reloadKey, setReloadKey] = useState(0); // Add a key to trigger re-render of AdminUserListPage
 
   // 달력 높이 화면에 맞추기
-  // const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
-  const pageHeight = useState(window.innerHeight - 65);
+  const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
+
+  useEffect(() => {
+    handleAdminPage();
+    const handleResize = () => {
+      setPageHeight(window.innerHeight - 65);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.state && location.state.triggerFunction) {
+      handleAdminPage();
+    }
+  }, [location]);
 
   // 관리자페이지로 이동
   const handleAdminPage = () => {
@@ -49,6 +67,7 @@ function AdminPage({ endPoint }) {
   };
 
   useEffect(() => {
+    handleAdminPage();
     handleUserInfoVisible();
     window.addEventListener("resize", handleUserInfoVisible);
 
