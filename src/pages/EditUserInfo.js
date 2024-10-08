@@ -75,7 +75,7 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   }
 
   const handleConfirm = () => {
-    console.log("updateUserInfo:", updateUserInfo);
+    // console.log("updateUserInfo:", updateUserInfo);
     axios
       .put(`${END_POINT}/api/user`, updateUserInfo, { withCredentials: true })
       .then(() => {
@@ -97,9 +97,9 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
           `${END_POINT}/api/user/${infoViewUserId}`,
           { withCredentials: true }
         );
-        console.log("infoViewUserId:", infoViewUserId);
+        // console.log("infoViewUserId:", infoViewUserId);
         const userInfo = response.data[0];
-        console.log("userInfo:", userInfo);
+        // console.log("userInfo:", userInfo);
 
         // Set user status and initial values
         setStatus(userInfo.status);

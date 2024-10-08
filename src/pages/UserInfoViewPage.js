@@ -6,7 +6,7 @@ function UserInfoViewPage({ infoViewUser }) {
   // const { user } = useContext(AuthContext);
   const [initialValues, setInitialValues] = useState(infoViewUser);
 
-  console.log("initialValues:", initialValues);
+  // console.log("initialValues:", initialValues);
 
   // const userVerification = user.id === initialValues.id ? true : false;
 

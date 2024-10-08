@@ -95,12 +95,12 @@ function AddUser({ onCancle, userList, endPoint }) {
   }
 
   const handleConfirm = () => {
-    console.log("initialValues:", initialValues);
+    // console.log("initialValues:", initialValues);
     axios
       .post(`${END_POINT}/api/user`, initialValues, { withCredentials: true })
       .then((response) => {
         const userId = response.data.insertId;
-        console.log("Create new User id:", userId);
+        // console.log("Create new User id:", userId);
         setShowConfirm(false);
         setShowCompletion(true);
       })
@@ -114,7 +114,7 @@ function AddUser({ onCancle, userList, endPoint }) {
 
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
   const handleCancle = (e) => {
-    console.log("handleCancle event:", e);
+    // console.log("handleCancle event:", e);
     const innerText = e.target.innerText;
     e.preventDefault();
     setShowConfirm(false);
@@ -153,7 +153,7 @@ function AddUser({ onCancle, userList, endPoint }) {
 
   const handleEmailSubmit = async (event) => {
     event.preventDefault();
-    console.log("handleEmailSubmit completionEmail: ", completionEmail);
+    // console.log("handleEmailSubmit completionEmail: ", completionEmail);
     // Validate email (basic check)
     if (!completionEmail.includes("@")) {
       alert("Please enter a valid email address.");
@@ -163,14 +163,14 @@ function AddUser({ onCancle, userList, endPoint }) {
     // Prepare the data to send
     const emailData = {
       toEmail: completionEmail,
-      subject: "Welcome to the Company!",
+      subject: "Alutmpartners 계정 생성 안내",
       fromEmail: user.email,
       name: initialValues.name,
       email: checkSpecialChar(initialValues.email),
       password: checkSpecialChar(initialValues.password),
     };
 
-    console.log("handleEmailSubmit emailData: ", emailData);
+    // console.log("handleEmailSubmit emailData: ", emailData);
 
     axios
       .post(`${END_POINT}/api/send-email`, emailData, { withCredentials: true })
@@ -197,7 +197,7 @@ function AddUser({ onCancle, userList, endPoint }) {
             email_sub: values.subemail + "@gmail.com",
           };
           // 유효성 검사가 성공했을 때만 확인 모달을 띄운다.
-          console.log("values:", values);
+          // console.log("values:", values);
           setShowConfirm(true);
           setInitialValues(userInfoData);
           setSubmitting(false); // Submit 완료 후 비동기 작업이 끝났음을 알림

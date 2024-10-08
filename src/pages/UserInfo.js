@@ -15,8 +15,8 @@ function UserInfo({ users, endPoint }) {
   const [visibleMenu, setVisibleMenu] = useState(null);
   const [colorset, setColorset] = useState([]);
 
-  console.log("user:", user);
-  console.log("userinfo userList:", users);
+  // console.log("user:", user);
+  // console.log("userinfo userList:", users);
   const COLORS = UserColors;
 
   const handleEditUserinfo = () => {
@@ -26,28 +26,28 @@ function UserInfo({ users, endPoint }) {
   const handleCheckboxChange = (e) => {
     const value = e.target.value;
 
-    console.log("handleCheckboxChange.e: ", e.target.value);
+    // console.log("handleCheckboxChange.e: ", e.target.value);
     if (e.target.checked) {
       setSelectedUsers([...selectedUsers, value]);
     } else {
       setSelectedUsers(selectedUsers.filter((user) => user !== value));
     }
   };
-  console.log("selectedUsers:", selectedUsers);
+  // console.log("selectedUsers:", selectedUsers);
 
   const handleMenuToggle = (userId) => {
-    console.log("handleMenuToggle:", visibleMenu, userId);
+    // console.log("handleMenuToggle:", visibleMenu, userId);
     if (visibleMenu === userId) {
       setVisibleMenu(null); // Close the menu if already open
     } else {
       setVisibleMenu(userId); // Open the menu for the clicked button
     }
-    console.log("handleMenuToggle:", visibleMenu, userId);
+    // console.log("handleMenuToggle:", visibleMenu, userId);
   };
 
   const handleClickColorBox = (userId, color) => {
-    console.log("colorset before:", colorset);
-    console.log("handleClickColorBox: ", userId, color);
+    // console.log("colorset before:", colorset);
+    // console.log("handleClickColorBox: ", userId, color);
     for (const element of colorset) {
       if (element.colorUserId === userId) element.colorCd = color;
     }
@@ -64,7 +64,7 @@ function UserInfo({ users, endPoint }) {
           axios.post(`${END_POINT}/api/users/colorset`, colorsetData),
             { withCredentials: true }
               .then((response) => {
-                console.log("Create colorset response:", response);
+                // console.log("Create colorset response:", response);
                 setColorset(response.data);
               })
               .catch((error) => {
@@ -76,7 +76,7 @@ function UserInfo({ users, endPoint }) {
               withCredentials: true,
             })
             .then((response) => {
-              console.log("update colorset response:", response);
+              // console.log("update colorset response:", response);
               setColorset(response.data);
             })
             .catch((error) => {
@@ -87,7 +87,7 @@ function UserInfo({ users, endPoint }) {
       setUserList(userList);
     }
 
-    console.log("colorset after:", colorset);
+    // console.log("colorset after:", colorset);
   };
 
   const menuRef = useRef(null);

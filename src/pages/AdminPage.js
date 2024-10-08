@@ -13,8 +13,18 @@ function AdminPage({ endPoint }) {
   const [reloadKey, setReloadKey] = useState(0); // Add a key to trigger re-render of AdminUserListPage
 
   // 달력 높이 화면에 맞추기
-  // const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
-  const pageHeight = useState(window.innerHeight - 65);
+  const [pageHeight, setPageHeight] = useState(window.innerHeight - 65);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setPageHeight(window.innerHeight - 65);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // 관리자페이지로 이동
   const handleAdminPage = () => {

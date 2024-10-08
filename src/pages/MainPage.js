@@ -45,7 +45,7 @@ function MainPage({ endPoint }) {
   const [userInfovisible, setUserInfoVisible] = useState("");
 
   const handleUserInfoVisible = () => {
-    console.log("handleUserInfoVisible!!!!");
+    // console.log("handleUserInfoVisible!!!!");
     if (window.innerWidth < 650) {
       setUserInfoVisible("visible");
     } else {
@@ -103,7 +103,7 @@ function MainPage({ endPoint }) {
     } else {
       setSelectedUsers(selectedUsers.filter((user) => user !== value));
     }
-    console.log("selectedUsers: ", `${selectedUsers}`);
+    // console.log("selectedUsers: ", `${selectedUsers}`);
   };
 
   // 사용자 이름 옆에 화살표 버튼 클릭 시 메뉴 열기/닫기
@@ -120,7 +120,7 @@ function MainPage({ endPoint }) {
     // console.log("hadleUserInfoView:", userId);
 
     const ivu = userList.find((user) => user.id === userId);
-    console.log("hadleUserInfoView:", userId, ivu);
+    // console.log("hadleUserInfoView:", userId, ivu);
 
     setInfoViewUser(ivu);
     setVisibleMenu(null);
@@ -144,7 +144,7 @@ function MainPage({ endPoint }) {
       colorCd: color,
     };
 
-    console.log("handleClickColorBox colorsetData:", colorsetData);
+    // console.log("handleClickColorBox colorsetData:", colorsetData);
 
     const existingUser = userList.find((element) => element.id === userId);
 
@@ -154,7 +154,7 @@ function MainPage({ endPoint }) {
           withCredentials: true,
         })
         .then((response) => {
-          console.log("Create colorset response:", response);
+          // console.log("Create colorset response:", response);
           setColorset(updatedColorset); // Update colorset immutably
           setReset(!reset);
         })
@@ -167,7 +167,7 @@ function MainPage({ endPoint }) {
           withCredentials: true,
         })
         .then((response) => {
-          console.log("Update colorset response:", response);
+          // console.log("Update colorset response:", response);
           setColorset(updatedColorset); // Update colorset immutably
           setReset(!reset);
         })
@@ -194,7 +194,7 @@ function MainPage({ endPoint }) {
 
   // 유저정보 로드
   const UserInfoPageLoad = (infoViewUser, mode) => {
-    console.log("infoViewUser:", infoViewUser);
+    // console.log("infoViewUser:", infoViewUser);
     if (mode === "view") {
       return (
         <UserInfoViewPage
@@ -240,7 +240,7 @@ function MainPage({ endPoint }) {
           withCredentials: true,
         })
         .then((response) => {
-          console.log("userList response:", response);
+          // console.log("userList response:", response);
           setUserList(response.data);
 
           // Initialize colorset without causing a re-render loop

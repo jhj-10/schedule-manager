@@ -39,7 +39,7 @@ function HolidayListPage({ endPoint }) {
     }
     const searchValue =
       holidayListElement.querySelectorAll(".admin-search")[0].value;
-    console.log("searchValue:", searchValue);
+    // console.log("searchValue:", searchValue);
     const filterResult = searchValue
       ? holidays.filter(
           (hday) =>
@@ -62,7 +62,7 @@ function HolidayListPage({ endPoint }) {
 
   const transHday = useCallback((day) => {
     const year = new Date().getFullYear();
-    console.log("transHday day:", day);
+    // console.log("transHday day:", day);
     let hday = {};
 
     const isLunar = day.lunarYn === "Y" || day.lunar_yn === "Y";
@@ -124,7 +124,7 @@ function HolidayListPage({ endPoint }) {
     (list) => {
       const tempHlist = list.filter((day) => !day.name.includes("연휴"));
       const transHlist = tempHlist.map((day) => transHday(day));
-      console.log("tempHlist:", tempHlist);
+      // console.log("tempHlist:", tempHlist);
 
       const result = transHlist.map((day) => calHdayPeriod(day));
 
@@ -144,7 +144,7 @@ function HolidayListPage({ endPoint }) {
   );
 
   const handleModify = (holiday, mode) => {
-    console.log("handleModify holiday:", holiday);
+    // console.log("handleModify holiday:", holiday);
     setModifyValues(holiday);
     if (mode === "update") {
       setShowModify(true);
@@ -184,11 +184,11 @@ function HolidayListPage({ endPoint }) {
   };
 
   const handleAddHoliday = (values) => {
-    console.log("handleAddHoliday@!!!", values);
+    // console.log("handleAddHoliday!!!", values);
     axios
       .post(`${END_POINT}/api/holiday`, values, { withCredentials: true })
       .then((response) => {
-        console.log("Create new holiday result:", response.data);
+        // console.log("Create new holiday result:", response.data);
         setMode("create");
         setShowConfirm(true);
       })
@@ -198,11 +198,11 @@ function HolidayListPage({ endPoint }) {
   };
 
   const handleModifyHoliday = (values) => {
-    console.log("handleModifyHoliday!!!", values);
+    // console.log("handleModifyHoliday!!!", values);
     axios
       .put(`${END_POINT}/api/holiday/`, values, { withCredentials: true })
       .then((response) => {
-        console.log("Update holiday result:", response.data);
+        // console.log("Update holiday result:", response.data);
       })
       .catch((error) => {
         console.error("There was an error update the holiday!", error);
@@ -212,13 +212,13 @@ function HolidayListPage({ endPoint }) {
   };
 
   const handleDeleteHoliday = () => {
-    console.log("handleDeleteHoliday!!!", modifyValues);
+    // console.log("handleDeleteHoliday!!!", modifyValues);
     axios
       .delete(`${END_POINT}/api/holiday/${modifyValues.hid}`, {
         withCredentials: true,
       })
       .then((response) => {
-        console.log("Delete holiday result:", response.data);
+        // console.log("Delete holiday result:", response.data);
       })
       .catch((error) => {
         console.error("There was an error delete the holiday!", error);
@@ -268,7 +268,7 @@ function HolidayListPage({ endPoint }) {
         });
     };
     fetchHolidays();
-  }, [END_POINT, handleHolidays]);
+  }, [END_POINT, handleHolidays, reload]);
 
   return (
     <div ref={pageRef} style={{ height: "100%", overflow: "auto" }}>
@@ -286,7 +286,7 @@ function HolidayListPage({ endPoint }) {
                 substituteYn: values.substitute ? "Y" : "N",
               };
               // 유효성 검사가 성공했을 때만 확인 모달을 띄운다.
-              console.log("holidayData:", holidayData);
+              // console.log("holidayData:", holidayData);
               setInitialValues(holidayData);
               setSubmitting(false); // Submit 완료 후 비동기 작업이 끝났음을 알림
               handleAddHoliday(holidayData);
@@ -448,7 +448,7 @@ function HolidayListPage({ endPoint }) {
                       substituteYn: values.substitute ? "Y" : "N",
                     };
                     // 유효성 검사가 성공했을 때만 확인 모달을 띄운다.
-                    console.log("holidayData:", holidayData);
+                    // console.log("holidayData:", holidayData);
                     setModifyValues(holidayData);
                     setSubmitting(false); // Submit 완료 후 비동기 작업이 끝났음을 알림
                     handleModifyHoliday(holidayData);
@@ -599,9 +599,9 @@ function HolidayListPage({ endPoint }) {
             </p>
             <div style={{ marginTop: "20px" }}>
               - 삭제대상 :
-              <sapn style={{ color: "red", fontWeight: "600", margin: "20px" }}>
+              <span style={{ color: "red", fontWeight: "600", margin: "20px" }}>
                 {modifyValues.dt} {modifyValues.name}
-              </sapn>
+              </span>
             </div>
             <button className="modal-btn confirm" onClick={handleDeleteHoliday}>
               확인

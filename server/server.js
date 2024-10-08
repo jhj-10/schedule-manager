@@ -5,30 +5,43 @@ const cors = require("cors");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
+require("dotenv").config();
 
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(cors());
-// app.use(
-//   cors({
-//     origin: [
-//       "https://port-0-node-express-m1u0hx1t4ea25b62.sel4.cloudtype.app",
-//       "https://web-schedule-manager-m1u0hx1t4ea25b62.sel4.cloudtype.app",
-//       "http://localhost:8080",
-//       "http://node-express:3000",
-//     ], // 허용할 도메인
-//     methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 메서드
-//     preflightContinue: false,
-//     optionsSuccessStatus: 204,
-//     credentials: true, // 자격 증명 허용 (필요한 경우)
-//     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더 설정
-//   })
-// );
 
-app.options("*", cors());
+// app.use(cors());
+
+const allowedOrigin = [
+  "https://port-0-node-express-m1u0hx1t4ea25b62.sel4.cloudtype.app",
+  "https://web-schedule-manager-m1u0hx1t4ea25b62.sel4.cloudtype.app",
+  "http://localhost:8080",
+  "http://localhost:5000",
+  "http://localhost:3000",
+  "http://node-express:3000",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigin, // 허용할 도메인
+    // methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 메서드
+    // preflightContinue: false,
+    // optionsSuccessStatus: 204,
+    credentials: true, // 자격 증명 허용 (필요한 경우)
+    // allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더 설정
+  })
+);
+
+app.options(
+  "*",
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  })
+);
 
 const pool = mariadb.createPool({
   // host: "localhost",
@@ -69,7 +82,7 @@ app.get("/api/users", async (req, res) => {
   const userId = req.query.userId ? req.query.userId.toLowerCase() : "";
   const auth = req.query.auth ? req.query.auth.toLowerCase() : "";
 
-  console.log("getusers: ", search, userId);
+  // console.log("getusers: ", search, userId);
   let conn;
 
   try {
@@ -94,7 +107,7 @@ app.get("/api/users", async (req, res) => {
       query = "SELECT * FROM users";
     }
 
-    console.log("getusers query:", query);
+    // console.log("getusers query:", query);
     const rows = await conn.query(query, [
       `%${search}%`,
       `%${search}%`,
@@ -164,7 +177,7 @@ app.post("/api/user", async (req, res) => {
     ]);
     res.status(200).json({
       success: true,
-      insertId: result.insertId.toString(),
+      // insertId: result.insertId.toString(),
       message: "User created successfully",
     });
   } catch (err) {
@@ -401,7 +414,7 @@ app.get("/api/attendees", async (req, res) => {
 // Get schedules
 app.get("/api/schedules", async (req, res) => {
   const userId = req.query.userId ? req.query.userId.split(",") : "";
-  console.log("Get schedules selectedUsers:", req.query.userId);
+  // console.log("Get schedules selectedUsers:", req.query.userId);
   let query = !userId
     ? `SELECT s.id AS pid, s.title, s.start, s.end
             , json_arrayagg(ms.user_id) AS attendees, s.creator_id AS creatorId
@@ -427,7 +440,7 @@ app.get("/api/schedules", async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
-    console.log("get schecule query:", query);
+    // console.log("get schecule query:", query);
     const rows = await conn.query(query);
     res.json(rows);
   } catch (err) {
@@ -517,7 +530,7 @@ app.put("/api/schedules/:id", async (req, res) => {
 
 // Create manpower-status
 app.post("/api/manpower-status", async (req, res) => {
-  console.log("Create manpower-status req.body: ", req.body);
+  // console.log("Create manpower-status req.body: ", req.body);
   const { project_id, attendees } = req.body;
   let conn;
   try {
@@ -575,8 +588,8 @@ app.delete("/api/manpower-status/:projectId", async (req, res) => {
 });
 
 // send email
-const GMAIL_ID = process.env.GMAIL_ID;
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD; // 지메일 보안 > 앱 비밀번호 16자리
+const gmail_id = process.env.REACT_APP_GMAIL_ID;
+const gmail_app_password = process.env.REACT_APP_GMAIL_APP_PASSWORD; // 지메일 보안 > 앱 비밀번호 16자리
 
 // html 파일에서 name, email, password 변경
 function getEmailTemplate(name, email, password) {
@@ -593,17 +606,26 @@ function getEmailTemplate(name, email, password) {
 }
 
 app.post("/api/send-email", async (req, res) => {
-  console.log("send email!!!");
+  // console.log("send email!!!");
   const { toEmail, subject, fromEmail, name, email, password } = req.body;
 
   // Configure your SMTP transport
   let transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com", // Gmail SMTP 서버
+    port: 465, // Gmail에서 사용하는 포트
+    secure: true, // SSL 사용
     auth: {
-      user: GMAIL_ID,
-      pass: GMAIL_APP_PASSWORD,
+      user: gmail_id,
+      pass: gmail_app_password,
     },
   });
+  // let transporter = nodemailer.createTransport({
+  //   service: "gmail",
+  //   auth: {
+  //     user: GMAIL_ID,
+  //     pass: GMAIL_APP_PASSWORD,
+  //   },
+  // });
 
   // Set up email data
   let mailOptions = {
@@ -616,14 +638,15 @@ app.post("/api/send-email", async (req, res) => {
   // Send email
   try {
     let info = await transporter.sendMail(mailOptions);
+    // console.log("Email sent successfully: ", info.response); // 성공 메시지 로그
     res.status(200).send("Email sent: " + info.response);
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("Error sending email:", error.message); // 상세 에러 메시지 출력
     res.status(500).send("Failed to send email.");
   }
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log("Server is running on port 5000");
+app.listen(port, () => {
+  // console.log("Server is running on port 5000");
 });
