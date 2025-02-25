@@ -2,18 +2,23 @@ import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
-import { AuthContext } from "../context/AuthContext";
-import "../lib/ScheduleFormPage.css";
+import { AuthContext } from "../context/AuthProvider";
+import "../lib/FormPage.css";
+import {
+  addManpowerStatus,
+  createSchedule,
+  deleteManpowerStatus,
+  searchUsers,
+  updateSchedule,
+} from "../services/userService";
 
 function ScheduleFormPage({ endPoint }) {
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const END_POINT = endPoint || "";
-
   const [initialValues, setInitialValues] = useState({
+    type: "",
     title: "",
     start: "",
     end: "",
@@ -25,6 +30,7 @@ function ScheduleFormPage({ endPoint }) {
   const [recipients, setRecipients] = useState([]);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [scheduleData, setScheduleData] = useState({});
   // const [disabled, setDisabled] = useState(true);
 
   // 한국시간으로 변환환
@@ -38,7 +44,7 @@ function ScheduleFormPage({ endPoint }) {
 
   useEffect(() => {
     if (location.state) {
-      const { title, start, end, notes } = location.state;
+      const { type, title, start, end, notes } = location.state;
 
       const startKST = dateToKST(start);
       const endKST = dateToKST(end);
@@ -77,6 +83,7 @@ function ScheduleFormPage({ endPoint }) {
           : [baseAttendees];
 
       setInitialValues({
+        type: type || "project",
         title: title || "",
         start: startKST || "",
         end: endKST || "",
@@ -91,21 +98,20 @@ function ScheduleFormPage({ endPoint }) {
   }, [location.state, user.id, user.name, user.email]);
 
   // 사용자 검색, 상하키를 이용하여 사용자 고르기
-  const handleSearch = (value) => {
+  const handleSearch = async (value) => {
     if (!value) {
       setFilteredUsers([]);
       setFocusedIndex(-1);
       return;
     }
 
-    axios
-      .get(`${END_POINT}/api/users?search=${value}`, { withCredentials: true })
-      .then((response) => {
-        setFilteredUsers(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching users!", error);
-      });
+    try {
+      const response = await searchUsers(value);
+      console.log("handleSearch response:", response);
+      setFilteredUsers(response);
+    } catch (error) {
+      console.error("There was an error fetching users!", error);
+    }
   };
 
   // 참여자 추가하기
@@ -149,6 +155,30 @@ function ScheduleFormPage({ endPoint }) {
     setRecipients(recipients.filter((_, i) => i !== index));
   };
 
+  // 데이터 전송
+  const handleConfirm = async () => {
+    console.log("scheduleData:", scheduleData);
+
+    try {
+      const projectId = location.state?.projectId;
+
+      if (projectId) {
+        // 일정 수정
+        await updateSchedule(projectId, scheduleData);
+
+        // 기존 인력 배치 정보 삭제 후 다시 추가
+        await deleteManpowerStatus(projectId);
+        await addManpowerStatus(projectId, scheduleData.attendees);
+      } else {
+        // 새 일정 생성
+        const newProjectId = await createSchedule(scheduleData);
+        await addManpowerStatus(newProjectId, scheduleData.attendees);
+      }
+    } catch (error) {
+      console.error("일정 저장 중 오류 발생:", error);
+    }
+  };
+
   useEffect(() => {
     if (focusedIndex >= 0 && focusedIndex < filteredUsers.length) {
       const element = document.getElementById(`user-${focusedIndex}`);
@@ -160,8 +190,10 @@ function ScheduleFormPage({ endPoint }) {
 
   return (
     <div className="form-container">
-      <h2>{location.state.id ? "일정 수정" : "일정 등록"}</h2>
-      <hr />
+      {/* {console.log("location.state:", location.state)} */}
+      <div className="form-title">
+        + {location.state.projectId ? "일정 수정" : "일정 등록"}
+      </div>
       <Formik
         initialValues={initialValues}
         enableReinitialize={true}
@@ -172,16 +204,12 @@ function ScheduleFormPage({ endPoint }) {
           notes: Yup.string(),
         })}
         onSubmit={(values, { setSubmitting }) => {
-          // const attendees = recipients.map((recipient, index) => ({
-          //   ...recipient,
-          //   start_dt: values.attendees[index]?.start_dt || initialValues.start,
-          //   end_dt: values.attendees[index]?.end_dt || initialValues.end,
-          // }));
+          console.log("onSubmit 실행:", values);
 
-          const scheduleData = {
+          const sData = {
             ...values,
             attendees: recipients.map((recipient, index) => {
-              const attendee = values.attendees[index] || {};
+              const attendee = values.attendees?.[index] || {};
               return {
                 ...recipient,
                 start_dt: attendee.start_dt || initialValues.start,
@@ -190,191 +218,223 @@ function ScheduleFormPage({ endPoint }) {
             }),
             creator_id: user.id,
           };
-          // console.log("scheduleData:", scheduleData);
+          setScheduleData(sData);
+          setShowConfirm(true);
 
-          // location.state.id 존재 시 기존 일정 수정, 없으면 새로운 일정 생성
-          // console.log("location.state: ", location.state);
-          const request = location.state.projectId
-            ? Promise.all([
-                // Update schedule
-                axios.put(
-                  `${END_POINT}/api/schedules/${location.state.projectId}`,
-                  scheduleData,
-                  { withCredentials: true }
-                ),
-                // Delete manpower_status
-                axios.delete(
-                  `${END_POINT}/api/manpower-status/${location.state.projectId}`,
-                  { withCredentials: true }
-                ),
-                // Insert manpower_status
-                axios.post(
-                  `${END_POINT}/api/manpower-status`,
-                  {
-                    project_id: location.state.projectId,
-                    attendees: scheduleData.attendees,
-                  },
-                  { withCredentials: true }
-                ),
-              ])
-            : axios
-                .post(`${END_POINT}/api/schedules`, scheduleData, {
-                  withCredentials: true,
-                }) // Create new schedule
-                .then((response) => {
-                  // response 로 받은 project_id를 이용하여 Create new manpower_status
-                  // console.log("response:", response);
-                  const projectId = response.data.insertId;
-                  // console.log("Create new schedule projectId:", projectId);
-                  return axios.post(
-                    `${END_POINT}/api/manpower-status`,
-                    {
-                      project_id: projectId,
-                      attendees: scheduleData.attendees,
-                    },
-                    { withCredentials: true }
-                  );
-                });
-
-          request
-            .then(() => {
-              navigate("/");
-            })
-            .catch((error) => {
-              console.error(
-                "There was an error saving the schedule!",
-                error.message
-              );
-              setSubmitting(false);
-            });
+          setTimeout(() => {
+            console.log("제출 완료!");
+            setSubmitting(false); // Formik 상태를 나중에 리셋
+            navigate("/"); // Redirect to home after success
+          }, 2000);
         }}
       >
-        {({ values, isSubmitting, handleSubmit, errors, touched, isValid }) => (
+        {({
+          values,
+          isSubmitting,
+          handleSubmit,
+          errors,
+          touched,
+          isValid,
+          handleChange,
+        }) => (
           <Form className="form-contents" onSubmit={handleSubmit}>
-            <div>
+            <div className="flex-row">
+              <label htmlFor="type" className="attributes">
+                일정구분
+              </label>
+              <div className="form-item">
+                <select
+                  name="type"
+                  value={values.type}
+                  onChange={handleChange}
+                  className="form-field"
+                >
+                  <option value="project" label="[P] Project">
+                    [P]Project
+                  </option>
+                  <option value="meeting" label="[M] Meeting">
+                    [M]Meeting
+                  </option>
+                  <option value="altum" label="[A] Altum">
+                    [A]Altum
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex-row">
               <label htmlFor="title" className="attributes">
                 일정명
               </label>
-              <Field type="text" name="title" className="form-field" />
-              <ErrorMessage
-                name="title"
-                component="div"
-                className="form-errormessage"
-              />
+              <div className="form-item">
+                <Field type="text" name="title" className="form-field" />
+                <ErrorMessage
+                  name="title"
+                  component="div"
+                  className="form-errormessage"
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="flex-row">
               <label htmlFor="start" className="attributes">
                 시작일시
               </label>
-              <Field
-                type="datetime-local"
-                name="start"
-                className="form-field"
-              />
-              <ErrorMessage
-                name="start"
-                component="div"
-                className="form-errormessage"
-              />
+              <div className="form-item">
+                <Field
+                  type="datetime-local"
+                  name="start"
+                  className="form-field"
+                />
+                <ErrorMessage
+                  name="start"
+                  component="div"
+                  className="form-errormessage"
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="flex-row">
               <label htmlFor="end" className="attributes">
                 종료일시
               </label>
-              <Field type="datetime-local" name="end" className="form-field" />
-              <ErrorMessage
-                name="end"
-                component="div"
-                className="form-errormessage"
-              />
+              <div className="form-item">
+                <Field
+                  type="datetime-local"
+                  name="end"
+                  className="form-field"
+                />
+                <ErrorMessage
+                  name="end"
+                  component="div"
+                  className="form-errormessage"
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="flex-row">
               <label htmlFor="attendees" className="attributes">
                 참여인력
               </label>
-              <input
-                type="text"
-                placeholder="이름 또는 이메일 검색"
-                onKeyUp={(e) => handleSearch(e.target.value)}
-                onKeyDown={handleKeyDown}
-                autoComplete="off"
-                className="form-field"
-              />
-              <div className="user-select">
-                <ul>
-                  {filteredUsers.map((user, index) => (
-                    <li
-                      className="search_users"
-                      key={index}
-                      id={`user-${index}`}
-                      onClick={() => addRecipient(user)}
-                      style={{
-                        backgroundColor:
-                          focusedIndex === index ? "#d3d3d3" : "transparent",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {user.name} ({user.email})
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {recipients.map((recipient, index) => (
-                <li className="recipients" key={index}>
-                  {recipient.name} ({recipient.email})
-                  <Field
-                    type="datetime-local"
-                    name={`attendees[${index}].start_dt`}
-                    className="date-box"
-                    value={
-                      values.attendees[index]?.start_dt || initialValues.start
-                    }
-                  />
-                  <ErrorMessage
-                    name={`attendees[${index}].start_dt`}
-                    component="div"
-                  />
-                  ~
-                  <Field
-                    type="datetime-local"
-                    name={`attendees[${index}].end_dt`}
-                    className="date-box"
-                    value={values.attendees[index]?.end_dt || initialValues.end}
-                  />
-                  <ErrorMessage
-                    name={`attendees[${index}].end_dt`}
-                    component="div"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeRecipient(index)}
-                    className="close-btn"
+              <div className="form-item">
+                <div className="flex-row">
+                  <div
+                    style={{
+                      flex: 1,
+                      marginRight: "20px",
+                    }}
                   >
-                    ×
-                  </button>
-                </li>
-              ))}
+                    <input
+                      type="text"
+                      placeholder="이름 또는 이메일 검색"
+                      onKeyUp={(e) => handleSearch(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      autoComplete="off"
+                      className="form-field"
+                    />
+                    <div className="user-select">
+                      <ul>
+                        {console.log("filteredUsers:", filteredUsers)}
+                        {filteredUsers &&
+                          filteredUsers.map((user, index) => (
+                            <li
+                              className="search_users"
+                              key={index}
+                              id={`user-${index}`}
+                              onClick={() => addRecipient(user)}
+                              style={{
+                                backgroundColor:
+                                  focusedIndex === index
+                                    ? "#f8f6e2"
+                                    : "transparent",
+                                // focusedIndex === index ? "#F0EAD6" : "transparent",
+                                cursor: "pointer",
+                              }}
+                            >
+                              {user.name} ({user.email})
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="recipients-box">
+                    {recipients.map((recipient, index) => (
+                      <li className="recipients" key={index}>
+                        <div
+                          className="recipients-name"
+                          title={`${recipient.name} (${recipient.email})`}
+                        >
+                          {recipient.name} ({recipient.email})
+                        </div>
+                        <div className="recipients-date">
+                          <Field
+                            type="datetime-local"
+                            name={`attendees[${index}].start_dt`}
+                            className="date-box"
+                            value={
+                              values.attendees[index]?.start_dt ||
+                              initialValues.start
+                            }
+                          />
+                          <ErrorMessage
+                            name={`attendees[${index}].start_dt`}
+                            component="div"
+                          />
+                          ~
+                          <Field
+                            type="datetime-local"
+                            name={`attendees[${index}].end_dt`}
+                            className="date-box"
+                            value={
+                              values.attendees[index]?.end_dt ||
+                              initialValues.end
+                            }
+                          />
+                          <ErrorMessage
+                            name={`attendees[${index}].end_dt`}
+                            component="div"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeRecipient(index)}
+                          className="close-btn confirm"
+                        >
+                          ×
+                        </button>
+                      </li>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="notes" className="attributes">
-                메모
-              </label>
-              <Field as="textarea" name="notes" className="form-textarea" />
+            <div className="flex-row">
+              <div className="attributes">
+                <label htmlFor="notes">메모</label>
+              </div>
+              <div className="form-item">
+                <Field
+                  as="textarea"
+                  name="notes"
+                  className="form-textarea"
+                  placeholder="일정 관련 내용 작성"
+                />
+              </div>
             </div>
             <div className="button-div">
               <button
+                type="submit"
                 className="modal-btn confirm"
                 disabled={
-                  !isValid || !Object.keys(touched).length || isSubmitting
+                  !isValid || isSubmitting
+                  // !isValid || !Object.keys(touched).length || isSubmitting
                 }
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowConfirm(true);
-                }}
+                // onClick={(e) => {
+                //   e.preventDefault();
+                //   setShowConfirm(true);
+                // }}
               >
                 저장
               </button>
@@ -389,12 +449,11 @@ function ScheduleFormPage({ endPoint }) {
               {showConfirm && (
                 <div className="overlay">
                   <div className="content confirm-dialog">
-                    <p>일정을 저장하시겠습니까?</p>
-
+                    <div>일정을 저장하시겠습니까?</div>
                     <button
-                      type="submit"
+                      type="button"
                       className="modal-btn confirm"
-                      disabled={isSubmitting}
+                      onClick={handleConfirm}
                     >
                       확인
                     </button>
