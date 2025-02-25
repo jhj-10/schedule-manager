@@ -3,24 +3,38 @@
   padding: 20px;
 }
 
-.ui-user p span {
-  font-size: 12px;
+.user-name {
+  font-size: 16px;
+  font-weight: bold;
+  padding-bottom: 4px;
 }
 
 .userInfo-container hr {
   margin: 14px 0;
 }
+
 .btn-userInfo {
-  margin: 10px 0;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #4379f2;
+  border: none;
+  /* border: 1px solid #4379f2; */
+  /* padding: 2px 4px; */
+  background-color: transparent;
+  /* border-radiu     s: 4px; */
 }
 
-.ui-userList {
+.btn-userInfo-dt {
+  font-size: 12px;
+}
+
+.sidemenu-list {
   padding: 2px 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 16px;
+  padding-bottom: 6px;
   position: relative;
 }
 
@@ -41,8 +55,10 @@
 
 .btn-checkReset {
   margin: 0 10px;
-  margin-bottom: 10px;
-  padding: 0 4px;
+  padding: 0 4px 2px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .btn-arrow {
@@ -50,22 +66,17 @@
   top: 15%;
   padding: 4px;
   font-size: 8px;
-  color: #999;
+  color: #7d7d7d;
   background-color: rgba(0, 0, 0, 0);
-}
-
-.ui-btn {
-  /* background-color: #fff; */
   border: none;
-  cursor: pointer;
 }
 
 .checkbox {
   position: relative;
   top: 15%;
   margin-right: 8px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 /* 
 input :checked {
@@ -85,16 +96,6 @@ input :checked {
   cursor: pointer;
 }
 
-/* .user-menu div:hover {
-  background-color: #f0f0f0;
-} */
-
-/* .ui-userList-name input:checked ~ .checkbox {
-  background-color: inherit;
-} */
-
-/* .checkbox */
-
-button {
-  cursor: pointer;
+.ui-userList-name {
+  font-size: 13px;
 }

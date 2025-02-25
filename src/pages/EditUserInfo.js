@@ -1,9 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import axios from "axios";
+import {
+  validateChangePassword,
+  validateGmail,
+  validatePassword,
+  validatePhone,
+} from "../services/validate";
+import { fetchUserInfo, updateUser } from "../services/userService";
+import { AuthContext } from "../context/AuthProvider";
+import "../lib/FormPage.css";
 
-function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
-  const END_POINT = endPoint || "";
+function EditUserInfo({ endPoint }) {
+  const { user } = useContext(AuthContext);
+  const currentURL = window.location.href;
 
   const [initialValues, setInitialValues] = useState({
     name: "",
@@ -22,15 +31,16 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   const [showFinConfirm, setShowFinConfirm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [updateUserInfo, setUpdateUserInfo] = useState(null);
-  const [reload, setReload] = useState(false);
+  // const [reload, setReload] = useState(false);
   const [status, setStatus] = useState("");
   // const [quitDt, setQuitDt] = useState(null);
 
-  const isAdmin = funnels === "adminPage" ? true : false;
+  const isAdmin = currentURL.includes("/admin") ? true : false;
+  const userId = isAdmin ? currentURL.split("/")[5] : "";
 
   const handleEditPassword = (e) => {
     e.preventDefault();
-    setIsPwChange(true);
+    setIsPwChange(!isPwChange);
   };
 
   const handleVisiblePassword = (e) => {
@@ -43,38 +53,20 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
 
     // console.log("values:", values);
     // 핸드폰 번호 유효성 검사
-    if (!values.phone) {
-      errors.phone = "핸드폰 번호를 입력하세요.";
-    } else if (!/^01([0|1|6|7|8|9])([0-9]{7,8})$/.test(values.phone)) {
-      errors.phone = "유효하지 않은 핸드폰 번호입니다. 숫자만 입력하세요.";
-    }
+    const vPhone = validatePhone(values.phone);
+    if (vPhone) errors.phone = vPhone;
 
     // 비밀번호 유효성 검사
-    if (!values.checkPassword) {
-      errors.checkPassword = "비밀번호를 입력하세요.";
-    } else if (values.checkPassword !== values.password) {
-      errors.checkPassword = "비밀번호가 틀립니다.";
-    }
-
+    const vPW = validatePassword(values.password, values.checkPassword);
+    if (vPW) errors.checkPassword = vPW;
     if (isPwChange) {
-      if (!values.changePassword) {
-        errors.changePassword = "변경 할 비밀번호를 입력하세요.";
-      } else if (
-        !/^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/.test(
-          values.changePassword
-        )
-      ) {
-        errors.changePassword = `숫자, 특수문자, 영문을 조합하여 
-          8자 이상 입력하세요.`;
-      }
+      const vCPW = validateChangePassword(values.changePassword);
+      if (vCPW) errors.changePassword = vCPW;
     }
 
     // Gmail 아이디 검증
-    if (!values.subemail) {
-      errors.subemail = "지메일 아이디를 입력하세요.";
-    } else if (!/^[a-zA-Z0-9](\.?[a-zA-Z0-9_-]){5,29}$/.test(values.subemail)) {
-      errors.subemail = "유효하지 않은 지메일 아이디입니다.";
-    }
+    const vGmail = validateGmail(values.subemail);
+    if (vGmail) errors.subemail = vGmail;
 
     if (values.status === "퇴사") {
       setStatus("퇴사");
@@ -83,38 +75,36 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
       values.quitDt = null;
     }
 
+    if (Object.keys(errors).length === 0) {
+      return {}; // 반드시 빈 객체를 반환해야 폼이 제출됨
+    }
+
     return errors;
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     // console.log("updateUserInfo:", updateUserInfo);
-    axios
-      .put(`${END_POINT}/api/user`, updateUserInfo, { withCredentials: true })
-      .then(() => {
-        setIsPwChange(false);
-        setShowConfirm(false);
-        setShowPassword(false);
-        setReload(!reload);
-        setUpdateUserInfo(null);
-        setShowFinConfirm(true);
-      })
-      .catch((error) => {
-        console.error("There was an error update the userInfo!", error);
-      });
+    try {
+      await updateUser(updateUserInfo);
+      setIsPwChange(false);
+      setShowConfirm(false);
+      setShowPassword(false);
+      setInitialValues(() => ({
+        ...updateUserInfo,
+        checkPassword: "", // 특정 필드만 초기화
+      }));
+      setIsPwChange(false);
+      setUpdateUserInfo(null);
+      setShowFinConfirm(true);
+    } catch (error) {
+      console.error("There was an error update the userInfo!", error);
+    }
   };
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${END_POINT}/api/user/${infoViewUserId}`,
-          { withCredentials: true }
-        );
-        // console.log("infoViewUserId:", infoViewUserId);
-        const userInfo = response.data[0];
-        // console.log("userInfo:", userInfo);
-
-        // Set user status and initial values
+        const userInfo = await fetchUserInfo(isAdmin ? userId : user.id); // Use the service function
         setStatus(userInfo.status);
         setInitialValues({
           ...userInfo,
@@ -128,31 +118,8 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
       }
     };
 
-    fetchUserInfo();
-  }, [END_POINT, infoViewUserId, isAdmin, reload]);
-
-  // useEffect(() => {
-  //   axios
-  //     .get(`${END_POINT}/api/user/${infoViewUserId}`)
-  //     .then((response) => {
-  //       console.log("infoViewUserId:", infoViewUserId);
-  //       const userInfo = response.data[0];
-  //       console.log("userInfo:", userInfo);
-  //       setStatus(userInfo.status);
-  //       // setQuitDt(userInfo.quit_dt);
-  //       setInitialValues({
-  //         ...userInfo,
-  //         checkPassword: isAdmin ? userInfo.password : "",
-  //         subemail: userInfo.email_sub ? userInfo.email_sub.split("@")[0] : "",
-  //         joinDt: userInfo.join_dt ? userInfo.join_dt : "",
-  //         quitDt: userInfo.quit_dt ? userInfo.quit_dt : "",
-  //       });
-  //     })
-  //     .catch((error) => {
-  //       console.error("There was an error fetching the userInfo!", error);
-  //     });
-  //   console.log("initialValues:", initialValues);
-  // }, [reload]);
+    fetchData(); // Call the function to fetch data when the effect runs
+  }, [user.id, isAdmin]);
 
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
   const handleCancle = (confirm) => {
@@ -169,8 +136,8 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
   // };
 
   return (
-    <div className="userInfoView-container">
-      <div className="userinfo-title">+ 개인 정보 수정</div>
+    <div className="form-container">
+      <div className="form-title">+ 개인 정보 수정</div>
       <Formik
         initialValues={initialValues}
         enableReinitialize={true}
@@ -184,10 +151,15 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                 : values.checkPassword,
             email_sub: values.subemail + "@gmail.com",
           };
+
           // 유효성 검사가 성공했을 때만 확인 모달을 띄운다.
-          setShowConfirm(true);
           setUpdateUserInfo(userInfoData);
-          setSubmitting(false); // Submit complete
+          setShowConfirm(true); // 모달 먼저 띄우기
+
+          setTimeout(() => {
+            console.log("제출 완료!");
+            setSubmitting(false); // Formik 상태를 나중에 리셋
+          }, 2000);
         }}
       >
         {({
@@ -198,20 +170,22 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
           values,
           handleChange,
         }) => (
-          <Form className="userinfo-contents" onSubmit={handleSubmit}>
-            <div className="userinfo-contents-row">
-              <label htmlFor="name" className="userinfo-attribute">
+          <Form className="form-contents" onSubmit={handleSubmit}>
+            {/* {console.log("Formik Errors:", errors)} */}
+            <div className="flex-row">
+              <label htmlFor="name" className="attributes">
                 이름
               </label>
+
               {isAdmin ? (
-                <div className="userinfo-values">
+                <div className="form-item">
                   <Field
-                    className="edit-userinfo-box"
+                    className="form-field"
                     type="text"
                     name="name"
                     value={values.name || ""}
                     onChange={handleChange}
-                    style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                   />
                   <ErrorMessage
                     className="error-message"
@@ -220,54 +194,66 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                   />
                 </div>
               ) : (
-                <span className="userinfo-values">{initialValues.name}</span>
+                <div className="form-item">{initialValues.name}</div>
               )}
             </div>
             {!isAdmin && (
-              <div className="userinfo-contents-row">
-                <label htmlFor="checkPassword" className="userinfo-attribute">
+              <div className="flex-row">
+                <label htmlFor="checkPassword" className="attributes">
                   비밀번호
                 </label>
-                <div className="userinfo-values">
-                  <Field
-                    type={showPassword ? "text" : "password"}
-                    name="checkPassword"
-                    className="edit-userinfo-box"
-                    placeholder="비밀번호를 입력하세요."
-                    style={window.innerWidth < 650 ? {} : { width: "230px" }}
-                  />
-                  <br />
-                  <ErrorMessage
-                    className="error-message"
-                    name="checkPassword"
-                    component="div"
-                  />
-                  {isPwChange && (
-                    <div className="userinfo-values" disabled={!isPwChange}>
+                <div className="form-item">
+                  <div className="flex-row" style={{ justifyContent: "left" }}>
+                    <div style={{ marginRight: "10px" }}>
                       <Field
                         type={showPassword ? "text" : "password"}
-                        name="changePassword"
-                        className="edit-userinfo-box"
-                        placeholder="변경 할 비밀번호를 입력하세요."
-                        style={
-                          window.innerWidth < 650 ? {} : { width: "230px" }
-                        }
+                        name="checkPassword"
+                        className="form-field"
+                        placeholder="비밀번호를 입력하세요."
+                        // style={
+                        //   window.innerWidth < 650
+                        //     ? { marginRight: "10px" }
+                        //     : { width: "230px" }
+                        // }
                       />
+                      <br />
                       <ErrorMessage
                         className="error-message"
-                        name="changePassword"
+                        name="checkPassword"
                         component="div"
-                        style={{ width: "160px" }}
                       />
                     </div>
-                  )}
+                    {isPwChange && (
+                      <div className="" disabled={!isPwChange}>
+                        <Field
+                          type={showPassword ? "text" : "password"}
+                          name="changePassword"
+                          className="form-field"
+                          placeholder="변경 할 비밀번호를 입력하세요."
+                          // style={
+                          //   window.innerWidth < 650 ? {} : { width: "230px" }
+                          // }
+                        />
+                        <br />
+                        <ErrorMessage
+                          className="error-message"
+                          name="changePassword"
+                          component="div"
+                        />
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <button
                       className="btn-change-password"
                       onClick={handleVisiblePassword}
-                      style={{ marginTop: "5px", marginRight: "5px" }}
+                      style={{
+                        marginTop: "5px",
+                        marginRight: "5px",
+                        width: "55px",
+                      }}
                     >
-                      보기
+                      {showPassword ? "감추기" : "보기"}
                     </button>
 
                     <button
@@ -275,24 +261,24 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                       onClick={handleEditPassword}
                       style={{ marginTop: "5px", marginRight: "5px" }}
                     >
-                      비밀번호변경
+                      {isPwChange ? "비밀번호변경취소" : "비밀번호변경"}
                     </button>
                   </div>
                 </div>
               </div>
             )}
-            <div className="userinfo-contents-row">
-              <label htmlFor="position" className="userinfo-attribute">
+            <div className="flex-row">
+              <label htmlFor="position" className="attributes">
                 직책
               </label>
               {isAdmin ? (
-                <div className="userinfo-values">
+                <div className="form-item">
                   <select
                     name="position"
                     value={values.position}
                     onChange={handleChange}
-                    className="edit-userinfo-box"
-                    style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                    className="form-field"
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                   >
                     <option value="" label="직책을 선택하세요.">
                       직책을 선택하세요
@@ -315,23 +301,21 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                   </select>
                 </div>
               ) : (
-                <span className="userinfo-values">
-                  {initialValues.position}
-                </span>
+                <div className="form-item">{initialValues.position}</div>
               )}
             </div>
-            <div className="userinfo-contents-row">
-              <label htmlFor="department" className="userinfo-attribute">
+            <div className="flex-row">
+              <label htmlFor="department" className="attributes">
                 부서
               </label>
               {isAdmin ? (
-                <div className="userinfo-values">
+                <div className="form-item">
                   <select
                     name="department"
                     value={values.department}
                     onChange={handleChange}
-                    className="edit-userinfo-box"
-                    style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                    className="form-field"
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                   >
                     <option value="" label="부서를 선택하세요.">
                       부서를 선택하세요
@@ -345,21 +329,19 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                   </select>
                 </div>
               ) : (
-                <span className="userinfo-values">
-                  {initialValues.department}
-                </span>
+                <div className="form-item">{initialValues.department}</div>
               )}
             </div>
-            <div className="userinfo-contents-row">
-              <label htmlFor="phone" className="userinfo-attribute">
+            <div className="flex-row">
+              <label htmlFor="phone" className="attributes">
                 핸드폰
               </label>
-              <div className="userinfo-values">
+              <div className="form-item">
                 <Field
-                  className="edit-userinfo-box"
+                  className="form-field"
                   type="text"
                   name="phone"
-                  style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                  // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                 />
                 <ErrorMessage
                   className="error-message"
@@ -368,21 +350,40 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                 />
               </div>
             </div>
-            <div className="userinfo-contents-row">
-              <label className="userinfo-attribute">이메일</label>
-              <span className="userinfo-values">{initialValues.email}</span>
+            <div className="flex-row">
+              <label className="attributes">이메일</label>
+              <div className="form-item" style={{ verticalAlign: "middle" }}>
+                {initialValues.email}
+              </div>
             </div>
-            <div className="userinfo-contents-row">
-              <label htmlFor="subemail" className="userinfo-attribute">
+            <div className="flex-row">
+              <label htmlFor="subemail" className="attributes">
                 개인이메일
               </label>
-              <div className="userinfo-values">
-                <Field
-                  className="userinfo-values edit-userinfo-box"
-                  name="subemail"
-                  style={window.innerWidth < 650 ? {} : { width: "230px" }}
-                />
-                <span>@gmail.com</span>
+              <div className="form-item">
+                <div
+                  className="form-field flex-row"
+                  style={{ alignItems: "center" }}
+                >
+                  <Field
+                    name="subemail"
+                    style={{
+                      marginRight: "10px",
+                      border: "none",
+                      padding: "0",
+                    }}
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                  />
+                  <div
+                    style={{
+                      textAlign: "right",
+                      verticalAlign: "middle",
+                      color: "#7d7d7d",
+                    }}
+                  >
+                    @gmail.com
+                  </div>
+                </div>
                 <ErrorMessage
                   className="error-message"
                   name="subemail"
@@ -391,21 +392,19 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
               </div>
             </div>
             {isAdmin && (
-              <div className="userinfo-contents-row">
-                <label htmlFor="status" className="userinfo-attribute">
+              <div className="flex-row">
+                <label htmlFor="status" className="attributes">
                   재직상태
                 </label>
-                <div className="userinfo-values">
+                <div className="form-item">
                   <select
                     name="status"
                     value={values.status} // Formik values에서 상태값을 가져옴
                     onChange={handleChange} // Formik의 handleChange 함수 연결
-                    className="edit-userinfo-box"
-                    style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                    className="form-field"
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                   >
-                    <option value="" label="재직상태를 선택하세요.">
-                      재직상태를 선택하세요.
-                    </option>
+                    <option value="" label="― 재직상태를 선택하세요."></option>
                     <option value="재직" label="재직">
                       재직
                     </option>
@@ -419,17 +418,17 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
                 </div>
               </div>
             )}
-            <div className="userinfo-contents-row">
-              <label htmlFor="subemail" className="userinfo-attribute">
+            <div className="flex-row">
+              <label htmlFor="subemail" className="attributes">
                 입사일
               </label>
               {isAdmin ? (
-                <div className="userinfo-values">
+                <div className="form-item">
                   <Field
-                    className="edit-userinfo-box"
+                    className="form-field"
                     name="joinDt"
                     type="date"
-                    style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                   />
                   <ErrorMessage
                     className="error-message"
@@ -478,7 +477,7 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
             {showConfirm && (
               <div className="overlay">
                 <div className="content confirm-dialog text-center">
-                  <p>수정사항을 저장하시겠습니까?</p>
+                  <div>수정사항을 저장하시겠습니까?</div>
                   <button
                     type="button"
                     className="modal-btn confirm"
@@ -499,7 +498,7 @@ function EditUserInfo({ funnels, infoViewUserId, endPoint }) {
             {showFinConfirm && (
               <div className="overlay">
                 <div className="content confirm-dialog text-center">
-                  <p>저장되었습니다.</p>
+                  <div>저장되었습니다.</div>
                   <button
                     className="modal-btn confirm"
                     onClick={() => handleCancle("confirm")}

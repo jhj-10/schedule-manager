@@ -333,7 +333,7 @@ function MainPage({ endPoint }) {
               </p>
 
               <button
-                className="btn-userInfo ui-btn"
+                className="btn-userInfo spc-button"
                 onClick={() => {
                   setUserInfoVisible(window.innerWidth < 650 ? "visible" : "");
                   hadleUserInfoView(user.id, "edit");
@@ -345,7 +345,7 @@ function MainPage({ endPoint }) {
 
             <hr />
             <div
-              className="btn-checkReset ui-btn"
+              className="btn-checkReset "
               onClick={() => {
                 setSelectedUsers([]);
                 setView("calendar");
@@ -357,7 +357,7 @@ function MainPage({ endPoint }) {
             <hr />
             <div>
               {userList.map((user) => (
-                <div className="ui-userList" key={user.id}>
+                <div className="sidemenu-list" key={user.id}>
                   <div>
                     <label htmlFor={user.id} className="ui-userList-name">
                       <input
@@ -377,7 +377,7 @@ function MainPage({ endPoint }) {
                     </label>
                   </div>
                   <button
-                    className="ui-btn btn-arrow"
+                    className=" btn-arrow"
                     onClick={() => handleMenuToggle(user.id)}
                   >
                     ▶

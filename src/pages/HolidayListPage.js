@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../lib/AdminPage.css";
-import axios from "axios";
 import solarlunar from "solarlunar";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import {
+  createHoliday,
+  deleteHoliday,
+  updateHoliday,
+} from "../services/userService";
 
 function HolidayListPage({ endPoint }) {
-  const END_POINT = endPoint || "";
   const TEMP_INITIALVALUES = {
     hid: "",
     type: "temp",
@@ -31,6 +34,7 @@ function HolidayListPage({ endPoint }) {
 
   const pageRef = useRef(null);
 
+  // 공휴일 검색
   const handleHolidaySearch = () => {
     const holidayListElement = pageRef.current;
     if (!holidayListElement) {
@@ -49,6 +53,7 @@ function HolidayListPage({ endPoint }) {
     setFilteredHolidays(filterResult);
   };
 
+  // 음력날짜 => 양력날짜로 변경
   const conversionLunarDt = (year, dt) => {
     const [month, day] = dt.split("-");
     const lunarToSolar = solarlunar.lunar2solar(
@@ -60,6 +65,7 @@ function HolidayListPage({ endPoint }) {
     return solarDt;
   };
 
+  // 공휴일 표기(음력, 양력, 임시 등..)
   const transHday = useCallback((day) => {
     const year = new Date().getFullYear();
     // console.log("transHday day:", day);
@@ -120,6 +126,7 @@ function HolidayListPage({ endPoint }) {
     [dateFormat]
   );
 
+  // 공휴일데이터 리스트로 작성하기
   const handleHolidays = useCallback(
     (list) => {
       const tempHlist = list.filter((day) => !day.name.includes("연휴"));
@@ -143,6 +150,7 @@ function HolidayListPage({ endPoint }) {
     [calHdayPeriod, transHday]
   );
 
+  // 공휴일 데이터 수정/삭제
   const handleModify = (holiday, mode) => {
     // console.log("handleModify holiday:", holiday);
     setModifyValues(holiday);
@@ -153,6 +161,7 @@ function HolidayListPage({ endPoint }) {
     }
   };
 
+  // 공휴일 객체 유효성 체크
   const validate = (values) => {
     const errors = {};
 
@@ -183,48 +192,43 @@ function HolidayListPage({ endPoint }) {
     return errors;
   };
 
-  const handleAddHoliday = (values) => {
-    // console.log("handleAddHoliday!!!", values);
-    axios
-      .post(`${END_POINT}/api/holiday`, values, { withCredentials: true })
-      .then((response) => {
-        // console.log("Create new holiday result:", response.data);
-        setMode("create");
-        setShowConfirm(true);
-      })
-      .catch((error) => {
-        console.error("There was an error create the holiday!", error);
-      });
+  // 공휴일 추가
+  const handleAddHoliday = async (values) => {
+    try {
+      const result = await createHoliday(values); // API 호출
+      console.log("생성된 공휴일:", result);
+
+      setMode("create");
+      setShowConfirm(true);
+    } catch (error) {
+      console.error("공휴일 추가 중 오류 발생:", error);
+    }
   };
 
-  const handleModifyHoliday = (values) => {
-    // console.log("handleModifyHoliday!!!", values);
-    axios
-      .put(`${END_POINT}/api/holiday/`, values, { withCredentials: true })
-      .then((response) => {
-        // console.log("Update holiday result:", response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error update the holiday!", error);
-      });
-    setMode("update");
-    setShowConfirm(true);
+  // 공휴일 데이터 수정
+  const handleModifyHoliday = async (values) => {
+    try {
+      const result = await updateHoliday(values);
+      console.log("수정된 공휴일:", result);
+
+      setMode("update");
+      setShowConfirm(true);
+    } catch (error) {
+      console.error("공휴일 수정 중 오류 발생:", error);
+    }
   };
 
-  const handleDeleteHoliday = () => {
-    // console.log("handleDeleteHoliday!!!", modifyValues);
-    axios
-      .delete(`${END_POINT}/api/holiday/${modifyValues.hid}`, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        // console.log("Delete holiday result:", response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error delete the holiday!", error);
-      });
-    setMode("delete");
-    setShowConfirm(true);
+  // 공휴일 데이터 삭제
+  const handleDeleteHoliday = async () => {
+    try {
+      await deleteHoliday(modifyValues.hid);
+      console.log("공휴일 삭제 완료");
+
+      setMode("delete");
+      setShowConfirm(true);
+    } catch (error) {
+      console.error("공휴일 삭제 중 오류 발생:", error);
+    }
   };
 
   const handleConfirm = () => {
@@ -246,29 +250,20 @@ function HolidayListPage({ endPoint }) {
     setShowConfirm(false);
   };
 
-  // const fetchHolidays = useCallback(() => {
-
-  //   // const validate = window.innerWidth < 650 ? false : true;
-  //   // setVisible(validate);
-  // }, [reload, END_POINT, handleHolidays]);
-
+  // 공휴일 데이터 가져오기
   useEffect(() => {
     const fetchHolidays = async () => {
-      axios
-        .get(`${END_POINT}/api/holidays`, { withCredentials: true })
-        .then((response) => {
-          // console.log("holidayList response:", response);
-          const processedHolidays = handleHolidays(response.data);
-          setHolidays(processedHolidays);
-          setFilteredHolidays(processedHolidays);
-          // console.log("filteredHolidays: ", filteredHolidays);
-        })
-        .catch((error) => {
-          console.error("There was an error fetching the holidays!", error);
-        });
+      try {
+        const holidayData = await fetchHolidays(); // API 호출
+        const processedHolidays = handleHolidays(holidayData);
+        setHolidays(processedHolidays);
+        setFilteredHolidays(processedHolidays);
+      } catch (error) {
+        console.error("공휴일 목록 불러오기 실패:", error);
+      }
     };
     fetchHolidays();
-  }, [END_POINT, handleHolidays, reload]);
+  }, [handleHolidays, reload]);
 
   return (
     <div ref={pageRef} style={{ height: "100%", overflow: "auto" }}>
@@ -294,70 +289,74 @@ function HolidayListPage({ endPoint }) {
           >
             {({ isSubmitting, handleChange }) => (
               <Form
-                // className="tr"
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  border: "none",
-                  // flexWrap: "wrap",
-                }}
+              // className="tr"
               >
-                <div className="row">
-                  <select
-                    name="type"
-                    className="holiday-input-box"
-                    onChange={handleChange}
-                  >
-                    <option value="temp" label="임시공휴일">
-                      임시공휴일
-                    </option>
-                    <option value="public" label="공휴일">
-                      공휴일
-                    </option>
-                  </select>
-                  <Field
-                    type="text"
-                    name="name"
-                    placeholder="공휴일명"
-                    className="holiday-input-box"
-                  />
-                  <select
-                    name="lunarYn"
-                    className="holiday-input-box"
-                    onChange={handleChange}
-                  >
-                    <option value="N" label="양력">
-                      양력
-                    </option>
-                    <option value="Y" label="음력">
-                      음력
-                    </option>
-                  </select>
-                  <Field
-                    type="text"
-                    name="dt"
-                    placeholder="년-월-일 또는 월-일"
-                    className="holiday-input-box"
-                  />
-                  <Field
-                    type="text"
-                    name="substitute"
-                    placeholder="대체공휴일 적용 날"
-                    className="holiday-input-box"
-                  />
-                  <button
-                    className="admin-add-button confirm"
-                    type="submit"
-                    style={{ height: "36px" }}
-                    disabled={isSubmitting}
-                    // onClick={handleAddHoliday}
-                  >
-                    {window.innerWidth < 650 ? "등록" : "공휴일등록"}
-                  </button>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    border: "none",
+                    // flexWrap: "wrap",
+                  }}
+                >
+                  <div className="row">
+                    <select
+                      name="type"
+                      className="holiday-input-box"
+                      onChange={handleChange}
+                    >
+                      <option value="temp" label="임시공휴일">
+                        임시공휴일
+                      </option>
+                      <option value="public" label="공휴일">
+                        공휴일
+                      </option>
+                    </select>
+                    <Field
+                      type="text"
+                      name="name"
+                      placeholder="공휴일명"
+                      className="holiday-input-box"
+                    />
+                    <select
+                      name="lunarYn"
+                      className="holiday-input-box"
+                      onChange={handleChange}
+                    >
+                      <option value="N" label="양력">
+                        양력
+                      </option>
+                      <option value="Y" label="음력">
+                        음력
+                      </option>
+                    </select>
+                    <Field
+                      type="text"
+                      name="dt"
+                      placeholder="년-월-일 또는 월-일"
+                      className="holiday-input-box"
+                    />
+                    <Field
+                      type="text"
+                      name="substitute"
+                      placeholder="대체공휴일 적용 날"
+                      className="holiday-input-box"
+                    />
+                    <button
+                      className="admin-add-button confirm"
+                      type="submit"
+                      style={{ height: "36px" }}
+                      disabled={isSubmitting}
+                      // onClick={handleAddHoliday}
+                    >
+                      {window.innerWidth < 650 ? "등록" : "공휴일등록"}
+                    </button>
+                  </div>
                 </div>
+
                 <ErrorMessage
                   className="error-message"
                   name="name"
@@ -380,21 +379,18 @@ function HolidayListPage({ endPoint }) {
         </div>
         <div className="admin-holiday-list">
           <div>
-            <div>
+            <div className="admin-search-add-bar">
               <input
                 className="admin-search"
                 name="search"
                 placeholder="휴일명 또는 날짜 검색"
               ></input>
-              <button
-                className="admin-search-button"
-                onClick={handleHolidaySearch}
-              >
+              <button className="admin-search" onClick={handleHolidaySearch}>
                 검색
               </button>
             </div>
           </div>
-          <div>
+          <div className="data-table">
             <div className="th">
               <div className="row dataCell">구분</div>
               <div className="row dataCell">공휴일명</div>
@@ -413,10 +409,16 @@ function HolidayListPage({ endPoint }) {
                     </div>
                     <div className="row dataCell">{holiday.period}</div>
                     <div className="row dataCell">
-                      <button onClick={() => handleModify(holiday, "update")}>
+                      <button
+                        className="btn-modify"
+                        onClick={() => handleModify(holiday, "update")}
+                      >
                         수정
                       </button>
-                      <button onClick={() => handleModify(holiday, "delete")}>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleModify(holiday, "delete")}
+                      >
                         삭제
                       </button>
                     </div>

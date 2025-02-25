@@ -1,76 +1,59 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
-import { AuthProvider, AuthContext } from "./context/AuthContext";
-import LoginPage from "./pages/LoginPage";
-import ScheduleFormPage from "./pages/ScheduleFormPage";
-import { useContext } from "react";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthProvider";
+import PrivateRoute from "./context/PrivateRoute";
+import AdminRoute from "./context/AdminRoute";
+import Layout from "./pages/Layout";
+import CalendarPage from "./pages/CalendarPage";
 import EditUserInfo from "./pages/EditUserInfo";
-import "./App.css";
+import CalendarDiv from "./pages/CalendarDiv";
+import LoginPage from "./pages/LoginPage";
+import UserInfoViewPage from "./pages/UserInfoViewPage";
+import ScheduleFormPage from "./pages/ScheduleFormPage";
 import AdminPage from "./pages/AdminPage";
-import MainPage from "./pages/MainPage";
+import AdminUserListPage from "./pages/AdminUserListPage";
+import HolidayListPage from "./pages/HolidayListPage";
+import AddUser from "./pages/AddUser";
+import "./App.css";
 
 function App() {
-  // const END_POINT = "https://sc-manager.netlify.app";
-  // const END_POINT = "http://localhost:5000";
-  const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
-
   return (
-    <AuthProvider>
-      <Router>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
-          <Route path="/login" element={<LoginWrapper />} />
-          <Route
-            path="/schedule/write"
-            element={
-              <ProtectedRoute>
-                <ScheduleFormPage endPoint={END_POINT} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/user/userinfo"
-            element={
-              <ProtectedRoute>
-                <EditUserInfo endPoint={END_POINT} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminPage endPoint={END_POINT} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <MainPage endPoint={END_POINT} />
-                {/* <CalendarPage /> */}
-              </ProtectedRoute>
-            }
-          />
+          {/* 로그인 페이지 (비로그인 시 접근 가능) */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* 로그인된 사용자만 접근 가능 */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<Layout />}>
+              <Route element={<CalendarPage />}>
+                <Route path="/" element={<CalendarDiv />} />
+                <Route path="/schedule/new" element={<ScheduleFormPage />} />
+                <Route path="/schedule/edit" element={<ScheduleFormPage />} />
+                <Route path="/user/mypage" element={<EditUserInfo />} />
+                <Route path="/user/:id" element={<UserInfoViewPage />} />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* 관리자만 접근 가능 */}
+          <Route element={<AdminRoute />}>
+            <Route element={<Layout />}>
+              <Route element={<AdminPage />}>
+                <Route path="/admin" element={<AdminUserListPage />} />
+                <Route path="/admin/user/:id" element={<EditUserInfo />} />
+                <Route path="/admin/user/new" element={<AddUser />} />
+                <Route path="/admin/holidays" element={<HolidayListPage />} />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* 잘못된 경로 접근 시 리디렉션 */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
-
-const LoginWrapper = () => {
-  const { user } = useContext(AuthContext);
-  return user ? <Navigate to="/" /> : <LoginPage />;
-};
-
-const ProtectedRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-  return user ? children : <Navigate to="/login" />;
-};
 
 export default App;
