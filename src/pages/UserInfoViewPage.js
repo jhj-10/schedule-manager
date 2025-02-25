@@ -1,46 +1,79 @@
 import React, { useEffect, useState } from "react";
-// import { AuthContext } from "../context/AuthContext";
 import "../lib/UserInfoView.css";
+import { useLocation } from "react-router-dom";
+import { fetchUserInfo } from "../services/userService";
 
-function UserInfoViewPage({ infoViewUser }) {
-  // const { user } = useContext(AuthContext);
-  const [initialValues, setInitialValues] = useState(infoViewUser);
-
-  // console.log("initialValues:", initialValues);
-
-  // const userVerification = user.id === initialValues.id ? true : false;
+function UserInfoViewPage() {
+  const location = useLocation();
+  const userId = location.state.userid;
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    department: "",
+    position: "",
+    phone: "",
+    email: "",
+    email_sub: "",
+    joinDt: "",
+    status: "",
+  });
 
   useEffect(() => {
-    setInitialValues(infoViewUser);
-  }, [infoViewUser]);
+    const fetchData = async () => {
+      try {
+        const userInfo = await fetchUserInfo(userId); // Use the service function
+        setInitialValues({
+          name: userInfo.name || "",
+          department: userInfo.department || "",
+          position: userInfo.position || "",
+          phone: userInfo.phone || "",
+          email: userInfo.email || "",
+          email_sub: userInfo.email_sub || "",
+          joinDt: userInfo.joinDt || "",
+          status: userInfo.status || "",
+        });
+      } catch (error) {
+        console.error("There was an error fetching the userInfo!", error);
+      }
+    };
+
+    fetchData();
+  }, [userId, location]);
 
   return (
-    <div className="userInfoView-container">
-      <div className="userinfo-title">+ 개인 정보 보기</div>
-      <div className="userinfo-contents">
-        <div className="userinfo-contents-row row-margin">
-          <div className="userinfo-attribute">이름</div>
-          <div className="userinfo-values">{initialValues.name}</div>
+    <div className="form-container">
+      <div className="form-title">+ 개인 정보 보기</div>
+      <div className="form-contents">
+        <div className="flex-row">
+          <div className="attributes">이름</div>
+          <div className="form-item underline">{initialValues.name}</div>
         </div>
-        <div className="userinfo-contents-row row-margin">
-          <div className="userinfo-attribute">부서</div>
-          <div className="userinfo-values">{initialValues.department}</div>
+        <div className="flex-row">
+          <div className="attributes">부서</div>
+          <div className="form-item underline">{initialValues.department}</div>
         </div>
-        <div className="userinfo-contents-row row-margin">
-          <div className="userinfo-attribute">직책</div>
-          <div className="userinfo-values">{initialValues.position}</div>
+        <div className="flex-row">
+          <div className="attributes">직책</div>
+          <div className="form-item underline">{initialValues.position}</div>
         </div>
-        <div className="userinfo-contents-row row-margin">
-          <div className="userinfo-attribute">핸드폰</div>
-          <div className="userinfo-values">{initialValues.phone}</div>
+        <div className="flex-row">
+          <div className="attributes">핸드폰</div>
+          <div className="form-item underline">{initialValues.phone}</div>
         </div>
-        <div className="userinfo-contents-row row-margin">
-          <div className="userinfo-attribute">이메일</div>
-          <div className="userinfo-values">{initialValues.email}</div>
+        <div className="flex-row">
+          <div className="attributes">이메일</div>
+          <div className="form-item underline">{initialValues.email}</div>
         </div>
-        <div className="userinfo-contents-row row-margin">
-          <div className="userinfo-attribute">개인이메일</div>
-          <div className="userinfo-values">{initialValues.email_sub}</div>
+        <div className="flex-row">
+          <div className="attributes">개인이메일</div>
+          <div className="form-item underline">{initialValues.email_sub}</div>
+        </div>
+        <div className="flex-row">
+          <div className="attributes">입사일</div>
+          <div className="form-item underline">{initialValues.joinDt}</div>
+        </div>
+        <div className="flex-row">
+          <div className="attributes">재직상태</div>
+          <div className="form-item underline">{initialValues.status}</div>
         </div>
       </div>
     </div>

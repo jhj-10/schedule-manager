@@ -1,13 +1,8 @@
 .userInfoView-container {
-  padding: 10px 30px;
+  padding: 30px 30px;
   width: 100%;
   font-size: 14px;
   height: inherit;
-}
-
-.userinfo-title {
-  color: #666;
-  padding: 0px 0 20px;
 }
 
 .userinfo-contents {
@@ -16,10 +11,10 @@
 
 .userinfo-contents-row {
   /* padding: 4px 0; */
-  display: flex;
+  /* display: flex;
   flex-direction: row;
   justify-content: space-between;
-  flex-wrap: wrap;
+  flex-wrap: wrap; */
   align-items: center;
   min-height: 48px;
 }
@@ -49,18 +44,21 @@
   flex: 1;
   max-width: 130px;
   font-weight: 500;
+  font-size: 0.9em;
 }
 
 .userinfo-values {
   flex: 3;
   /* max-width: 250px; */
-  color: #666;
+  /* color: #333; */
+  /* color: #666; */
+  font-size: 14px;
 }
 
 .add-userinfo-attribute {
   width: 100px;
   font-weight: 500;
-  color: #666;
+  color: #7d7d7d;
 }
 
 .addUser-email-form {
@@ -71,12 +69,12 @@
 }
 
 .addUser-email-inputBox {
-  flex: 1;
+  flex: 4;
   width: 250px;
   padding: 0 12px;
   margin-right: 8px;
   border-radius: 4px;
-  border: 1px solid #4379f2;
+  border: 1px solid #bababa;
 }
 
 .addUser-email-submit-btn {
@@ -84,20 +82,20 @@
   border-radius: 4px;
 }
 
+.addUser-email-result {
+  font-size: 0.9em;
+  font-weight: 600;
+  margin: 15px 10px 0;
+}
+
 .edit-userinfo-box {
-  border: 1px solid #ccc;
+  border: 1px solid #bababa;
   padding: 10px 16px;
   border-radius: 4px;
   margin: 4px 0px;
   margin-right: 10px;
+  color: #666;
   /* max-width: 250px; */
-}
-
-.btn-change-password {
-  border: 1px solid #ccc;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 12px;
 }
 
 .userinfo-err {

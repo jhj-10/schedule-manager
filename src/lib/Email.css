@@ -1,4 +1,80 @@
-.email-title {
-  font-size: 64px;
-  color: blue;
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: "Noto Sans KR", "Poppins", sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+}
+.email-container {
+  min-width: 650px;
+  background-color: #ffffff;
+  padding: 100px;
+  margin: 0 auto;
+  /* max-width: 600px; */
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+h1 {
+  margin: 30px 0 80px;
+}
+p {
+  font-size: 16px;
+  color: #333;
+}
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #888;
+}
+.highlight {
+  color: #4379f2;
+  font-weight: bold;
+}
+.img-ci {
+  width: 150px;
+}
+.infobox {
+  margin: 30px 0;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+  padding: 20px 0;
+}
+.infobox-row {
+  margin: 10px 0;
+  font-size: 16px;
+}
+.infobox-attribute {
+  display: inline-block;
+  width: 120px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.start-btn {
+  box-sizing: border-box;
+  display: block;
+  width: 180px;
+  margin: 50px auto;
+  padding: 14px;
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #fff;
+  background-color: #4379f2;
+}
+
+a {
+  text-decoration: none;
+  color: #fff;
+}
+
+a:visited,
+a:active,
+a:link,
+a:hover,
+a:focus {
+  color: #fff;
 }

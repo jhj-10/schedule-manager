@@ -15,9 +15,12 @@ div .rbc-calendar {
 }
 .rbc-event {
   padding: 4px 4px 2px;
-  border-radius: 4px;
-  /* font-size: 16px; */
+  border-radius: 0px;
   line-height: 16px;
+}
+
+.rbc-event-content * {
+  font-size: 0.9em;
 }
 
 .toolbar {
@@ -69,30 +72,35 @@ div .rbc-calendar {
 
 .header-title {
   font-size: 28px;
-  vertical-align: middle;
 }
 
 .header-btn-user {
   padding: 4px;
   margin-right: 10px;
+  /* margin-bottom: 4px; */
+  vertical-align: middle;
 }
 
 .header-btn-group {
   float: right;
   /* margin: 20px; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .header-btn-admin {
   padding: 0 20px;
   background-color: #fff;
   border: none;
+  color: #4379f2;
 }
 
 .header-btn-logout {
   margin: 0 4px;
   padding: 8px 12px;
-  border: 1px solid #666;
-  border-radius: 8px;
+  border: 1px solid #ccc;
+  border-radius: 999px;
   background-color: rgba(255, 255, 255, 0);
 }
 
@@ -117,9 +125,10 @@ div .rbc-calendar {
 }
 
 .calendar-container {
-  flex: 1;
+  /* flex: 1;
+  align-items: stretch; */
   padding: 10px;
-  align-items: stretch;
+  height: inherit;
 }
 
 .content {
@@ -167,7 +176,7 @@ div .rbc-calendar {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
   justify-content: center;
   align-items: center;
   z-index: 1000;
@@ -218,7 +227,6 @@ hr {
   display: inline-block;
   width: 80px;
   color: #333;
-  font-size: 12px;
 }
 
 .align-top {

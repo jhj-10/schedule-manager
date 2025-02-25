@@ -5,46 +5,37 @@
 
 .admin-title {
   margin-bottom: 20px;
+  padding-top: 10px;
+  font-size: 18px;
 }
 
 .admin-search-add-bar {
   height: 34px;
-  margin-bottom: 24px;
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: space-between;
+  margin-bottom: 20px;
+  vertical-align: middle;
+  align-content: center;
+  /* align-items: center; */
 }
 
 .admin-search {
-  padding: 8px 12px;
-  border: 1px solid #999;
+  padding: 0 12px;
+  border: 1px solid #bababa;
   display: inline-block;
   border-radius: 4px;
   margin-right: 4px;
-  margin-bottom: 10px;
   height: 34px;
   max-width: 180px;
 }
 
-.admin-search-button {
-  height: 34px;
-  border: 1px solid #999;
-  padding: 4px 10px;
-  border-radius: 4px;
-}
-
 .admin-search-result {
   display: inline-block;
-  font-size: 12px;
-  color: #666;
+  color: #7d7d7d;
   margin-left: 10px;
   background-color: rgba(0, 0, 0, 0);
   border: none;
 }
 
 .admin-add-button {
-  border: 1px solid #999;
   padding: 4px 8px;
   border-radius: 4px;
   height: inherit;
@@ -56,11 +47,13 @@
 
 .th {
   padding: 8px 0;
+  font-weight: bold;
   width: 100%;
   display: flex;
-  background-color: #efefef;
-  border-top: 1px solid #999;
-  border-bottom: 1px solid #999;
+  background-color: #f3f3f3;
+  /* border-top: 1px solid #999; */
+  /* border-bottom: 1px solid #999; */
+  border-radius: 999px;
   /* margin-top: 10px; */
 }
 
@@ -69,8 +62,8 @@
   line-height: 28px;
   text-align: center;
   vertical-align: middle;
-  padding: 4px 0;
-  border-bottom: 1px solid #ccc;
+  padding: 8px 0;
+  border-bottom: 1px solid #bababa;
   cursor: pointer;
 }
 
@@ -78,7 +71,7 @@
   background-color: rgba(0, 0, 0, 0.03);
   padding: 20px;
   border-radius: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   height: auto;
 }
 .wrap {
@@ -105,17 +98,19 @@
 
 .holiday-input-box {
   height: 36px;
-  border: 1px solid #999;
+  border: 1px solid #bababa;
   border-radius: 4px;
   margin: 4px 0;
   margin-right: 4px;
   /* margin-bottom: 4px; */
   padding: 4px 8px;
   box-sizing: border-box;
+  background-color: #fff;
 }
 
 .tr:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  /* background-color: rgba(0, 0, 0, 0.03); */
+  background-color: #f8f6e2;
 }
 
 .dataCell {
@@ -137,9 +132,4 @@
 .deleteCell {
   flex: 0.5;
   padding: 2px 0px;
-}
-
-.row {
-  font-size: 14px;
-  /* border: 1px solid red; */
 }
