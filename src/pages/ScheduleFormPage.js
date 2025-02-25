@@ -334,7 +334,7 @@ function ScheduleFormPage({ endPoint }) {
                     />
                     <div className="user-select">
                       <ul>
-                        {console.log("filteredUsers:", filteredUsers)}
+                        {/* {console.log("filteredUsers:", filteredUsers)} */}
                         {filteredUsers &&
                           filteredUsers.map((user, index) => (
                             <li

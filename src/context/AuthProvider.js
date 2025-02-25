@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     timeoutRef.current = setTimeout(() => {
       // console.log("1시간 동안 활동이 없어 자동 로그아웃됨");
       logout(true); // 자동 로그아웃 (localStorage 유지)
-    }, 5 * 60 * 1000); // 1시간(60분) 후 자동 로그아웃
+    }, 60 * 60 * 1000); // 1시간(60분) 후 자동 로그아웃
   }, [logout]);
 
   // 사용자 활동 감지하여 자동 로그아웃 타이머 리셋
