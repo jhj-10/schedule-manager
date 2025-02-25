@@ -145,6 +145,9 @@ function CalendarDiv() {
 
   // 일정표기 포맷
   const CustomEvent = ({ event }) => {
+    {
+      console.log("CustomEvent: ", event);
+    }
     const eventType = event.type.substr(0, 1).toUpperCase();
     return (
       <div>
