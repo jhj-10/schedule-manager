@@ -1,23 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "../lib/AdminPage.css";
-
-import EditUserInfo from "./EditUserInfo";
-import AddUser from "./AddUser";
+import { useLocation, useNavigate } from "react-router-dom";
 import { fetchUserListAdmin } from "../services/userService";
+import "../lib/AdminPage.css";
 
 function AdminUserListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [userList, setUserList] = useState([]);
-  const [filteredUserList, setFilteredUsers] = useState([]);
-  const [view, setView] = useState("userList");
-  const [infoViewUserId, setInfoViewUserId] = useState(null);
-  const [visible, setVisible] = useState(true);
+  const [userList, setUserList] = useState([]); // 사용자 리스트
+  const [filteredUserList, setFilteredUsers] = useState([]); // 검색 조건에 맞춰 필터링된 사용자 리스트
+  const [visible, setVisible] = useState(true); // 화면크기에 따른 항목 on/off
   const pageRef = useRef(null);
 
-  // console.log("AdminUserListPage view:", view);
-
+  // 사용자 검색
   const handleUserSearch = () => {
     const userListElement = pageRef.current;
     if (!userListElement) {
@@ -27,7 +22,6 @@ function AdminUserListPage() {
 
     const searchValue =
       userListElement.querySelectorAll(".admin-search")[0].value;
-    // console.log("searchValue:", searchValue);
 
     const filterResult = searchValue
       ? userList.filter(
@@ -40,115 +34,105 @@ function AdminUserListPage() {
     setFilteredUsers(filterResult);
   };
 
-  const handlePageView = (view, userId) => {
-    setView(view);
-    setInfoViewUserId(userId);
-  };
+  // 화면 크기(가로)에 따라 항목 on/off
+  useEffect(() => {
+    const checkWindowWidth = () => {
+      const windowWidth = window.innerWidth < 650;
+      if (!windowWidth) {
+        setVisible(true);
+      } else {
+        setVisible(false);
+      }
+    };
+    checkWindowWidth();
+    // `resize` 이벤트 리스너
+    window.addEventListener("resize", checkWindowWidth);
+    return () => {
+      // 컴포넌트 언마운트 시 리스너 제거
+      window.removeEventListener("resize", checkWindowWidth);
+    };
+  }, [location]);
 
-  // 유저 정보 페이지로 이동
+  // 사용자 정보 페이지로 이동
   const handleUserInfoClick = (userId) => {
     navigate(`/admin/user/${userId}`);
   };
 
-  // 유저 등록 페이지로 이동
+  // 사용자 등록 페이지로 이동
   const handleUserAddClick = () => {
     navigate(`/admin/user/new`);
   };
 
-  const handleCancle = () => {
-    setView("userList");
-  };
-
-  const loadPage = (view) => {
-    if (view === "userInfo")
-      return (
-        <EditUserInfo funnels={"adminPage"} infoViewUserId={infoViewUserId} />
-      );
-    if (view === "addUser")
-      return <AddUser onCancle={handleCancle} userList={userList} />;
-  };
-
-  // // 창 크기 변경 핸들러
-  // const handleResize = () => {
-  //   setVisible(window.innerWidth >= 650);
-  // };
-
   // 사용자 목록 가져오기
-  const getUsers = async () => {
-    try {
-      const users = await fetchUserListAdmin();
-      setUserList(users);
-      setFilteredUsers(users);
-    } catch (error) {
-      console.error("사용자 목록 불러오기 실패:", error);
-    }
-  };
-
-  // useEffect에서 API 호출 및 이벤트 리스너 등록
   useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const users = await fetchUserListAdmin();
+        setUserList(users);
+        setFilteredUsers(users);
+      } catch (error) {
+        console.error("사용자 목록 불러오기 실패:", error);
+      }
+    };
     getUsers(); // API 호출 실행
-    // window.addEventListener("resize", handleResize);
-
-    // return () => {
-    //   window.removeEventListener("resize", handleResize);
-    // };
   }, []);
 
   return (
     <div ref={pageRef} style={{ height: "100%", overflow: "auto" }}>
-      {view === "userList" && (
-        <div className="admin-container">
-          <h3 className="admin-title">사원정보</h3>
-          <div className="flex-row admin-search-add-bar">
-            <div>
-              <input
-                className="admin-search"
-                name="search"
-                placeholder="이름 또는 이메일 검색"
-              ></input>
-              <button className="admin-search" onClick={handleUserSearch}>
-                검색
-              </button>
+      <div className="admin-container">
+        <h3 className="admin-title">사원정보</h3>
 
-              <p className="admin-search-result ">{`(${filteredUserList.length} / ${userList.length} 건)`}</p>
-            </div>
-            <button
-              className="admin-add-button confirm"
-              onClick={() => handleUserAddClick()}
-            >
-              {window.innerWidth < 650 ? "등록" : "사원등록"}
+        <div className="flex-row admin-search-add-bar">
+          <div>
+            <input
+              className="admin-search"
+              name="search"
+              placeholder="이름 또는 이메일 검색"
+            ></input>
+            <button className="admin-search" onClick={handleUserSearch}>
+              검색
             </button>
-            {/* <button className="user-search-result cursor-point">상세검색</button> */}
+            {visible && (
+              <p className="admin-search-result ">{`(${filteredUserList.length} / ${userList.length} 건)`}</p>
+            )}
           </div>
-          <div className="data-table">
-            <div className="th">
-              <div className="dataCell">이름</div>
-              <div className="email">이메일</div>
-              <div className="dataCell">부서</div>
-              <div className="dataCell">직급</div>
-              {visible && <div className="dataCell">재직상태</div>}
-            </div>
-            <div>
-              {filteredUserList &&
-                filteredUserList.map((user) => (
-                  <div
-                    className="tr"
-                    key={user.id}
-                    onClick={() => handleUserInfoClick(user.id)}
-                  >
-                    <div className="dataCell">{user.name}</div>
-                    <div className="email">{user.email}</div>
-                    <div className="dataCell">{user.department}</div>
-                    <div className="dataCell">{user.position}</div>
-                    {visible && <div className="dataCell">{user.status}</div>}
+          <button
+            className="admin-add-button confirm"
+            onClick={() => handleUserAddClick()}
+          >
+            {window.innerWidth < 650 ? "등록" : "사원등록"}
+          </button>
+          {/* <button className="user-search-result cursor-point">상세검색</button> */}
+        </div>
+
+        <div className="data-table">
+          <div className="th">
+            <div className="dataCell">이름</div>
+            <div className="email">계정아이디</div>
+            <div className="dataCell">부서</div>
+            <div className="dataCell">직급</div>
+            <div className="dataCell">재직상태</div>
+          </div>
+          <div>
+            {filteredUserList &&
+              filteredUserList.map((user) => (
+                <div
+                  className="tr"
+                  key={user.id}
+                  onClick={() => handleUserInfoClick(user.id)}
+                >
+                  <div className="dataCell">{user.name}</div>
+                  <div className="email">
+                    {visible ? user.email : user.email.split("@")[0]}
                   </div>
-                ))}
-            </div>
+                  <div className="dataCell">{user.department}</div>
+                  <div className="dataCell">{user.position}</div>
+                  <div className="dataCell">{user.status}</div>
+                </div>
+              ))}
           </div>
         </div>
-      )}
-
-      {loadPage(view)}
+      </div>
     </div>
   );
 }

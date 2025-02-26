@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, useOutletContext } from "react-router-dom";
 
 function AdminPage() {
-  const sideMenu = useOutletContext();
+  const { sideMenu } = useOutletContext();
   const navigate = useNavigate();
 
   // 관리자페이지로 이동(사원리스트)
@@ -31,7 +31,7 @@ function AdminPage() {
         </div>
       )}
       <div className="contents">
-        <Outlet />
+        <Outlet context={{ sideMenu }} />
       </div>
     </>
   );

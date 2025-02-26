@@ -16,12 +16,12 @@ function CalendarPage() {
   const navigate = useNavigate();
   const COLORS = UserColors;
 
-  const [userList, setUserList] = useState([]);
-  const [colorset, setColorset] = useState([]);
+  const [userList, setUserList] = useState([]); // 사이드메뉴 사용자 리스트
+  const [colorset, setColorset] = useState([]); // 사용자 컬러셋 -> CalendarDiv로 전달
   // const [loading, setLoading] = useState(true);
-  const [reset, setReset] = useState(false);
-  const [visibleMenu, setVisibleMenu] = useState(null);
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [reset, setReset] = useState(false); // 화면 리셋(컬러셋 반영)
+  const [visibleMenu, setVisibleMenu] = useState(null); // 사용자 > 상세정보, 컬러셋 창 on/off
+  const [selectedUsers, setSelectedUsers] = useState([]); // 선택한 사용자 리스트 -> CalendarDiv로 전달
 
   // 사용자별 색상 선택/변경
   const handleClickColorBox = async (userId, color) => {
@@ -42,14 +42,14 @@ function CalendarPage() {
 
     try {
       if (existingUser && !existingUser.color_user_id) {
-        // Create a new colorset
-        await createColorset(colorsetData); // Use service to handle API call
+        // 컬러셋 생성
+        await createColorset(colorsetData);
       } else {
-        // Update the existing colorset
-        await updateColorset(colorsetData); // Use service to handle API call
+        // 컬러셋 수정(업데이트)
+        await updateColorset(colorsetData);
       }
 
-      setColorset(updatedColorset); // Update colorset immutably
+      setColorset(updatedColorset);
       setReset(!reset); // Trigger any additional state changes
     } catch (error) {
       console.error("There was an error with the colorset operation!", error);
@@ -59,9 +59,9 @@ function CalendarPage() {
   // 사용자 이름 옆에 화살표 버튼 클릭 시 메뉴 열기/닫기
   const handleMenuToggle = (userId) => {
     if (visibleMenu === userId) {
-      setVisibleMenu(null); // Close the menu if already open
+      setVisibleMenu(null);
     } else {
-      setVisibleMenu(userId); // Open the menu for the clicked button
+      setVisibleMenu(userId);
     }
   };
 
@@ -71,7 +71,6 @@ function CalendarPage() {
 
     if (e.target.checked) {
       setSelectedUsers([...selectedUsers, value]);
-      // handleScheduleView();
     } else {
       setSelectedUsers(selectedUsers.filter((user) => user !== value));
     }
@@ -79,13 +78,11 @@ function CalendarPage() {
 
   // 개인정보수정
   const handleEditUserInfo = () => {
-    // setReset(!reset);
     navigate("/user/mypage", {});
   };
 
   // 일정보기
   const handleScheduleView = () => {
-    // setReset(!reset);
     navigate("/", { state: { users: selectedUsers } });
   };
 

@@ -16,18 +16,6 @@ function Header({ handleSideMenu }) {
     }
   };
 
-  // useEffect(() => {
-  //   const handleAdminPage = () => {
-  //     console.log("handleAdminPage!!!:", user);
-  //     if (loginUser && loginUser.authority === "admin") {
-  //       setAdminPage(true);
-  //     } else {
-  //       setAdminPage(false);
-  //     }
-  //   };
-  //   handleAdminPage();
-  // }, [loginUser]);
-
   return (
     <header className="header">
       <div className="header-btn-group">

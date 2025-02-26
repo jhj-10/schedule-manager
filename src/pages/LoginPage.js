@@ -7,6 +7,7 @@ import { AuthContext } from "../context/AuthProvider"; // Import the AuthContext
 import { findPassword, tempPassword } from "../services/authService";
 import { sendEmail } from "../services/userService";
 
+// 임시비밀번호 생성
 const createTempPassword = () => {
   let password = "";
   const chars =
@@ -20,13 +21,13 @@ const createTempPassword = () => {
 };
 
 function LoginPage() {
-  const { login } = useContext(AuthContext); // Access login function from AuthContext
+  const { login } = useContext(AuthContext); // AuthContext 로그인
 
-  const [showFindPassword, setShowFindPassword] = useState(false);
-  const [resutlView, setResutlView] = useState(false);
-  const [message, setMessage] = useState("");
-  // const [loginUser, setLoginUser] = useState(user);
+  const [showFindPassword, setShowFindPassword] = useState(false); // 비밀번호찾기 창 on/off
+  const [resutlView, setResutlView] = useState(false); // 결과창 on/off
+  const [message, setMessage] = useState(""); // 결과메시지
 
+  // 임시비밀번호 생성 객체
   const [tempAccountValues, setTempAccountValues] = useState({
     name: "",
     email: "",
@@ -34,6 +35,7 @@ function LoginPage() {
     password: "",
   });
 
+  // 임시비밀번호 발급 메일 발송
   const handleSendEmail = async (accountValues) => {
     console.log("handleSendEmail!!!");
     const emailData = {
@@ -50,7 +52,6 @@ function LoginPage() {
       const result = await sendEmail(emailData);
       // console.log("비밀번호찾기 result:", result.status);
       if (result.status === 200) {
-        // alert("Welcome email sent successfully!");
         setMessage("");
         setResutlView(true);
       } else {
@@ -83,8 +84,7 @@ function LoginPage() {
         })}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            // const data = await loginUser(values); // Call login service
-            const data = await login(values); // Call login from AuthContext to set user state
+            const data = await login(values); // 로그인
             if (data.success) {
               setMessage("반갑습니다. 좋은 하루 되세요!");
               console.log("Login!!");
@@ -95,7 +95,7 @@ function LoginPage() {
           } catch (error) {
             setMessage("* 로그인에 실패했습니다. 다시 시도해주세요.");
           } finally {
-            setSubmitting(false); // Reset form submission state
+            setSubmitting(false);
           }
         }}
       >
@@ -109,7 +109,7 @@ function LoginPage() {
                 className="inputBox"
                 type="email"
                 name="email"
-                placeholder="@altumpartners.co.kr계정"
+                placeholder="@altumpartners.co.kr 계정 이메일"
               />
               <ErrorMessage
                 className="error-message"
@@ -184,19 +184,16 @@ function LoginPage() {
               })}
               onSubmit={async (values, { setSubmitting }) => {
                 try {
-                  const data = await findPassword(values); // Call login service
+                  const data = await findPassword(values); //
                   if (data.success) {
-                    console.log("findPassword:", data);
-                    console.log("비밀번호찾기 성공!:", data);
+                    // console.log("findPassword:", data);
+                    // console.log("비밀번호찾기 성공!:", data);
                     const tp = createTempPassword();
                     tempPassword(tp, values);
-
-                    // console.log("data:", data.account[0]);
                     setTempAccountValues({
                       ...data.account[0],
                       password: tp,
                     });
-                    console.log("tempAccountValues:", tempAccountValues);
                     handleSendEmail(tempAccountValues);
                   } else {
                     setMessage("* 일치하는 계정이 없습니다.");
@@ -205,7 +202,7 @@ function LoginPage() {
                   console.log("error: ", error);
                   setMessage("* 계정 찾기에 실패했습니다. 다시 시도해주세요.");
                 } finally {
-                  setSubmitting(false); // Reset form submission state
+                  setSubmitting(false);
                 }
               }}
             >

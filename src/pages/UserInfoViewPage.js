@@ -7,6 +7,7 @@ function UserInfoViewPage() {
   const location = useLocation();
   const userId = location.state.userid;
   const [initialValues, setInitialValues] = useState({
+    // form 입력값 객체
     name: "",
     department: "",
     position: "",
@@ -17,10 +18,11 @@ function UserInfoViewPage() {
     status: "",
   });
 
+  // 사용자 정보 가져오기
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userInfo = await fetchUserInfo(userId); // Use the service function
+        const userInfo = await fetchUserInfo(userId);
         setInitialValues({
           name: userInfo.name || "",
           department: userInfo.department || "",
