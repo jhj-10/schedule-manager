@@ -744,7 +744,7 @@ app.post("/api/send-email", async (req, res) => {
 
   // 이메일 데이터 설정
   let mailOptions = {
-    from: fromEmail,
+    from: gmail_id,
     to: toEmail,
     subject: subject,
     html: getEmailTemplate(file, name, email, password),
