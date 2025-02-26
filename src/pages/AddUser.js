@@ -3,7 +3,15 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
 import { createUser, searchUsers, sendEmail } from "../services/userService";
+import {
+  validateAltumAccount,
+  validateChangePassword,
+  validateGmail,
+  validatePhone,
+  validateName,
+} from "../services/validate";
 
+// YYYY-MM-DD 형태의 문자열로 표기
 const today = () => {
   let [year, month, day] = new Date().toLocaleString().split(". ");
   if (month.length < 2) month = "0" + month;
@@ -12,15 +20,18 @@ const today = () => {
 };
 
 function AddUser() {
+  // 로그인 객체
   const { user } = useContext(AuthContext);
+  // 페이지 이동
   const navigate = useNavigate();
 
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [showCompletion, setShowCompletion] = useState(false);
-  const [emailSendResult, setEmailSendResult] = useState(0);
-  const [completionEmail, setCompletionEmail] = useState("");
-  const [userList, setUserList] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false); // 확인창 on/off
+  const [showCompletion, setShowCompletion] = useState(false); // 사용자등록완료 창 on/off
+  const [emailSendResult, setEmailSendResult] = useState(0); // 이메일 전송결과
+  const [completionEmail, setCompletionEmail] = useState(""); // 이메일 전송할 주소
+  const [userList, setUserList] = useState([]); // 사용자 리스트
 
+  // 사용자정보 객체
   const [initialValues, setInitialValues] = useState({
     name: "",
     password: "",
@@ -36,65 +47,37 @@ function AddUser() {
     joinDt: today(),
   });
 
+  // 사용자 정보 입력값 검증
   function validate(values) {
     const errors = {};
+    let err = "";
 
-    // console.log("values:", values);
-    // 핸드폰 번호 유효성 검사
-    if (!values.phone) {
-      errors.phone = "'-' 를 제외한 핸드폰 번호를 입력하세요.";
-    } else if (!/^01([0|1|6|7|8|9])([0-9]{7,8})$/.test(values.phone)) {
-      errors.phone = "유효하지 않은 핸드폰 번호입니다. 숫자만 입력하세요.";
-    }
+    err = validatePhone(values.phone); // 핸드폰 번호 유효성 검사
+    if (err) errors.phone = err;
 
-    // 비밀번호 유효성 검사
-    if (!values.password) {
-      errors.password = "비밀번호를 입력하세요.";
-    } else if (
-      !/^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\W_]).{8,}$/.test(values.password)
-    ) {
-      errors.password = `숫자, 특수문자, 영문을 조합하여 
-          8자 이상 입력하세요.`;
-    }
+    err = validateChangePassword(values.password); // 비밀번호 유효성 검사
+    if (err) errors.password = err;
 
-    // Gmail 아이디 검증
-    if (!values.subemail) {
-      errors.subemail = "지메일 아이디를 입력하세요.";
-    } else if (!/^[a-zA-Z0-9](\.?[a-zA-Z0-9_-]){5,29}$/.test(values.subemail)) {
-      errors.subemail = "유효하지 않은 지메일 아이디입니다.";
-    }
+    err = validateGmail(values.subemail); // Gmail 아이디 검증
+    if (err) errors.subemail = err;
 
-    // emailId 검증
-    if (!values.emailId) {
-      errors.emailId = "회사계정 이메일 아이디를 입력하세요.";
-    } else {
-      const checkEmailId = userList.find(
-        (el) => el.email === `${values.emailId}@altumpartners.co.kr`
-      );
-      if (!/^[a-zA-Z0-9]{5,}$/.test(values.emailId)) {
-        errors.emailId = "유효하지 않은 아이디입니다.";
-      } else if (checkEmailId) {
-        errors.emailId = "존재하는 이메일 아이디입니다.";
-      }
-    }
+    err = validateAltumAccount(values.emailId, userList); // emailId 검증
+    if (err) errors.emailId = err;
 
-    // 이름 검증
-    if (!values.name) {
-      errors.name = "이름을 입력하세요.";
-    } else if (!/^(?:[가-힣]{2,}|[a-zA-Z]{2,})$/.test(values.name)) {
-      errors.name = "이름을 확인하세요.";
-    }
+    err = validateName(values.name); // 이름 검증
+    if (err) errors.name = err;
 
     if (!values.position) {
-      errors.position = "직책을 선택하세요.";
+      errors.position = "직책을 선택하세요."; // 직책 입력 검증
     }
     if (!values.department) {
-      errors.department = "부서를 선택하세요.";
+      errors.department = "부서를 선택하세요."; // 부서 입력 검증
     }
 
     return errors;
   }
 
+  // 사용자 추가 실행
   const handleConfirm = () => {
     // console.log("initialValues:", initialValues);
     try {
@@ -139,7 +122,8 @@ function AddUser() {
       });
     }
     if (innerText === "확인") {
-      navigate("/admin", { state: { triggerFunction: true } });
+      navigate("/admin");
+      // navigate("/admin", { state: { triggerFunction: true } });
     }
   };
 
@@ -164,7 +148,6 @@ function AddUser() {
     }
 
     // console.log("user.email:", user.email);
-    // Prepare the data to send
     const emailData = {
       file: "WelcomeEmail",
       toEmail: completionEmail,
@@ -364,7 +347,6 @@ function AddUser() {
                   <Field
                     name="emailId"
                     style={{
-                      marginRight: "10px",
                       border: "none",
                       padding: "0",
                     }}
