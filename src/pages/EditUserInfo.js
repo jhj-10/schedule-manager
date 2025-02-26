@@ -10,11 +10,12 @@ import { fetchUserInfo, updateUser } from "../services/userService";
 import { AuthContext } from "../context/AuthProvider";
 import "../lib/FormPage.css";
 
-function EditUserInfo({ endPoint }) {
+function EditUserInfo() {
   const { user } = useContext(AuthContext);
-  const currentURL = window.location.href;
+  const currentURL = window.location.href; // url경로
 
   const [initialValues, setInitialValues] = useState({
+    // form 입력값 객체
     name: "",
     phone: "",
     checkPassword: "",
@@ -26,47 +27,50 @@ function EditUserInfo({ endPoint }) {
     quitDt: "",
     status: "",
   });
-  const [isPwChange, setIsPwChange] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [showFinConfirm, setShowFinConfirm] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [updateUserInfo, setUpdateUserInfo] = useState(null);
+  const [isPwChange, setIsPwChange] = useState(false); // 변화여부
+  const [showConfirm, setShowConfirm] = useState(false); // 확인창 on/off
+  const [showFinConfirm, setShowFinConfirm] = useState(false); // 결과창 on/off
+  const [showPassword, setShowPassword] = useState(false); // 비밀번호 보기
+  const [updateUserInfo, setUpdateUserInfo] = useState(null); // 사용자 정보 객체
   // const [reload, setReload] = useState(false);
   const [status, setStatus] = useState("");
   // const [quitDt, setQuitDt] = useState(null);
 
-  const isAdmin = currentURL.includes("/admin") ? true : false;
-  const userId = isAdmin ? currentURL.split("/")[5] : "";
+  const isAdmin = currentURL.includes("/admin") ? true : false; // 관리자 페이지 여부 확인
+  const userId = isAdmin ? currentURL.split("/")[5] : ""; // 열람한 정보의 대상 사용자ID
 
+  // 비밀번호 변경
   const handleEditPassword = (e) => {
     e.preventDefault();
     setIsPwChange(!isPwChange);
   };
 
+  // 비밀번호 보기
   const handleVisiblePassword = (e) => {
     e.preventDefault();
     setShowPassword(!showPassword);
   };
 
+  // 입력값 유효성 체크
   function validate(values) {
     const errors = {};
-
+    let err = "";
     // console.log("values:", values);
     // 핸드폰 번호 유효성 검사
-    const vPhone = validatePhone(values.phone);
-    if (vPhone) errors.phone = vPhone;
+    err = validatePhone(values.phone);
+    if (err) errors.phone = err;
 
     // 비밀번호 유효성 검사
-    const vPW = validatePassword(values.password, values.checkPassword);
-    if (vPW) errors.checkPassword = vPW;
+    err = validatePassword(values.password, values.checkPassword);
+    if (err) errors.checkPassword = err;
     if (isPwChange) {
-      const vCPW = validateChangePassword(values.changePassword);
-      if (vCPW) errors.changePassword = vCPW;
+      err = validateChangePassword(values.changePassword);
+      if (err) errors.changePassword = err;
     }
 
     // Gmail 아이디 검증
-    const vGmail = validateGmail(values.subemail);
-    if (vGmail) errors.subemail = vGmail;
+    err = validateGmail(values.subemail);
+    if (err) errors.subemail = err;
 
     if (values.status === "퇴사") {
       setStatus("퇴사");
@@ -75,13 +79,10 @@ function EditUserInfo({ endPoint }) {
       values.quitDt = null;
     }
 
-    if (Object.keys(errors).length === 0) {
-      return {}; // 반드시 빈 객체를 반환해야 폼이 제출됨
-    }
-
     return errors;
   }
 
+  // 사용자 정보 수정
   const handleConfirm = async () => {
     // console.log("updateUserInfo:", updateUserInfo);
     try {
@@ -101,6 +102,7 @@ function EditUserInfo({ endPoint }) {
     }
   };
 
+  // 사용자 정보 가져오기
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -157,7 +159,7 @@ function EditUserInfo({ endPoint }) {
           setShowConfirm(true); // 모달 먼저 띄우기
 
           setTimeout(() => {
-            console.log("제출 완료!");
+            // console.log("제출 완료!");
             setSubmitting(false); // Formik 상태를 나중에 리셋
           }, 2000);
         }}
@@ -171,7 +173,6 @@ function EditUserInfo({ endPoint }) {
           handleChange,
         }) => (
           <Form className="form-contents" onSubmit={handleSubmit}>
-            {/* {console.log("Formik Errors:", errors)} */}
             <div className="flex-row">
               <label htmlFor="name" className="attributes">
                 이름

@@ -27,7 +27,7 @@ const localizer = momentLocalizer(moment);
 
 Modal.setAppElement("#root");
 
-// 음력달력
+// 날짜 옆에 음력일자 추가
 const CustomDateHeader = ({ label, date, viewMonth, holidays }) => {
   // console.log("holidays:", holidays);
   const today = new Date(date);
@@ -89,31 +89,28 @@ const CustomDateHeader = ({ label, date, viewMonth, holidays }) => {
 };
 
 function CalendarDiv() {
-  const { selectedUsers = [], colorset = [] } = useOutletContext();
+  const { selectedUsers = [], colorset = [] } = useOutletContext(); // 사이드메뉴에서 선택한 사용자 리스트, 해당 사용자의 컬러셋 리스트
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const calendarRef = useRef(null);
 
-  const [events, setEvents] = useState([]);
-  const [holidays, setHolidays] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [clickedDate, setClickedDate] = useState("");
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [events, setEvents] = useState([]); // 일정 리스트
+  const [holidays, setHolidays] = useState([]); // 공휴일 리스트
+  const [selectedEvent, setSelectedEvent] = useState(null); // 선택한 일정
+  const [clickedDate, setClickedDate] = useState(""); // 선택한 날짜
+  const [showConfirm, setShowConfirm] = useState(false); // 확인창 on/off
 
-  const [monthClick, setMonthClick] = useState(true);
-  const [weekClick, setWeekClick] = useState(false);
-  const [dayClick, setDayClick] = useState(false);
+  const [monthClick, setMonthClick] = useState(true); // 월간
+  const [weekClick, setWeekClick] = useState(false); // 주간
+  const [dayClick, setDayClick] = useState(false); // 일간
 
-  const [calendarYear, setCalendarYear] = useState();
-  const [calendarMonth, setCalendarMonth] = useState(null);
-  const [calendarStatus, setCalendarStatus] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [calendarYear, setCalendarYear] = useState(); // 현재 달력의 년도
+  const [calendarMonth, setCalendarMonth] = useState(null); // 현재 달력의 월
+  const [calendarStatus, setCalendarStatus] = useState(false); // 현재 달력의 상태(오늘, 이전, 다음)
+  const [loading, setLoading] = useState(true); // 화면 로딩 상태 체크
 
   // 색상으로 일정구분
   const eventPropGetter = (event) => {
-    // console.log("eventPropGetter selectedUsers:", selectedUsers);
-    // console.log("eventPropGetter event:", event);
-    // console.log("eventPropGetter colorset:", colorset);
     let backgroundColor = "";
     if (selectedUsers.length === 0) {
       // const attendees = event.attendees || [];
@@ -123,7 +120,6 @@ function CalendarDiv() {
         backgroundColor = "#8B8000";
       } else if (event.type === "meeting") {
         backgroundColor = "#e68a29";
-        // backgroundColor = "#DAA520";
       } else {
         backgroundColor = "#6082B6";
       }
@@ -133,7 +129,6 @@ function CalendarDiv() {
       // backgroundColor = isCreator ? cs.colorCd : "#bfbfc3";
     } else {
       // 사람별 일정 구분
-      // console.log("eventPropGetter event:", colorset, event);
       const cs = colorset.find((item) => item.colorUserId === event.userId);
       backgroundColor = cs ? cs.colorCd : "#bfbfc3";
     }
@@ -145,9 +140,6 @@ function CalendarDiv() {
 
   // 일정표기 포맷
   const CustomEvent = ({ event }) => {
-    {
-      console.log("CustomEvent: ", event);
-    }
     const eventType = event.type.substr(0, 1).toUpperCase();
     return (
       <div>
@@ -257,23 +249,23 @@ function CalendarDiv() {
     );
   };
 
-  // Fetch events whenever `selectedUsers` changes
+  // 일정 가져오기
   useEffect(() => {
     const fetchData = async () => {
-      // setLoading(true); // Set loading true at start of fetch
       try {
         const fetchedEvents = await fetchSchedules(selectedUsers);
         setEvents(fetchedEvents);
       } catch (error) {
         console.error("Error fetching schedules:", error);
       } finally {
-        setLoading(false); // Set loading false after data is fetched
+        setLoading(false);
       }
     };
 
-    fetchData(); // Run fetchData on every `selectedUsers` change
+    fetchData();
   }, [selectedUsers, user.id]);
 
+  // 선택한 날짜 정보 전달
   const handleSelectSlot = (event) => {
     let { start, end } = event;
     const currentTime = new Date().toTimeString();
@@ -316,7 +308,6 @@ function CalendarDiv() {
 
     if (monthClick) {
       // 클릭한 위치의 xy좌표를 구해서 해당 셀이 1일 셀로 부터 얼마나(며칠) 떨어져 있는지 계산
-
       const calendarRect =
         calendarElement.querySelectorAll(".rbc-month-view")[0];
 
@@ -403,13 +394,13 @@ function CalendarDiv() {
     setShowConfirm(false);
 
     try {
-      // Use Promise.all to delete both the schedule and manpower status concurrently
+      // Promise.all을 이용하여 일정과 인력현황을 동시에 삭제
       await Promise.all([
-        deleteSchedule(selectedEvent.projectId), // Call the service function
-        deleteManpowerStatus(selectedEvent.projectId), // Call the service function
+        deleteSchedule(selectedEvent.projectId), // 일정 삭제
+        deleteManpowerStatus(selectedEvent.projectId), // 인력 현황 삭제
       ]);
 
-      // Update the events state after successful deletion
+      // 삭제 성공 후 이벤트 상태 업데이트
       setEvents(
         events.filter((event) => event.projectId !== selectedEvent.projectId)
       );
@@ -417,7 +408,7 @@ function CalendarDiv() {
       console.error("There was an error deleting the schedule!", error);
     }
 
-    closeModal(); // Close the modal after operation
+    closeModal();
   };
 
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
@@ -668,7 +659,6 @@ function CalendarDiv() {
                         key={index}
                         className={handleUserListVisible(attendee)}
                       >
-                        {/* {console.log("참여인력 attendee: ", attendee)} */}
                         {attendee.name} ({attendee.email})
                       </li>
                     ))}

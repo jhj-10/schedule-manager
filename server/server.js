@@ -85,9 +85,9 @@ const verifyPassword = async (plainPassword, hashedPassword) => {
   }
 };
 
-// User login route
+// 로그인
 app.post("/api/login", async (req, res) => {
-  console.log("user login!!!"); // This will log every time a login request is made
+  console.log("user login!!!");
   const { email, password } = req.body;
 
   let conn;
@@ -96,33 +96,11 @@ app.post("/api/login", async (req, res) => {
     conn = await pool.getConnection();
     console.log("DB connected");
 
-    // Log email and password for debugging purposes (careful: never log passwords in production)
-    // console.log(`Email: ${email}, Password: ${password}`);
-
     const rows = await conn.query(
       `SELECT id, name, email, authority 
       FROM users WHERE email = ? AND password = ?`,
       [email, password]
     );
-
-    // console.log(`Query result:`, rows);
-
-    // // Validate username and password (mock example)
-    // if (email === "user" && password === "password") {
-    //   const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "1h" });
-
-    //   // Set token in HTTP-only, Secure cookie
-    //   res.cookie("token", token, {
-    //     httpOnly: true, // Prevent JavaScript from accessing the cookie
-    //     secure: true, // Ensure cookie is only sent over HTTPS (use false in local dev)
-    //     sameSite: "Strict",
-    //     maxAge: 3600000, // 1 hour
-    //   });
-
-    //   res.status(200).json({ message: "Login successful" });
-    // } else {
-    //   res.status(401).json({ message: "Invalid credentials" });
-    // }
 
     if (rows.length > 0) {
       // Example: set a token cookie
@@ -158,7 +136,7 @@ app.get("/api/protected", (req, res) => {
   }
 });
 
-// get password: find matching user
+// 비밀번호 찾기
 app.post("/api/password", async (req, res) => {
   // console.log("req.body:", req.body);
   const { altumEmail, gmailEmail } = req.body;
@@ -220,10 +198,13 @@ app.put("/api/tempPassword", async (req, res) => {
   }
 });
 
-// Get users
+// 로그인한 사용자를 기준으로 사용자 정보 가져오기
 app.get("/api/users", async (req, res) => {
+  // 이름, 이메일로 사용자 검색
   const search = req.query.search ? req.query.search.toLowerCase() : "";
+  // 해당 아이디를 가진 사용자의 컬러셋 정보 가져오기
   const userId = req.query.userId ? req.query.userId.toLowerCase() : "";
+  //  사용자 전체: amin 페이지 사원정보
   const auth = req.query.auth ? req.query.auth.toLowerCase() : "";
 
   // console.log("getusers: ", search, userId);
@@ -250,7 +231,6 @@ app.get("/api/users", async (req, res) => {
       query = "SELECT * FROM users";
     }
 
-    // console.log("getusers query:", query);
     const rows = await conn.query(query);
     res.json(rows);
   } catch (err) {
@@ -261,7 +241,7 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// get userInfo
+// 사용자 상세정보 가져오기
 app.get("/api/user/:userId", async (req, res) => {
   const { userId } = req.params;
   let conn;
@@ -279,7 +259,7 @@ app.get("/api/user/:userId", async (req, res) => {
   }
 });
 
-// create user
+// 사용자 추가(사원등록)
 app.post("/api/user", async (req, res) => {
   const {
     authority,
@@ -327,7 +307,7 @@ app.post("/api/user", async (req, res) => {
   }
 });
 
-// update userInfo
+// 사용자 정보 수정
 app.put("/api/user", async (req, res) => {
   const {
     authority,
@@ -378,7 +358,7 @@ app.put("/api/user", async (req, res) => {
   }
 });
 
-// Get holidays
+// 공휴일 정보 가져오기
 app.get("/api/holidays", async (req, res) => {
   let conn;
   try {
@@ -398,7 +378,7 @@ app.get("/api/holidays", async (req, res) => {
   }
 });
 
-// Create holiday
+// 공휴일 추가
 app.post("/api/holiday", async (req, res) => {
   const { type, name, dt, lunarYn, substitute, substituteYn } = req.body;
   let conn;
@@ -427,7 +407,7 @@ app.post("/api/holiday", async (req, res) => {
   }
 });
 
-// Update holiday
+// 공휴일 정보 수정
 app.put("/api/holiday/", async (req, res) => {
   const { type, hid, name, dt, lunarYn, substituteYn, substitute } = req.body;
   let conn;
@@ -454,7 +434,7 @@ app.put("/api/holiday/", async (req, res) => {
   }
 });
 
-// Delete holiday
+// 공휴일 정보 삭제
 app.delete("/api/holiday/:hid", async (req, res) => {
   const { hid } = req.params;
   let conn;
@@ -476,7 +456,7 @@ app.delete("/api/holiday/:hid", async (req, res) => {
   }
 });
 
-// Create colorset
+// 컬러셋 생성
 app.post("/api/users/colorset", async (req, res) => {
   const { userId, colorUserId, colorCd } = req.body;
   let conn;
@@ -498,7 +478,7 @@ app.post("/api/users/colorset", async (req, res) => {
   }
 });
 
-// Update colorset
+// 컬러셋 수정
 app.put("/api/users/colorset", async (req, res) => {
   const { userId, colorUserId, colorCd } = req.body;
   let conn;
@@ -525,7 +505,7 @@ app.put("/api/users/colorset", async (req, res) => {
   }
 });
 
-// Get attendees
+// 인력 배치 정보 가져오기
 app.get("/api/attendees", async (req, res) => {
   const { scheculeId } = req.query;
   let conn;
@@ -551,22 +531,22 @@ app.get("/api/attendees", async (req, res) => {
   }
 });
 
-// Get schedules
+// 일정 가져오기
 app.get("/api/schedules", async (req, res) => {
   const userId = req.query.userId ? req.query.userId.split(",") : "";
   // console.log("Get schedules selectedUsers:", req.query.userId);
   let query = !userId
-    ? `SELECT s.type, s.id AS pid, s.title, s.start, s.end
+    ? `SELECT s.type, s.id AS pid, s.title, s.start, s.end, s.notes
             , json_arrayagg(ms.user_id) AS attendees, s.creator_id AS creatorId
         FROM schedule_manager.schedules s 
         INNER JOIN schedule_manager.manpower_status ms 
         ON s.id = ms.project_id 
         GROUP BY s.id`
     : `SELECT s.type, ms.user_id AS userId, ms.start_dt AS start , ms.end_dt AS end
-            , s.pid, s.title, s.start AS pStartDt, s.end AS pEndDt, s.attendees, s.creator_id AS creatorId
+            , s.pid, s.title, s.start AS pStartDt, s.end AS pEndDt, s.attendees, s.creator_id AS creatorId, s.notes
         FROM schedule_manager.manpower_status ms 
         LEFT JOIN (
-              SELECT s.type, s.id AS pid , s.title, s.start, s.end
+              SELECT s.type, s.id AS pid , s.title, s.start, s.end, s.notes
                     , json_arrayagg(ms.user_id) AS attendees, s.creator_id
                 FROM schedule_manager.schedules s 
                 LEFT JOIN schedule_manager.manpower_status ms 
@@ -593,7 +573,7 @@ app.get("/api/schedules", async (req, res) => {
   }
 });
 
-// Delete schedule
+// 일정 삭제
 app.delete("/api/schedules/:id", async (req, res) => {
   const { id } = req.params;
   let conn;
@@ -617,7 +597,7 @@ app.delete("/api/schedules/:id", async (req, res) => {
   }
 });
 
-// Create schedule
+// 일정 생성
 app.post("/api/schedules", async (req, res) => {
   const { type, title, start, end, notes, creator_id } = req.body;
   let conn;
@@ -640,7 +620,7 @@ app.post("/api/schedules", async (req, res) => {
   }
 });
 
-// Update schedule
+// 일정 수정
 app.put("/api/schedules/:id", async (req, res) => {
   const { id } = req.params;
   const { type, title, start, end, notes } = req.body;
@@ -668,7 +648,7 @@ app.put("/api/schedules/:id", async (req, res) => {
   }
 });
 
-// Create manpower-status
+// 인력 배치 정보 생성
 app.post("/api/manpower-status", async (req, res) => {
   // console.log("Create manpower-status req.body: ", req.body);
   const { project_id, attendees } = req.body;
@@ -699,7 +679,7 @@ app.post("/api/manpower-status", async (req, res) => {
   }
 });
 
-// Delete manpower-status
+// 인력 배치 정보 삭제
 app.delete("/api/manpower-status/:projectId", async (req, res) => {
   const { projectId } = req.params;
   let conn;
@@ -727,7 +707,7 @@ app.delete("/api/manpower-status/:projectId", async (req, res) => {
   }
 });
 
-// send email
+// 이메일 발송 관련 정보(env파일 참고)
 const gmail_id = process.env.GMAIL_ID;
 const gmail_app_password = process.env.GMAIL_APP_PASSWORD; // 지메일 보안 > 앱 비밀번호 16자리
 
@@ -746,11 +726,12 @@ function getEmailTemplate(file, name, email, password) {
   return emailTemplate;
 }
 
+// 이메일 발송(알툼 계정 생성, 임시비밀번호 발급)
 app.post("/api/send-email", async (req, res) => {
   // console.log("send email!!!");
   const { file, toEmail, subject, fromEmail, name, email, password } = req.body;
 
-  // Configure your SMTP transport
+  // Gmail SMTP 전송 구성
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com", // Gmail SMTP 서버
     port: 465, // Gmail에서 사용하는 포트
@@ -760,15 +741,8 @@ app.post("/api/send-email", async (req, res) => {
       pass: gmail_app_password,
     },
   });
-  // let transporter = nodemailer.createTransport({
-  //   service: "gmail",
-  //   auth: {
-  //     user: GMAIL_ID,
-  //     pass: GMAIL_APP_PASSWORD,
-  //   },
-  // });
 
-  // Set up email data
+  // 이메일 데이터 설정
   let mailOptions = {
     from: fromEmail,
     to: toEmail,
@@ -776,25 +750,24 @@ app.post("/api/send-email", async (req, res) => {
     html: getEmailTemplate(file, name, email, password),
   };
 
-  // Send email
   try {
     let info = await transporter.sendMail(mailOptions);
-    // console.log("Email sent successfully: ", info.response); // 성공 메시지 로그
+    // console.log("Email sent successfully: ", info.response);
     res.status(200).send("Email sent: " + info.response);
   } catch (error) {
-    console.error("Error sending email:", error.message); // 상세 에러 메시지 출력
+    console.error("Error sending email:", error.message);
     res.status(500).send("Failed to send email.");
   }
 });
 
-// logout
+// 로그아웃
 app.post("/api/logout", (req, res) => {
   // Clear the session or authentication token here
   res.clearCookie("token"); // Example of clearing a secure cookie
   return res.status(200).json({ message: "Logged out successfully" });
 });
 
-// Start the server
+// 서버 시작
 app.listen(port, () => {
   // console.log("Server is running on port 5000");
 });

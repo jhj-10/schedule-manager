@@ -59,6 +59,7 @@ button:focus {
 .sidemenu {
   padding: 20px 20px;
   width: 230px;
+  min-width: 150px;
   /* background-color: burlywood; */
   height: inherit;
   border-right: 1px solid #bababa;
@@ -68,6 +69,7 @@ button:focus {
   width: 100%;
   height: inherit;
   overflow-y: scroll;
+  min-width: 330px;
   /* padding: 20px 10px;
   background-color: darkcyan; */
 }

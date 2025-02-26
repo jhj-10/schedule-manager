@@ -12,12 +12,13 @@ import {
   updateSchedule,
 } from "../services/userService";
 
-function ScheduleFormPage({ endPoint }) {
+function ScheduleFormPage() {
   const { user } = useContext(AuthContext);
-  const location = useLocation();
+  const location = useLocation(); // CalendarDiv에서 선택한 일정 정보
   const navigate = useNavigate();
 
   const [initialValues, setInitialValues] = useState({
+    // form 입력값 객체
     type: "",
     title: "",
     start: "",
@@ -26,11 +27,11 @@ function ScheduleFormPage({ endPoint }) {
     notes: "",
   });
 
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [recipients, setRecipients] = useState([]);
-  const [focusedIndex, setFocusedIndex] = useState(-1);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [scheduleData, setScheduleData] = useState({});
+  const [filteredUsers, setFilteredUsers] = useState([]); // 검색한 사용자 리스트
+  const [recipients, setRecipients] = useState([]); // 참여 인력 리스트
+  const [focusedIndex, setFocusedIndex] = useState(-1); // 참여 인력 선택 인덱스
+  const [showConfirm, setShowConfirm] = useState(false); // 확인창 on/off
+  const [scheduleData, setScheduleData] = useState({}); // 일정 정보 객체
   // const [disabled, setDisabled] = useState(true);
 
   // 한국시간으로 변환환
@@ -49,6 +50,7 @@ function ScheduleFormPage({ endPoint }) {
       const startKST = dateToKST(start);
       const endKST = dateToKST(end);
 
+      // 기본 참여인력: 일정을 등록하는 사람
       const baseAttendees = {
         user_id: user.id,
         name: user.name,
@@ -107,7 +109,6 @@ function ScheduleFormPage({ endPoint }) {
 
     try {
       const response = await searchUsers(value);
-      console.log("handleSearch response:", response);
       setFilteredUsers(response);
     } catch (error) {
       console.error("There was an error fetching users!", error);
@@ -157,8 +158,6 @@ function ScheduleFormPage({ endPoint }) {
 
   // 데이터 전송
   const handleConfirm = async () => {
-    console.log("scheduleData:", scheduleData);
-
     try {
       const projectId = location.state?.projectId;
 
@@ -190,7 +189,6 @@ function ScheduleFormPage({ endPoint }) {
 
   return (
     <div className="form-container">
-      {/* {console.log("location.state:", location.state)} */}
       <div className="form-title">
         + {location.state.projectId ? "일정 수정" : "일정 등록"}
       </div>
@@ -204,8 +202,7 @@ function ScheduleFormPage({ endPoint }) {
           notes: Yup.string(),
         })}
         onSubmit={(values, { setSubmitting }) => {
-          console.log("onSubmit 실행:", values);
-
+          // console.log("onSubmit 실행:", values);
           const sData = {
             ...values,
             attendees: recipients.map((recipient, index) => {
@@ -222,7 +219,7 @@ function ScheduleFormPage({ endPoint }) {
           setShowConfirm(true);
 
           setTimeout(() => {
-            console.log("제출 완료!");
+            // console.log("제출 완료!");
             setSubmitting(false); // Formik 상태를 나중에 리셋
             navigate("/"); // Redirect to home after success
           }, 2000);
@@ -334,7 +331,6 @@ function ScheduleFormPage({ endPoint }) {
                     />
                     <div className="user-select">
                       <ul>
-                        {/* {console.log("filteredUsers:", filteredUsers)} */}
                         {filteredUsers &&
                           filteredUsers.map((user, index) => (
                             <li
@@ -419,6 +415,7 @@ function ScheduleFormPage({ endPoint }) {
                   as="textarea"
                   name="notes"
                   className="form-textarea"
+                  value={values.notes || initialValues.notes}
                   placeholder="일정 관련 내용 작성"
                 />
               </div>

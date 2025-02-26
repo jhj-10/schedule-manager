@@ -41,7 +41,7 @@ function MainPage({ endPoint }) {
     navigate("/admin", {});
   };
 
-  // 화면 너비에 따라 유저인포 창 보이기여부
+  // 화면 너비에 따라 사용자인포 창 보이기여부
   const [userInfovisible, setUserInfoVisible] = useState("");
 
   const handleUserInfoVisible = () => {
@@ -62,7 +62,7 @@ function MainPage({ endPoint }) {
     };
   }, []);
 
-  // 버튼클릭으로 유저인포 창 보이기 여부
+  // 버튼클릭으로 사용자인포 창 보이기 여부
   const handleVisible = () => {
     setUserInfoVisible(userInfovisible === "visible" ? "" : "visible");
   };
@@ -192,7 +192,7 @@ function MainPage({ endPoint }) {
     [END_POINT]
   );
 
-  // 유저정보 로드
+  // 사용자정보 로드
   const UserInfoPageLoad = (infoViewUser, mode) => {
     // console.log("infoViewUser:", infoViewUser);
     if (mode === "view") {
@@ -323,7 +323,7 @@ function MainPage({ endPoint }) {
               : {}
           }
         >
-          {/* 좌측 사이드 유저정보 */}
+          {/* 좌측 사이드 사용자정보 */}
           <div className="userInfo-container">
             <div className="ui-user">
               <p>
@@ -415,10 +415,7 @@ function MainPage({ endPoint }) {
         </div>
         {/* 달력 */}
         {view === "calendar" && !loading && (
-          <>
-            {console.log("CalendarPage loading!!!")}
-            {CalendarPageLoad(selectedUsers, colorset)}
-          </>
+          <>{CalendarPageLoad(selectedUsers, colorset)}</>
         )}
         {/* 개인정보보기 */}
         {view === "userInfo" && (

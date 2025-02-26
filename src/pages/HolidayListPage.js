@@ -5,10 +5,13 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import {
   createHoliday,
   deleteHoliday,
+  fetchHolidaysData,
   updateHoliday,
 } from "../services/userService";
+import { validateDate, validateSubstituteHoliday } from "../services/validate";
 
-function HolidayListPage({ endPoint }) {
+function HolidayListPage() {
+  // 공휴일 객체
   const TEMP_INITIALVALUES = {
     hid: "",
     type: "temp",
@@ -20,17 +23,17 @@ function HolidayListPage({ endPoint }) {
   };
 
   // const [visible, setVisible] = useState(true);
-  const [mode, setMode] = useState("");
-  const [initialValues, setInitialValues] = useState(TEMP_INITIALVALUES);
-  const [modifyValues, setModifyValues] = useState({});
-  const [holidays, setHolidays] = useState([]);
-  const [filteredHolidays, setFilteredHolidays] = useState([]);
+  const [mode, setMode] = useState(""); // 작업 모드 공휴일 생성/수정/삭제
+  const [initialValues, setInitialValues] = useState(TEMP_INITIALVALUES); // 공휴일 객체
+  const [modifyValues, setModifyValues] = useState({}); // 데이터 수정 객체
+  const [holidays, setHolidays] = useState([]); // 공휴일 리스트
+  const [filteredHolidays, setFilteredHolidays] = useState([]); // 검색조건에 맞는, 필터링된 공휴일 리스트
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [showModify, setShowModify] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // 공휴일 삭제 대상 확인 창 on/off
+  const [showConfirm, setShowConfirm] = useState(false); // 확인창 on/off
+  const [showModify, setShowModify] = useState(false); // 공휴일 수정 입력창 on/off
 
-  const [reload, setReload] = useState(true);
+  const [reload, setReload] = useState(true); // 공휴일 리스트 새로고침
 
   const pageRef = useRef(null);
 
@@ -101,10 +104,12 @@ function HolidayListPage({ endPoint }) {
     return hday;
   }, []);
 
+  // 날짜 형식 수정. yyy-m-dd
   const dateFormat = useCallback((date) => {
     return date.toLocaleString().replaceAll(". ", "-").split("-오전")[0];
   }, []);
 
+  // 공휴일 기간 계산
   const calHdayPeriod = useCallback(
     (day) => {
       let pd = "";
@@ -164,44 +169,34 @@ function HolidayListPage({ endPoint }) {
   // 공휴일 객체 유효성 체크
   const validate = (values) => {
     const errors = {};
+    let err = "";
 
     if (!values.name) {
-      errors.name = "공휴일명을 입력하세요.";
+      errors.name = "공휴일명을 입력하세요."; // 공휴일명 검증
     }
 
-    if (!values.dt) {
-      errors.dt = "날짜를 입력하세요.";
-    } else if (
-      values.lunarYn === "Y" &&
-      !/^(1[0-2]|[1-9])-(3[01]|[12][0-9]|[1-9])$/.test(values.dt)
-    ) {
-      errors.dt = "음력 공휴일이 맞는지 확인하세요.";
-    } else if (
-      values.lunarYn === "N" &&
-      !/^(\d{4})-(1[0-2]|[1-9])-(3[01]|[12][0-9]|[1-9])$/.test(values.dt)
-    ) {
-      errors.dt = "유효하지 않은 날짜형식입니다. 년-월-일 형식으로 입력하세요.";
-    }
+    err = validateDate(values.dt, values.lunarYn); // 날짜 형식 검증
+    if (err) errors.dt = err;
 
-    // const substitute = values.substitute.replaceAll(" ", "").replace(/[^a-zA-Z0-9, ]+/g, '');
-    if (values.substitute && !/^[가-힣, ]+$/.test(values.substitute)) {
-      errors.substitute =
-        "특수문자는 사용할 수 없습니다. 대체공휴일 지정일이 2개 이상인 경우 콤마(,)로 구분하여 작성하세요.(예> 토,일)";
-    }
+    err = validateSubstituteHoliday(values.substitute); //대체공휴일 지정 검증
+    if (err) errors.substitute = err;
 
     return errors;
   };
 
   // 공휴일 추가
   const handleAddHoliday = async (values) => {
+    // console.log("handleAddHoliday:", values);
     try {
       const result = await createHoliday(values); // API 호출
-      console.log("생성된 공휴일:", result);
-
-      setMode("create");
-      setShowConfirm(true);
+      if (result) {
+        setMode("create");
+        setShowConfirm(true);
+      } else {
+        console.log("Error occurred while adding holidays");
+      }
     } catch (error) {
-      console.error("공휴일 추가 중 오류 발생:", error);
+      console.error("Error occurred while adding holidays:", error);
     }
   };
 
@@ -209,12 +204,14 @@ function HolidayListPage({ endPoint }) {
   const handleModifyHoliday = async (values) => {
     try {
       const result = await updateHoliday(values);
-      console.log("수정된 공휴일:", result);
-
-      setMode("update");
-      setShowConfirm(true);
+      if (result) {
+        setMode("update");
+        setShowConfirm(true);
+      } else {
+        console.log("Error occurred while editing holidays");
+      }
     } catch (error) {
-      console.error("공휴일 수정 중 오류 발생:", error);
+      console.error("Error occurred while editing holidays:", error);
     }
   };
 
@@ -222,15 +219,14 @@ function HolidayListPage({ endPoint }) {
   const handleDeleteHoliday = async () => {
     try {
       await deleteHoliday(modifyValues.hid);
-      console.log("공휴일 삭제 완료");
-
       setMode("delete");
       setShowConfirm(true);
     } catch (error) {
-      console.error("공휴일 삭제 중 오류 발생:", error);
+      console.error("Error occurred while deleting holidays:", error);
     }
   };
 
+  // 공휴일 등록/수정/삭제 실행
   const handleConfirm = () => {
     if (mode === "create") {
       setReload(!reload);
@@ -254,7 +250,7 @@ function HolidayListPage({ endPoint }) {
   useEffect(() => {
     const fetchHolidays = async () => {
       try {
-        const holidayData = await fetchHolidays(); // API 호출
+        const holidayData = await fetchHolidaysData(); // API 호출
         const processedHolidays = handleHolidays(holidayData);
         setHolidays(processedHolidays);
         setFilteredHolidays(processedHolidays);
@@ -275,7 +271,7 @@ function HolidayListPage({ endPoint }) {
             initialValues={initialValues}
             enableReinitialize={true}
             validate={validate}
-            onSubmit={(values, { setSubmitting }) => {
+            onSubmit={async (values, { setSubmitting }) => {
               const holidayData = {
                 ...values,
                 substituteYn: values.substitute ? "Y" : "N",
@@ -283,14 +279,12 @@ function HolidayListPage({ endPoint }) {
               // 유효성 검사가 성공했을 때만 확인 모달을 띄운다.
               // console.log("holidayData:", holidayData);
               setInitialValues(holidayData);
+              await handleAddHoliday(holidayData);
               setSubmitting(false); // Submit 완료 후 비동기 작업이 끝났음을 알림
-              handleAddHoliday(holidayData);
             }}
           >
             {({ isSubmitting, handleChange }) => (
-              <Form
-              // className="tr"
-              >
+              <Form>
                 <div
                   style={{
                     display: "flex",
@@ -299,7 +293,6 @@ function HolidayListPage({ endPoint }) {
                     justifyContent: "flex-start",
                     alignItems: "center",
                     border: "none",
-                    // flexWrap: "wrap",
                   }}
                 >
                   <div className="row">
@@ -596,9 +589,9 @@ function HolidayListPage({ endPoint }) {
             className="content confirm-dialog text-center"
             style={{ width: "auto" }}
           >
-            <p className="admin-add-holiday-title">
+            <div className="admin-add-holiday-title">
               공휴일 정보를 삭제하시겠습니까?
-            </p>
+            </div>
             <div style={{ marginTop: "20px" }}>
               - 삭제대상 :
               <span style={{ color: "red", fontWeight: "600", margin: "20px" }}>
@@ -620,7 +613,7 @@ function HolidayListPage({ endPoint }) {
       {showConfirm && (
         <div className="overlay">
           <div className="content confirm-dialog text-center">
-            <p>
+            <div>
               공휴일이{" "}
               {mode === "create"
                 ? "등록"
@@ -630,7 +623,7 @@ function HolidayListPage({ endPoint }) {
                 ? "삭제"
                 : ""}
               되었습니다.
-            </p>
+            </div>
             <button className="modal-btn confirm" onClick={handleConfirm}>
               확인
             </button>
