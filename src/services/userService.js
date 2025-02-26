@@ -384,7 +384,7 @@ export const sendEmail = async (emailData) => {
       emailData,
       { withCredentials: true }
     );
-    // console.log("sendEmail:", response.status);
+    console.log("sendEmail:", response);
     return response;
   } catch (error) {
     console.error("There was an error sending the Email!", error);

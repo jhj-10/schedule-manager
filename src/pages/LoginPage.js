@@ -176,7 +176,7 @@ function LoginPage() {
               onSubmit={async (values, { setSubmitting }) => {
                 try {
                   const data = await findPassword(values);
-                  console.log("findPassword:", data.account[0]);
+                  // console.log("findPassword:", data.account[0]);
 
                   if (data.success) {
                     const { name, email, email_sub } = data.account[0];
@@ -209,12 +209,15 @@ function LoginPage() {
                 <Form>
                   <div style={{ marginTop: "20px" }}>
                     <div className="findPassword-inputBox flex-row">
-                      <label htmlFor="altumEmail">회사계정</label>
+                      <label htmlFor="altumEmail" style={{ minWidth: "70px" }}>
+                        회사계정
+                      </label>
                       <div>
                         <Field
                           type="email"
                           name="altumEmail"
                           placeholder="@altumpartners.co.kr계정"
+                          style={{ padding: "0px" }}
                         />
                         <ErrorMessage
                           className="error-message"
@@ -225,12 +228,15 @@ function LoginPage() {
                     </div>
 
                     <div className="findPassword-inputBox flex-row">
-                      <label htmlFor="gmailEmail">개인 이메일</label>
+                      <label htmlFor="gmailEmail" style={{ minWidth: "70px" }}>
+                        개인 이메일
+                      </label>
                       <div>
                         <Field
                           type="email"
                           name="gmailEmail"
                           placeholder="@gmail.com계정"
+                          style={{ padding: "0px" }}
                         />
                         <ErrorMessage
                           className="error-message"
