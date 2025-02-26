@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useContext } from "react";
@@ -61,15 +61,6 @@ function LoginPage() {
       setMessage("* 메일 전송에 실패하였습니다. 다시 시도해주세요.");
     }
   };
-
-  // useEffect(() => {
-  //   if (tempAccountValues.password) {
-  //     handleSendEmail(tempAccountValues);
-
-  //     setResutlView(true);
-  //     setMessage("");
-  //   }
-  // }, [tempAccountValues]);
 
   return (
     <div className="form-body">
@@ -184,17 +175,25 @@ function LoginPage() {
               })}
               onSubmit={async (values, { setSubmitting }) => {
                 try {
-                  const data = await findPassword(values); //
+                  const data = await findPassword(values);
+                  console.log("findPassword:", data.account[0]);
+
                   if (data.success) {
-                    // console.log("findPassword:", data);
-                    // console.log("비밀번호찾기 성공!:", data);
+                    const { name, email, email_sub } = data.account[0];
                     const tp = createTempPassword();
-                    tempPassword(tp, values);
-                    setTempAccountValues({
-                      ...data.account[0],
-                      password: tp,
+                    await tempPassword(tp, values);
+
+                    setTempAccountValues((prevState) => {
+                      const newValues = {
+                        name: name,
+                        email: email,
+                        email_sub: email_sub,
+                        password: tp,
+                      };
+
+                      handleSendEmail(newValues); // 새로운 값이 설정된 후 실행
+                      return newValues;
                     });
-                    handleSendEmail(tempAccountValues);
                   } else {
                     setMessage("* 일치하는 계정이 없습니다.");
                   }
