@@ -34,7 +34,7 @@ function ScheduleFormPage() {
   const [scheduleData, setScheduleData] = useState({}); // 일정 정보 객체
   // const [disabled, setDisabled] = useState(true);
 
-  // 한국시간으로 변환환
+  // 한국시간으로 변환
   const dateToKST = (date) => {
     const startDate = new Date(date);
     const newDate = new Date(startDate.getTime() + 9 * 60 * 60 * 1000)
