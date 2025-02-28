@@ -35,10 +35,10 @@ export const fetchSchedules = async (idType, id) => {
       userId: event.userId || "",
       title: event.title || "",
       attendees: event.attendees || [],
-      start: event.start ? dateToUTC(event.start) : "",
-      end: event.end ? dateToUTC(event.end) : "",
-      pStartDt: event.pStartDt ? dateToUTC(event.pStartDt) : "",
-      pEndDt: event.pEndDt ? dateToUTC(event.pEndDt) : "",
+      start: event.start ? event.start : "",
+      end: event.end ? event.end : "",
+      pStartDt: event.pStartDt ? event.pStartDt : "",
+      pEndDt: event.pEndDt ? event.pEndDt : "",
       notes: event.notes || "",
     }));
 
