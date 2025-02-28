@@ -104,8 +104,8 @@ function CalendarDiv() {
   const [weekClick, setWeekClick] = useState(false); // 주간
   const [dayClick, setDayClick] = useState(false); // 일간
 
-  const [calendarYear, setCalendarYear] = useState(); // 현재 달력의 년도
-  const [calendarMonth, setCalendarMonth] = useState(null); // 현재 달력의 월
+  const [calendarYear, setCalendarYear] = useState(""); // 현재 달력의 년도
+  const [calendarMonth, setCalendarMonth] = useState(""); // 현재 달력의 월
   const [calendarStatus, setCalendarStatus] = useState(false); // 현재 달력의 상태(오늘, 이전, 다음)
   const [loading, setLoading] = useState(true); // 화면 로딩 상태 체크
 
@@ -152,10 +152,13 @@ function CalendarDiv() {
   // 툴바
   const CustomToolbar = (obj) => {
     // console.log("CustomToolbar :", obj);
-    const year = new Date(obj.date).getFullYear();
-    const month = new Date(obj.date).getMonth() + 1;
-    setCalendarYear(year);
-    setCalendarMonth(month);
+    useEffect(() => {
+      const year = new Date(obj.date).getFullYear();
+      const month = new Date(obj.date).getMonth() + 1;
+
+      setCalendarYear(year);
+      setCalendarMonth(month);
+    }, [obj.date]); // obj.date가 변경될 때만 실행됨
 
     const handleClickToday = () => {
       setCalendarStatus(!calendarStatus);
@@ -189,7 +192,7 @@ function CalendarDiv() {
       obj.onView("day");
     };
 
-    const lable = `${year}. ${month}. ${
+    const lable = `${calendarYear}. ${calendarMonth}. ${
       obj.view === "day" ? obj.label[0] : ""
     }`;
 
@@ -253,7 +256,7 @@ function CalendarDiv() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedEvents = await fetchSchedules(selectedUsers);
+        const fetchedEvents = await fetchSchedules("userId", selectedUsers);
         setEvents(fetchedEvents);
       } catch (error) {
         console.error("Error fetching schedules:", error);
@@ -332,9 +335,18 @@ function CalendarDiv() {
             .querySelectorAll(".rbc-toolbar-label")[0]
             .outerText.replace(/\./g, "-")
             .replace(/\s/g, "") + "1"
-        ).getTime() +
-          1000 * 60 * 60 * 9
+        )
       );
+
+      // const calendarFirstDay = new Date(
+      //   new Date(
+      //     calendarElement
+      //       .querySelectorAll(".rbc-toolbar-label")[0]
+      //       .outerText.replace(/\./g, "-")
+      //       .replace(/\s/g, "") + "1"
+      //   ).getTime() +
+      //     1000 * 60 * 60 * 9
+      // );
 
       // 클릭한 위치의 날짜 출력
       let clickedDt = new Date(calendarFirstDay);
@@ -382,7 +394,9 @@ function CalendarDiv() {
 
   // 선택한 일정 수정페이지로 이동
   const handleEdit = () => {
-    navigate("/schedule/edit", { state: selectedEvent });
+    navigate(`/schedule/edit/${selectedEvent.projectId}`, {
+      // state: selectedEvent,
+    });
   };
 
   const handleDelete = () => {
@@ -695,7 +709,7 @@ function CalendarDiv() {
                 {showConfirm && (
                   <div className="overlay">
                     <div className="content confirm-dialog">
-                      <p>일정을 삭제하시겠습니까?</p>
+                      <div>일정을 삭제하시겠습니까?</div>
                       <button
                         className="modal-btn confirm"
                         onClick={handleConfirm}
