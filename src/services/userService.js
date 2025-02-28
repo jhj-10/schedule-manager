@@ -9,21 +9,10 @@ const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
  * @param {string} projectId - 프로젝트ID
  * @returns {Promise} - 일정 정보 리스트
  */
-
-// 현지 시간으로 변환
-const dateToUTC = (date) => {
-  const startDate = new Date(date);
-  const newDate = new Date(startDate.getTime() - 9 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, -8);
-  return newDate;
-};
-
 export const fetchSchedules = async (idType, id) => {
   try {
-    const path = idType === "user" ? "userId" : "projectId";
     const response = await axios.get(
-      `${END_POINT}/api/schedules?${path}=${id}`,
+      `${END_POINT}/api/schedules?${idType}=${id}`,
       {
         withCredentials: true,
       }
