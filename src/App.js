@@ -29,7 +29,10 @@ function App() {
               <Route element={<CalendarPage />}>
                 <Route path="/" element={<CalendarDiv />} />
                 <Route path="/schedule/new" element={<ScheduleFormPage />} />
-                <Route path="/schedule/edit" element={<ScheduleFormPage />} />
+                <Route
+                  path="/schedule/edit/:id"
+                  element={<ScheduleFormPage />}
+                />
                 <Route path="/user/mypage" element={<EditUserInfo />} />
                 <Route path="/user/:id" element={<UserInfoViewPage />} />
               </Route>

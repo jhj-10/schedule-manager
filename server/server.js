@@ -505,44 +505,20 @@ app.put("/api/users/colorset", async (req, res) => {
   }
 });
 
-// 인력 배치 정보 가져오기
-app.get("/api/attendees", async (req, res) => {
-  const { scheculeId } = req.query;
-  let conn;
-
-  try {
-    conn = await pool.getConnection();
-    const query = `
-      SELECT ms.project_id, ms.user_id, u.email, u.name, ms.start_dt, ms.end_dt 
-      FROM schedule_manager.manpower_status ms
-      LEFT JOIN schedule_manager.users u 
-      ON ms.user_id = u.id
-      WHERE ms.project_id = ?
-    `;
-    const rows = await conn.query(query, [scheculeId]);
-    res.json(rows);
-  } catch (err) {
-    console.error("Error fetching attendees:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Error fetching attendees" });
-  } finally {
-    if (conn) conn.end();
-  }
-});
-
 // 일정 가져오기
 app.get("/api/schedules", async (req, res) => {
   const userId = req.query.userId ? req.query.userId.split(",") : "";
+  const projectId = req.query.projectId ? req.query.projectId : "";
   // console.log("Get schedules selectedUsers:", req.query.userId);
-  let query = !userId
-    ? `SELECT s.type, s.id AS pid, s.title, s.start, s.end, s.notes
+  let query = `SELECT s.type, s.id AS pid, s.title, s.start, s.end, s.notes
             , json_arrayagg(ms.user_id) AS attendees, s.creator_id AS creatorId
         FROM schedule_manager.schedules s 
         INNER JOIN schedule_manager.manpower_status ms 
         ON s.id = ms.project_id 
-        GROUP BY s.id`
-    : `SELECT s.type, ms.user_id AS userId, ms.start_dt AS start , ms.end_dt AS end
+        GROUP BY s.id`;
+
+  if (userId) {
+    query = `SELECT s.type, ms.user_id AS userId, ms.start_dt AS start , ms.end_dt AS end
             , s.pid, s.title, s.start AS pStartDt, s.end AS pEndDt, s.attendees, s.creator_id AS creatorId, s.notes
         FROM schedule_manager.manpower_status ms 
         LEFT JOIN (
@@ -555,8 +531,16 @@ app.get("/api/schedules", async (req, res) => {
               ) s
         ON ms.project_id  = s.pid
         WHERE pid IS NOT NULL
-        AND user_id IN (${[...userId]})
-        `;
+        AND user_id IN (${[...userId]})`;
+  }
+
+  if (projectId) {
+    // query = `SELECT id AS pid, type, title, start AS pStartDt, end AS pEndDt, notes
+    query = `SELECT id, type, title, start , end , notes  
+            FROM schedule_manager.schedules
+            WHERE id = ${projectId};`;
+  }
+
   let conn;
   try {
     conn = await pool.getConnection();
@@ -643,6 +627,32 @@ app.put("/api/schedules/:id", async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Error updating schedule" });
+  } finally {
+    if (conn) conn.end();
+  }
+});
+
+// 인력 배치 정보 가져오기
+app.get("/api/attendees", async (req, res) => {
+  const { scheculeId } = req.query;
+  let conn;
+
+  try {
+    conn = await pool.getConnection();
+    const query = `
+      SELECT ms.project_id, ms.user_id, u.email, u.name, ms.start_dt, ms.end_dt 
+      FROM schedule_manager.manpower_status ms
+      LEFT JOIN schedule_manager.users u 
+      ON ms.user_id = u.id
+      WHERE ms.project_id = ?
+    `;
+    const rows = await conn.query(query, [scheculeId]);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching attendees:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching attendees" });
   } finally {
     if (conn) conn.end();
   }

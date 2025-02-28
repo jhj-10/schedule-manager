@@ -6,6 +6,7 @@ const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
 /**
  * 특정 사용자Id에 대한 일정 가져오기 API 요청
  * @param {string} userId - 사용자ID
+ * @param {string} projectId - 프로젝트ID
  * @returns {Promise} - 일정 정보 리스트
  */
 
@@ -18,10 +19,11 @@ const dateToUTC = (date) => {
   return newDate;
 };
 
-export const fetchSchedules = async (userId) => {
+export const fetchSchedules = async (idType, id) => {
   try {
+    const path = idType === "user" ? "userId" : "projectId";
     const response = await axios.get(
-      `${END_POINT}/api/schedules?userId=${userId}`,
+      `${END_POINT}/api/schedules?${path}=${id}`,
       {
         withCredentials: true,
       }
@@ -195,10 +197,10 @@ export const updateColorset = async (colorsetData) => {
  * @param {string} userId - 사용자ID
  * @returns {Promise} - 사용자정보
  */
-export const fetchUserInfo = async (userId, withCredentials = true) => {
+export const fetchUserInfo = async (userId) => {
   try {
     const response = await axios.get(`${END_POINT}/api/user/${userId}`, {
-      withCredentials,
+      withCredentials: true,
     });
     return response.data[0]; // Assuming the first object contains the user info
   } catch (error) {
