@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "../context/AuthProvider";
@@ -8,6 +8,8 @@ import {
   addManpowerStatus,
   createSchedule,
   deleteManpowerStatus,
+  fetchAttendees,
+  fetchSchedules,
   searchUsers,
   updateSchedule,
 } from "../services/userService";
@@ -15,6 +17,7 @@ import {
 function ScheduleFormPage() {
   const { user } = useContext(AuthContext);
   const location = useLocation(); // CalendarDiv에서 선택한 일정 정보
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [initialValues, setInitialValues] = useState({
@@ -27,6 +30,9 @@ function ScheduleFormPage() {
     notes: "",
   });
 
+  const [viewSchedule, setViewSchedule] = useState(null); // 일정정보
+  const [viewAttendees, setViewAttendees] = useState(null); // 일정 참여인력 리스트
+
   const [filteredUsers, setFilteredUsers] = useState([]); // 검색한 사용자 리스트
   const [recipients, setRecipients] = useState([]); // 참여 인력 리스트
   const [focusedIndex, setFocusedIndex] = useState(-1); // 참여 인력 선택 인덱스
@@ -36,7 +42,10 @@ function ScheduleFormPage() {
 
   // 한국시간으로 변환
   const dateToKST = (date) => {
+    if (!date) return;
     const startDate = new Date(date);
+    if (isNaN(startDate)) return;
+
     const newDate = new Date(startDate.getTime() + 9 * 60 * 60 * 1000)
       .toISOString()
       .slice(0, -8);
@@ -44,60 +53,92 @@ function ScheduleFormPage() {
   };
 
   useEffect(() => {
-    if (location.state) {
-      const { type, title, start, end, notes } = location.state;
+    const fetchData = async () => {
+      console.log("id:", id);
+      if (id) {
+        const scheduleData = await fetchSchedules("projectId", id);
+        console.log("scheduleData:", scheduleData[0]);
+        const attendeesData = await fetchAttendees(id);
+        setViewSchedule(scheduleData[0]);
+        // setViewSchedule({
+        //   type: scheduleData[0].type,
+        //   title: scheduleData[0].title,
+        //   start: scheduleData[0].pStartDt,
+        //   end: scheduleData[0].pEndDt,
+        //   notes: scheduleData[0].notes,
+        // });
+        setViewAttendees(attendeesData);
+      } else {
+        const { type, title, start, end, notes } = location.state;
+        setViewSchedule({
+          type: type || "",
+          title: title || "",
+          start: start || "",
+          end: end || "",
+          notes: notes || "",
+        });
+      }
+    };
+    fetchData();
+  }, [location.state, id]);
 
-      const startKST = dateToKST(start);
-      const endKST = dateToKST(end);
+  useEffect(() => {
+    if (!viewSchedule) return;
 
-      // 기본 참여인력: 일정을 등록하는 사람
-      const baseAttendees = {
-        user_id: user.id,
-        name: user.name,
-        email: user.email,
-        start_dt: dateToKST(start),
-        end_dt: dateToKST(end),
-      };
+    const { type, title, start, end, notes } = viewSchedule;
 
-      // 참여자 각각의 날짜 변경
-      const attendeesChangeDt = (attendees) => {
-        let attendeesArr = [];
-        for (const att of attendees) {
-          const temp = {
-            project_id: att.project_id,
-            user_id: att.user_id,
-            name: att.name,
-            email: att.email,
-            start_dt: dateToKST(att.start_dt),
-            end_dt: dateToKST(att.end_dt),
-          };
-          attendeesArr.push(temp);
-        }
-        // console.log("attendeesArr:", attendeesArr);
-        return attendeesArr;
-      };
+    const startKST = dateToKST(start);
+    const endKST = dateToKST(end);
 
-      // console.log("baseAttendees:", baseAttendees);
+    // 기본 참여인력: 일정을 등록하는 사람
+    const baseAttendees = {
+      user_id: user.id,
+      name: user.name,
+      email: user.email,
+      start_dt: dateToKST(start),
+      end_dt: dateToKST(end),
+    };
 
-      const attendees =
-        location.state.attendees !== undefined
-          ? attendeesChangeDt(location.state.attendees)
-          : [baseAttendees];
+    // 참여자 각각의 날짜 변경
+    const attendeesChangeDt = (attendees) => {
+      let attendeesArr = [];
+      for (const att of attendees) {
+        const temp = {
+          project_id: att.project_id,
+          user_id: att.user_id,
+          name: att.name,
+          email: att.email,
+          start_dt: dateToKST(att.start_dt),
+          end_dt: dateToKST(att.end_dt),
+        };
+        attendeesArr.push(temp);
+      }
+      // console.log("attendeesArr:", attendeesArr);
+      return attendeesArr;
+    };
 
-      setInitialValues({
-        type: type || "project",
-        title: title || "",
-        start: startKST || "",
-        end: endKST || "",
-        attendees: attendees || [],
-        notes: notes || "",
-      });
+    // console.log("baseAttendees:", baseAttendees);
 
-      // console.log("initialValues:", initialValues);
-      // console.log("attendees:", attendees);
-      setRecipients(attendees);
-    }
-  }, [location.state, user.id, user.name, user.email]);
+    console.log("viewAttendees:", viewAttendees);
+    const attendees = viewAttendees
+      ? // location.state.attendees !== undefined
+        attendeesChangeDt(viewAttendees)
+      : // ? attendeesChangeDt(location.state.attendees)
+        [baseAttendees];
+
+    setInitialValues({
+      type: type || "project",
+      title: title || "",
+      start: startKST || "",
+      end: endKST || "",
+      attendees: attendees || [],
+      notes: notes || "",
+    });
+
+    // console.log("initialValues:", initialValues);
+    // console.log("attendees:", attendees);
+    setRecipients(attendees);
+  }, [viewSchedule, viewAttendees, user.id, user.name, user.email]);
 
   // 사용자 검색, 상하키를 이용하여 사용자 고르기
   const handleSearch = async (value) => {
@@ -159,15 +200,15 @@ function ScheduleFormPage() {
   // 데이터 전송
   const handleConfirm = async () => {
     try {
-      const projectId = location.state?.projectId;
+      // const projectId = location.state?.projectId;
 
-      if (projectId) {
+      if (id) {
         // 일정 수정
-        await updateSchedule(projectId, scheduleData);
+        await updateSchedule(id, scheduleData);
 
         // 기존 인력 배치 정보 삭제 후 다시 추가
-        await deleteManpowerStatus(projectId);
-        await addManpowerStatus(projectId, scheduleData.attendees);
+        await deleteManpowerStatus(id);
+        await addManpowerStatus(id, scheduleData.attendees);
       } else {
         // 새 일정 생성
         const newProjectId = await createSchedule(scheduleData);
@@ -190,7 +231,8 @@ function ScheduleFormPage() {
   return (
     <div className="form-container">
       <div className="form-title">
-        + {location.state.projectId ? "일정 수정" : "일정 등록"}
+        + {id ? "일정 수정" : "일정 등록"}
+        {/* + {location.state.projectId ? "일정 수정" : "일정 등록"} */}
       </div>
       <Formik
         initialValues={initialValues}
@@ -268,7 +310,7 @@ function ScheduleFormPage() {
                 <ErrorMessage
                   name="title"
                   component="div"
-                  className="form-errormessage"
+                  className="error-message"
                 />
               </div>
             </div>
@@ -286,7 +328,7 @@ function ScheduleFormPage() {
                 <ErrorMessage
                   name="start"
                   component="div"
-                  className="form-errormessage"
+                  className="error-message"
                 />
               </div>
             </div>
@@ -304,7 +346,7 @@ function ScheduleFormPage() {
                 <ErrorMessage
                   name="end"
                   component="div"
-                  className="form-errormessage"
+                  className="error-message"
                 />
               </div>
             </div>

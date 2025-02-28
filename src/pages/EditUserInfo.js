@@ -9,10 +9,12 @@ import {
 import { fetchUserInfo, updateUser } from "../services/userService";
 import { AuthContext } from "../context/AuthProvider";
 import "../lib/FormPage.css";
+import { useParams } from "react-router-dom";
 
 function EditUserInfo() {
   const { user } = useContext(AuthContext);
   const currentURL = window.location.href; // url경로
+  const { id } = useParams();
 
   const [initialValues, setInitialValues] = useState({
     // form 입력값 객체
@@ -37,7 +39,8 @@ function EditUserInfo() {
   // const [quitDt, setQuitDt] = useState(null);
 
   const isAdmin = currentURL.includes("/admin") ? true : false; // 관리자 페이지 여부 확인
-  const userId = isAdmin ? currentURL.split("/")[5] : ""; // 열람한 정보의 대상 사용자ID
+  const userId = isAdmin ? id : ""; // 열람한 정보의 대상 사용자ID
+  // const user_Id = isAdmin ? currentURL.split("/")[5] : ""; // 열람한 정보의 대상 사용자ID
 
   // 비밀번호 변경
   const handleEditPassword = (e) => {
