@@ -3,6 +3,26 @@ import axios from "axios";
 // 백엔드 엔드포인트(env 파일 참고)
 const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
 
+// 한국시간으로 변환
+const dateToKST = (date) => {
+  if (!date) return;
+  const startDate = new Date(date);
+  if (isNaN(startDate)) return;
+
+  const newDate = new Date(startDate);
+  const newDate2 = new Date(new Date(startDate).getTime() - 9 * 60 * 60 * 1000);
+
+  console.log("date, newDate, newDate2:", { date, newDate, newDate2 });
+  const year = newDate2.getFullYear();
+  const month = String(newDate2.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate2.getDate()).padStart(2, "0");
+  const hours = String(newDate2.getHours()).padStart(2, "0");
+  const minutes = String(newDate2.getMinutes()).padStart(2, "0");
+  // const seconds = String(newDate.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
+
 /**
  * 특정 사용자Id에 대한 일정 가져오기 API 요청
  * @param {string} userId - 사용자ID
@@ -24,10 +44,10 @@ export const fetchSchedules = async (idType, id) => {
       userId: event.userId || "",
       title: event.title || "",
       attendees: event.attendees || [],
-      start: event.start ? event.start : "",
-      end: event.end ? event.end : "",
-      pStartDt: event.pStartDt ? event.pStartDt : "",
-      pEndDt: event.pEndDt ? event.pEndDt : "",
+      start: dateToKST(event.start) ? dateToKST(event.start) : "",
+      end: dateToKST(event.end) ? dateToKST(event.end) : "",
+      pStartDt: dateToKST(event.pStartDt) ? dateToKST(event.pStartDt) : "",
+      pEndDt: dateToKST(event.pEndDt) ? dateToKST(event.pEndDt) : "",
       notes: event.notes || "",
     }));
 
@@ -265,7 +285,17 @@ export const fetchAttendees = async (scheduleId) => {
         withCredentials: true,
       }
     );
-    return response.data;
+
+    const fetchedAtt = response.data.map((att) => ({
+      project_id: att.project_id || "",
+      user_id: att.user_id || "",
+      email: att.email || "",
+      name: att.name || "",
+      start_dt: dateToKST(att.start_dt) ? dateToKST(att.start_dt) : "",
+      end_dt: dateToKST(att.end_dt) ? dateToKST(att.end_dt) : "",
+    }));
+
+    return fetchedAtt;
   } catch (error) {
     console.error("There was an error fetching the attendees!", error);
     throw error;

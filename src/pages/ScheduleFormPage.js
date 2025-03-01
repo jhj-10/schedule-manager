@@ -47,8 +47,11 @@ function ScheduleFormPage() {
     if (isNaN(startDate)) return;
 
     const newDate = new Date(startDate);
+    // const newDate2 = new Date(
+    //   new Date(startDate).getTime() - 9 * 60 * 60 * 1000
+    // );
 
-    console.log("date, startDate, newDate:", { date, startDate, newDate });
+    console.log("date, newDate, newDate2:", { date, newDate });
     const year = newDate.getFullYear();
     const month = String(newDate.getMonth() + 1).padStart(2, "0");
     const day = String(newDate.getDate()).padStart(2, "0");

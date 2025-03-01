@@ -391,6 +391,7 @@ function CalendarDiv() {
 
   // 모달창 > 클릭한 셀의 날짜 기준으로 참여자 목록 보이기
   const handleUserListVisible = (attendee) => {
+    console.log("handleUserListVisible attendee:", attendee);
     const sdt = new Date(attendee.start_dt).toISOString().split("T")[0];
     const edt = new Date(attendee.end_dt).toISOString().split("T")[0];
     return sdt <= clickedDate && edt >= clickedDate ? "" : "visible";
