@@ -1,4 +1,5 @@
 import axios from "axios";
+import apiClient from "./apiClient";
 
 // 백엔드 엔드포인트 설정(env파일 참고)
 const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
@@ -24,9 +25,10 @@ const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
  */
 export const loginUser = async (credentials) => {
   try {
-    const response = await axios.post(`${END_POINT}/api/login`, credentials, {
-      withCredentials: true,
-    });
+    const response = await apiClient.post(
+      `${END_POINT}/api/login`,
+      credentials
+    );
 
     if (response.status === 200) {
       return response.data;
@@ -46,9 +48,7 @@ export const loginUser = async (credentials) => {
  */
 export const findPassword = async (emails) => {
   try {
-    const response = await axios.post(`${END_POINT}/api/password`, emails, {
-      withCredentials: true,
-    });
+    const response = await apiClient.post(`${END_POINT}/api/password`, emails);
 
     if (response.status === 200) {
       return response.data;
@@ -69,17 +69,11 @@ export const findPassword = async (emails) => {
  */
 export const tempPassword = async (tp, emails) => {
   try {
-    await axios.put(
-      `${END_POINT}/api/tempPassword`,
-      {
-        password: tp,
-        email: emails.altumEmail,
-        email_sub: emails.gmailEmail,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+    await apiClient.put(`${END_POINT}/api/tempPassword`, {
+      password: tp,
+      email: emails.altumEmail,
+      email_sub: emails.gmailEmail,
+    });
   } catch (error) {
     console.error("Error Update Temporary Password:", error);
     throw error;

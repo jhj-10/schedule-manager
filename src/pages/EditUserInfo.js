@@ -124,7 +124,7 @@ function EditUserInfo() {
     };
 
     fetchData(); // Call the function to fetch data when the effect runs
-  }, [user.id, isAdmin]);
+  }, [userId, user.id, isAdmin]);
 
   // 모달창 > 삭제버튼 클릭 > 취소 => 모달창 닫기
   const handleCancle = (confirm) => {
@@ -397,6 +397,30 @@ function EditUserInfo() {
             </div>
             {isAdmin && (
               <div className="flex-row">
+                <label htmlFor="authority" className="attributes">
+                  권한
+                </label>
+                <div className="form-item">
+                  <select
+                    name="authority"
+                    value={values.authority} // Formik values에서 상태값을 가져옴
+                    onChange={handleChange} // Formik의 handleChange 함수 연결
+                    className="form-field"
+                    // style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                  >
+                    <option value="" label="― 권한을 선택하세요."></option>
+                    <option value="guest" label="guest">
+                      guest
+                    </option>
+                    <option value="admin" label="admin">
+                      admin
+                    </option>
+                  </select>
+                </div>
+              </div>
+            )}
+            {isAdmin && (
+              <div className="flex-row">
                 <label htmlFor="status" className="attributes">
                   재직상태
                 </label>
@@ -423,7 +447,7 @@ function EditUserInfo() {
               </div>
             )}
             <div className="flex-row">
-              <label htmlFor="subemail" className="attributes">
+              <label htmlFor="joinDt" className="attributes">
                 입사일
               </label>
               {isAdmin ? (
@@ -445,17 +469,17 @@ function EditUserInfo() {
               )}
             </div>
             {status === "퇴사" && (
-              <div className="userinfo-contents-row">
-                <label htmlFor="subemail" className="userinfo-attribute">
+              <div className="flex-row">
+                <label htmlFor="quitDt" className="attributes">
                   퇴사일
                 </label>
                 {isAdmin ? (
-                  <div className="userinfo-values">
+                  <div className="form-item">
                     <Field
-                      className="edit-userinfo-box"
+                      className="form-field"
                       name="quitDt"
                       type="date"
-                      style={window.innerWidth < 650 ? {} : { width: "230px" }}
+                      // style={window.innerWidth < 650 ? {} : { width: "230px" }}
                     />
                     <ErrorMessage
                       className="error-message"

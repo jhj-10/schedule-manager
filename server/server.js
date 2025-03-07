@@ -10,15 +10,14 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const port = process.env.PORT || 5000;
-const SECRET_KEY = process.env.SECRET_KEY || "";
+const SECRET_KEY = process.env.REACT_APP_SECRET_KEY || "";
+const API_KEY = process.env.REACT_APP_API_KEY || "";
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser()); // Needed to parse cookies
 app.use(express.urlencoded({ extended: true })); // URL-encoded 파서 미들웨어
-
-// app.use(cors());
 
 const allowedOrigin = [
   "https://port-0-node-express-m1u0hx1t4ea25b62.sel4.cloudtype.app",
@@ -59,6 +58,31 @@ const pool = mariadb.createPool({
   database: "schedule_manager",
 });
 
+// API 키 검증 미들웨어
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  // API 키가 존재하는지 확인
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized: No API Key" });
+  }
+
+  // 클라이언트에서 보낸 API 키 추출
+  const clientApiKey = authHeader.split(" ")[1];
+
+  // API 키 검증
+  if (clientApiKey !== API_KEY) {
+    return res.status(403).json({ message: "Forbidden: Invalid API Key" });
+  }
+
+  next(); // API 키가 올바르면 다음 미들웨어 or 라우트 핸들러로 진행
+});
+
+// 예제 라우트 (API 키가 올바르면 접근 가능)
+app.get("/api/data", (req, res) => {
+  res.json({ message: "API Key Verified! Access Granted." });
+});
+
 // Hashing the password
 const hashPassword = async (plainPassword) => {
   try {
@@ -88,6 +112,23 @@ const verifyPassword = async (plainPassword, hashedPassword) => {
 // 로그인
 app.post("/api/login", async (req, res) => {
   console.log("user login!!!");
+
+  // const authHeader = req.headers.authorization;
+  // console.log("authHeader:", authHeader);
+
+  // // API 키가 존재하는지 확인
+  // if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  //   return res.status(401).json({ message: "Unauthorized: No API Key" });
+  // }
+
+  // // 클라이언트에서 보낸 API 키 추출
+  // const clientApiKey = authHeader.split(" ")[1];
+
+  // // API 키 검증
+  // if (clientApiKey !== API_KEY) {
+  //   return res.status(403).json({ message: "Forbidden: Invalid API Key" });
+  // }
+
   const { email, password } = req.body;
 
   let conn;
@@ -718,8 +759,8 @@ app.delete("/api/manpower-status/:projectId", async (req, res) => {
 });
 
 // 이메일 발송 관련 정보(env파일 참고)
-const gmail_id = process.env.GMAIL_ID;
-const gmail_app_password = process.env.GMAIL_APP_PASSWORD; // 지메일 보안 > 앱 비밀번호 16자리
+const gmail_id = process.env.REACT_APP_GMAIL_ID;
+const gmail_app_password = process.env.REACT_APP_GMAIL_APP_PASSWORD; // 지메일 보안 > 앱 비밀번호 16자리
 
 // html 파일에서 name, email, password 변경
 function getEmailTemplate(file, name, email, password) {
