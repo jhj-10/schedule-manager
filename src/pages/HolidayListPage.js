@@ -159,7 +159,6 @@ function HolidayListPage() {
   const handleModify = (holiday, mode) => {
     // console.log("handleModify holiday:", holiday);
     setModifyValues(holiday);
-    console.log("modifyValues:", modifyValues);
     if (mode === "update") {
       setShowModify(true);
     } else if (mode === "delete") {

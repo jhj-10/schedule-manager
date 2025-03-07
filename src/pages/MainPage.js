@@ -418,12 +418,7 @@ function MainPage({ endPoint }) {
           <>{CalendarPageLoad(selectedUsers, colorset)}</>
         )}
         {/* 개인정보보기 */}
-        {view === "userInfo" && (
-          <>
-            {console.log("userInfoPage loading!!!")}
-            {UserInfoPageLoad(infoViewUser, mode)}
-          </>
-        )}
+        {view === "userInfo" && <>{UserInfoPageLoad(infoViewUser, mode)}</>}
       </div>
     </div>
   );
