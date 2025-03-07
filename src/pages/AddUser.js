@@ -414,9 +414,7 @@ function AddUser() {
                   className="form-field"
                   // style={window.innerWidth < 650 ? {} : { width: "250px" }}
                 >
-                  <option value="" label="재직상태를 선택하세요.">
-                    권한을 선택하세요.
-                  </option>
+                  <option value="" label="― 권한을 선택하세요."></option>
                   <option value="guest" label="guest">
                     guest
                   </option>

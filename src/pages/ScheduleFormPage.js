@@ -51,7 +51,6 @@ function ScheduleFormPage() {
     //   new Date(startDate).getTime() - 9 * 60 * 60 * 1000
     // );
 
-    console.log("date, newDate, newDate2:", { date, newDate });
     const year = newDate.getFullYear();
     const month = String(newDate.getMonth() + 1).padStart(2, "0");
     const day = String(newDate.getDate()).padStart(2, "0");

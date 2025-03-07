@@ -1,6 +1,6 @@
-import axios from "axios";
+import apiClient from "./apiClient";
 
-// 백엔드 엔드포인트(env 파일 참고)
+// 백엔드 엔드포인트 설정 (env 파일 참고)
 const END_POINT = process.env.REACT_APP_BACKEND_URL || "";
 
 // 한국시간으로 변환
@@ -9,10 +9,9 @@ const dateToKST = (date) => {
   const startDate = new Date(date);
   if (isNaN(startDate)) return;
 
-  const newDate = new Date(startDate);
+  // const newDate = new Date(startDate);
   const newDate2 = new Date(new Date(startDate).getTime() - 9 * 60 * 60 * 1000);
 
-  console.log("date, newDate, newDate2:", { date, newDate, newDate2 });
   const year = newDate2.getFullYear();
   const month = String(newDate2.getMonth() + 1).padStart(2, "0");
   const day = String(newDate2.getDate()).padStart(2, "0");
@@ -31,11 +30,8 @@ const dateToKST = (date) => {
  */
 export const fetchSchedules = async (idType, id) => {
   try {
-    const response = await axios.get(
-      `${END_POINT}/api/schedules?${idType}=${id}`,
-      {
-        withCredentials: true,
-      }
+    const response = await apiClient.get(
+      `${END_POINT}/api/schedules?${idType}=${id}`
     );
 
     const fetchedEvents = response.data.map((event) => ({
@@ -64,11 +60,8 @@ export const fetchSchedules = async (idType, id) => {
  * @returns {Promise} - 사용자 리스트
  */ export const fetchUserList = async (userId) => {
   try {
-    const response = await axios.get(
-      `${END_POINT}/api/users?userId=${userId}`,
-      {
-        withCredentials: true,
-      }
+    const response = await apiClient.get(
+      `${END_POINT}/api/users?userId=${userId}`
     );
     return response.data;
   } catch (error) {
@@ -85,11 +78,8 @@ export const fetchSchedules = async (idType, id) => {
 export const searchUsers = async (value) => {
   if (value) {
     try {
-      const response = await axios.get(
-        `${END_POINT}/api/users?search=${value}`,
-        {
-          withCredentials: true,
-        }
+      const response = await apiClient.get(
+        `${END_POINT}/api/users?search=${value}`
       );
       return response.data;
     } catch (error) {
@@ -98,9 +88,7 @@ export const searchUsers = async (value) => {
     }
   } else {
     try {
-      const response = await axios.get(`${END_POINT}/api/users`, {
-        withCredentials: true,
-      });
+      const response = await apiClient.get(`${END_POINT}/api/users`);
       return response.data;
     } catch (error) {
       console.error("There was an error fetching users!", error);
@@ -115,9 +103,7 @@ export const searchUsers = async (value) => {
  */
 export const fetchUserListAdmin = async () => {
   try {
-    const response = await axios.get(`${END_POINT}/api/users?auth=admin`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get(`${END_POINT}/api/users?auth=admin`);
     return response.data;
   } catch (error) {
     console.error("사용자 목록 가져오기 실패:", error);
@@ -132,9 +118,10 @@ export const fetchUserListAdmin = async () => {
  */
 export const createUser = async (initialValues) => {
   try {
-    const response = await axios.post(`${END_POINT}/api/user`, initialValues, {
-      withCredentials: true,
-    });
+    const response = await apiClient.post(
+      `${END_POINT}/api/user`,
+      initialValues
+    );
     return response.data;
   } catch (error) {
     console.error("There was an error creating colorset!", error);
@@ -149,9 +136,10 @@ export const createUser = async (initialValues) => {
  */
 export const updateUser = async (updateUserInfo) => {
   try {
-    const response = await axios.put(`${END_POINT}/api/user`, updateUserInfo, {
-      withCredentials: true,
-    });
+    const response = await apiClient.put(
+      `${END_POINT}/api/user`,
+      updateUserInfo
+    );
     return response.data;
   } catch (error) {
     console.error("There was an error update the userInfo!", error);
@@ -166,12 +154,9 @@ export const updateUser = async (updateUserInfo) => {
  */
 export const createColorset = async (colorsetData) => {
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       `${END_POINT}/api/users/colorset`,
-      colorsetData,
-      {
-        withCredentials: true,
-      }
+      colorsetData
     );
     return response.data;
   } catch (error) {
@@ -187,12 +172,9 @@ export const createColorset = async (colorsetData) => {
  */
 export const updateColorset = async (colorsetData) => {
   try {
-    const response = await axios.put(
+    const response = await apiClient.put(
       `${END_POINT}/api/users/colorset`,
-      colorsetData,
-      {
-        withCredentials: true,
-      }
+      colorsetData
     );
     return response.data;
   } catch (error) {
@@ -208,9 +190,7 @@ export const updateColorset = async (colorsetData) => {
  */
 export const fetchUserInfo = async (userId) => {
   try {
-    const response = await axios.get(`${END_POINT}/api/user/${userId}`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get(`${END_POINT}/api/user/${userId}`);
     return response.data[0]; // Assuming the first object contains the user info
   } catch (error) {
     console.error("There was an error fetching the userInfo!", error);
@@ -225,12 +205,9 @@ export const fetchUserInfo = async (userId) => {
  */
 export const createSchedule = async (scheduleData) => {
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       `${END_POINT}/api/schedules`,
-      scheduleData,
-      {
-        withCredentials: true,
-      }
+      scheduleData
     );
     return response.data.insertId; // 생성된 일정의 projectId 반환
   } catch (error) {
@@ -247,9 +224,10 @@ export const createSchedule = async (scheduleData) => {
  */
 export const updateSchedule = async (projectId, scheduleData) => {
   try {
-    await axios.put(`${END_POINT}/api/schedules/${projectId}`, scheduleData, {
-      withCredentials: true,
-    });
+    await apiClient.put(
+      `${END_POINT}/api/schedules/${projectId}`,
+      scheduleData
+    );
   } catch (error) {
     console.error("일정 수정 실패:", error);
     throw error;
@@ -263,9 +241,7 @@ export const updateSchedule = async (projectId, scheduleData) => {
  */
 export const deleteSchedule = async (projectId) => {
   try {
-    await axios.delete(`${END_POINT}/api/schedules/${projectId}`, {
-      withCredentials: true,
-    });
+    await apiClient.delete(`${END_POINT}/api/schedules/${projectId}`);
   } catch (error) {
     console.error("일정 삭제 실패:", error);
     throw error;
@@ -279,11 +255,8 @@ export const deleteSchedule = async (projectId) => {
  */
 export const fetchAttendees = async (scheduleId) => {
   try {
-    const response = await axios.get(
-      `${END_POINT}/api/attendees?scheculeId=${scheduleId}`,
-      {
-        withCredentials: true,
-      }
+    const response = await apiClient.get(
+      `${END_POINT}/api/attendees?scheculeId=${scheduleId}`
     );
 
     const fetchedAtt = response.data.map((att) => ({
@@ -310,11 +283,10 @@ export const fetchAttendees = async (scheduleId) => {
  */
 export const addManpowerStatus = async (projectId, attendees) => {
   try {
-    await axios.post(
-      `${END_POINT}/api/manpower-status`,
-      { project_id: projectId, attendees },
-      { withCredentials: true }
-    );
+    await apiClient.post(`${END_POINT}/api/manpower-status`, {
+      project_id: projectId,
+      attendees,
+    });
   } catch (error) {
     console.error("Failed to add staffing information:", error);
     throw error;
@@ -328,9 +300,7 @@ export const addManpowerStatus = async (projectId, attendees) => {
  */
 export const deleteManpowerStatus = async (projectId) => {
   try {
-    await axios.delete(`${END_POINT}/api/manpower-status/${projectId}`, {
-      withCredentials: true,
-    });
+    await apiClient.delete(`${END_POINT}/api/manpower-status/${projectId}`);
   } catch (error) {
     console.error("Failed to delete staffing information:", error);
     throw error; // Propagate the error for the caller to handle
@@ -343,9 +313,7 @@ export const deleteManpowerStatus = async (projectId) => {
  */
 export const fetchHolidaysData = async () => {
   try {
-    const response = await axios.get(`${END_POINT}/api/holidays`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get(`${END_POINT}/api/holidays`);
     return response.data;
   } catch (error) {
     console.error("There was an error fetching the holidays!", error);
@@ -360,9 +328,10 @@ export const fetchHolidaysData = async () => {
  */
 export const createHoliday = async (holidayData) => {
   try {
-    const response = await axios.post(`${END_POINT}/api/holiday`, holidayData, {
-      withCredentials: true,
-    });
+    const response = await apiClient.post(
+      `${END_POINT}/api/holiday`,
+      holidayData
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to add public holidays:", error);
@@ -377,9 +346,10 @@ export const createHoliday = async (holidayData) => {
  */
 export const updateHoliday = async (holidayData) => {
   try {
-    const response = await axios.put(`${END_POINT}/api/holiday/`, holidayData, {
-      withCredentials: true,
-    });
+    const response = await apiClient.put(
+      `${END_POINT}/api/holiday/`,
+      holidayData
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to edit public holidays:", error);
@@ -394,9 +364,7 @@ export const updateHoliday = async (holidayData) => {
  */
 export const deleteHoliday = async (holidayId) => {
   try {
-    await axios.delete(`${END_POINT}/api/holiday/${holidayId}`, {
-      withCredentials: true,
-    });
+    await apiClient.delete(`${END_POINT}/api/holiday/${holidayId}`);
   } catch (error) {
     console.error("Failed to delete holidays:", error);
     throw error;
@@ -410,10 +378,9 @@ export const deleteHoliday = async (holidayId) => {
  */
 export const sendEmail = async (emailData) => {
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       `${END_POINT}/api/send-email`,
-      emailData,
-      { withCredentials: true }
+      emailData
     );
     console.log("sendEmail:", response);
     return response;
