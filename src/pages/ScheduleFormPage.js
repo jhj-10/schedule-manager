@@ -46,10 +46,19 @@ function ScheduleFormPage() {
     const startDate = new Date(date);
     if (isNaN(startDate)) return;
 
-    const newDate = new Date(startDate.getTime() + 9 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, -8);
-    return newDate;
+    const newDate = new Date(startDate);
+    // const newDate2 = new Date(
+    //   new Date(startDate).getTime() - 9 * 60 * 60 * 1000
+    // );
+
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, "0");
+    const day = String(newDate.getDate()).padStart(2, "0");
+    const hours = String(newDate.getHours()).padStart(2, "0");
+    const minutes = String(newDate.getMinutes()).padStart(2, "0");
+    // const seconds = String(newDate.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
   useEffect(() => {
@@ -86,8 +95,11 @@ function ScheduleFormPage() {
     if (!viewSchedule) return;
 
     const { type, title, start, end, notes } = viewSchedule;
+    console.log("viewSchedule:", viewSchedule);
+    console.log("viewAttendees:", viewAttendees);
 
     const startKST = dateToKST(start);
+    console.log("startKST- start:", { start, startKST });
     const endKST = dateToKST(end);
 
     // 기본 참여인력: 일정을 등록하는 사람
@@ -100,9 +112,9 @@ function ScheduleFormPage() {
     };
 
     // 참여자 각각의 날짜 변경
-    const attendeesChangeDt = (attendees) => {
+    const attendeesChangeDt = (attList) => {
       let attendeesArr = [];
-      for (const att of attendees) {
+      for (const att of attList) {
         const temp = {
           project_id: att.project_id,
           user_id: att.user_id,
@@ -119,12 +131,12 @@ function ScheduleFormPage() {
 
     // console.log("baseAttendees:", baseAttendees);
 
-    console.log("viewAttendees:", viewAttendees);
     const attendees = viewAttendees
       ? // location.state.attendees !== undefined
         attendeesChangeDt(viewAttendees)
       : // ? attendeesChangeDt(location.state.attendees)
         [baseAttendees];
+    console.log("attendees:", attendees);
 
     setInitialValues({
       type: type || "project",

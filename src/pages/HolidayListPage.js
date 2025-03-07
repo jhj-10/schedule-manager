@@ -159,6 +159,7 @@ function HolidayListPage() {
   const handleModify = (holiday, mode) => {
     // console.log("handleModify holiday:", holiday);
     setModifyValues(holiday);
+    console.log("modifyValues:", modifyValues);
     if (mode === "update") {
       setShowModify(true);
     } else if (mode === "delete") {
@@ -462,13 +463,14 @@ function HolidayListPage() {
                           <div>
                             <select
                               name="type"
+                              value={modifyValues.type}
                               className="holiday-input-box"
                               onChange={handleChange}
                             >
-                              <option value="temp" label="임시공휴일">
+                              <option value="임시공휴일" label="임시공휴일">
                                 임시공휴일
                               </option>
-                              <option value="public" label="공휴일">
+                              <option value="공휴일" label="공휴일">
                                 공휴일
                               </option>
                             </select>

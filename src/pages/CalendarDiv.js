@@ -278,6 +278,7 @@ function CalendarDiv() {
         " " +
         currentTime
     );
+    console.log("start,end:", start, end);
     navigate("/schedule/new", { state: { start, end } });
   };
 
@@ -352,10 +353,13 @@ function CalendarDiv() {
       let clickedDt = new Date(calendarFirstDay);
       clickedDt = new Date(
         clickedDt.setDate(calendarFirstDay.getDate() + dayOffset())
-      )
-        .toISOString()
-        .split("T")[0];
-      setClickedDate(clickedDt);
+      );
+
+      const year = clickedDt.getFullYear();
+      const month = String(clickedDt.getMonth() + 1).padStart(2, "0");
+      const day = String(clickedDt.getDate()).padStart(2, "0");
+
+      setClickedDate(`${year}-${month}-${day}`);
       // console.log("calendarFirstDay, clickedDt:", calendarFirstDay, clickedDt);
     }
 
@@ -387,6 +391,7 @@ function CalendarDiv() {
 
   // 모달창 > 클릭한 셀의 날짜 기준으로 참여자 목록 보이기
   const handleUserListVisible = (attendee) => {
+    console.log("handleUserListVisible attendee:", attendee);
     const sdt = new Date(attendee.start_dt).toISOString().split("T")[0];
     const edt = new Date(attendee.end_dt).toISOString().split("T")[0];
     return sdt <= clickedDate && edt >= clickedDate ? "" : "visible";
