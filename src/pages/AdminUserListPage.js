@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchUserListAdmin } from "../services/userService";
-import "../lib/AdminPage.css";
+import "../styles/AdminPage.css";
 
 function AdminUserListPage() {
   const navigate = useNavigate();

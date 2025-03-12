@@ -9,11 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import CalendarPage from "./CalendarPage";
-import { UserColors } from "../lib/UserColors";
+import { UserColors } from "../styles/UserColors";
 import UserInfoViewPage from "./UserInfoViewPage";
 import EditUserInfo from "./EditUserInfo";
 // import "../lib/CalendarPage.css";
-import "../lib/UserInfo.css";
+import "../styles/UserInfo.css";
 
 function MainPage({ endPoint }) {
   const { user, logout } = useContext(AuthContext);
@@ -418,12 +418,7 @@ function MainPage({ endPoint }) {
           <>{CalendarPageLoad(selectedUsers, colorset)}</>
         )}
         {/* 개인정보보기 */}
-        {view === "userInfo" && (
-          <>
-            {console.log("userInfoPage loading!!!")}
-            {UserInfoPageLoad(infoViewUser, mode)}
-          </>
-        )}
+        {view === "userInfo" && <>{UserInfoPageLoad(infoViewUser, mode)}</>}
       </div>
     </div>
   );

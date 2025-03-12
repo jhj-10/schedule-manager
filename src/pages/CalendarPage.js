@@ -1,13 +1,13 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Outlet, useNavigate, useOutletContext } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
-import { UserColors } from "../lib/UserColors";
+import { UserColors } from "../styles/UserColors";
 import {
   createColorset,
   fetchUserList,
   updateColorset,
 } from "../services/userService";
-import "../lib/UserInfo.css";
+import "../styles/UserInfo.css";
 
 function CalendarPage() {
   const { user } = useContext(AuthContext);

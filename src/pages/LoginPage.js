@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useContext } from "react";
-import "../lib/LoginPage.css";
+import "../styles/LoginPage.css";
 import { AuthContext } from "../context/AuthProvider"; // Import the AuthContextimport "../lib/LoginPage.css";
 import { findPassword, tempPassword } from "../services/authService";
 import { sendEmail } from "../services/userService";

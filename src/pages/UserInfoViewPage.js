@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../lib/UserInfoView.css";
+import "../styles/UserInfoView.css";
 import { useLocation } from "react-router-dom";
 import { fetchUserInfo } from "../services/userService";
 

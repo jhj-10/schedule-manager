@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import "../lib/style_main.css";
+import "../styles/style_main.css";
 import Header from "./Header";
 import { useEffect, useState } from "react";
 

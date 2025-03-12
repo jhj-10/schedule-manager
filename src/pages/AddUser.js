@@ -9,7 +9,7 @@ import {
   validateGmail,
   validatePhone,
   validateName,
-} from "../services/validate";
+} from "../utils/validate";
 
 // YYYY-MM-DD 형태의 문자열로 표기
 const today = () => {

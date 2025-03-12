@@ -23,9 +23,9 @@ div .rbc-calendar {
   font-size: 0.9em;
 }
 
-.toolbar {
+/* .toolbar {
   margin-bottom: 14px;
-}
+} */
 
 .left {
   display: flex;
@@ -65,10 +65,10 @@ div .rbc-calendar {
 .page-header > * {
   display: inline-block;
 }
-
+/* 
 .lunarDate {
   width: 100%;
-}
+} */
 
 .header-title {
   font-size: 28px;
@@ -186,11 +186,11 @@ div .rbc-calendar {
 .visible {
   display: none;
 }
-
+/* 
 .modal-overlay {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
-}
+} */
 
 .confirm-dialog {
   width: 300px;
@@ -202,15 +202,15 @@ div .rbc-calendar {
   border: 1px solid #4379f2;
 }
 
-.confirm_reverse {
+/* .confirm_reverse {
   color: #4379f2;
   border: 1px solid #4379f2;
   background-color: #fff;
-}
+} */
 
-.modal-title {
+/* .modal-title {
   font-size: 28px;
-}
+} */
 
 hr {
   margin: 10px 0;

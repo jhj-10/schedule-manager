@@ -5,10 +5,10 @@ import {
   validateGmail,
   validatePassword,
   validatePhone,
-} from "../services/validate";
+} from "../utils/validate";
 import { fetchUserInfo, updateUser } from "../services/userService";
 import { AuthContext } from "../context/AuthProvider";
-import "../lib/FormPage.css";
+import "../styles/FormPage.css";
 import { useParams } from "react-router-dom";
 
 function EditUserInfo() {
