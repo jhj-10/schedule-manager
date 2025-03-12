@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "../context/AuthProvider";
-import "../lib/FormPage.css";
+import "../styles/FormPage.css";
 import {
   addManpowerStatus,
   createSchedule,
@@ -63,10 +63,8 @@ function ScheduleFormPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("id:", id);
       if (id) {
         const scheduleData = await fetchSchedules("projectId", id);
-        console.log("scheduleData:", scheduleData[0]);
         const attendeesData = await fetchAttendees(id);
         setViewSchedule(scheduleData[0]);
         // setViewSchedule({
@@ -95,11 +93,7 @@ function ScheduleFormPage() {
     if (!viewSchedule) return;
 
     const { type, title, start, end, notes } = viewSchedule;
-    console.log("viewSchedule:", viewSchedule);
-    console.log("viewAttendees:", viewAttendees);
-
     const startKST = dateToKST(start);
-    console.log("startKST- start:", { start, startKST });
     const endKST = dateToKST(end);
 
     // 기본 참여인력: 일정을 등록하는 사람
@@ -136,7 +130,6 @@ function ScheduleFormPage() {
         attendeesChangeDt(viewAttendees)
       : // ? attendeesChangeDt(location.state.attendees)
         [baseAttendees];
-    console.log("attendees:", attendees);
 
     setInitialValues({
       type: type || "project",
@@ -256,7 +249,6 @@ function ScheduleFormPage() {
           notes: Yup.string(),
         })}
         onSubmit={(values, { setSubmitting }) => {
-          // console.log("onSubmit 실행:", values);
           const sData = {
             ...values,
             attendees: recipients.map((recipient, index) => {
@@ -273,7 +265,6 @@ function ScheduleFormPage() {
           setShowConfirm(true);
 
           setTimeout(() => {
-            // console.log("제출 완료!");
             setSubmitting(false); // Formik 상태를 나중에 리셋
             navigate("/"); // Redirect to home after success
           }, 2000);

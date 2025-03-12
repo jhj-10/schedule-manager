@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   // 새로고침 시 로그인 상태 유지
   useEffect(() => {
     const savedUser = localStorage.getItem("loginUser");
+    console.log("user, savedUser:", user, savedUser);
     if (savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     }
     timeoutRef.current = setTimeout(() => {
       // console.log("1시간 동안 활동이 없어 자동 로그아웃됨");
-      logout(true); // 자동 로그아웃 (localStorage 유지)
+      logout(); // 자동 로그아웃 (localStorage 유지)
     }, 60 * 60 * 1000); // 1시간(60분) 후 자동 로그아웃
   }, [logout]);
 
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }) => {
 
   // 브라우저 창 닫힐 때 자동 로그아웃
   useEffect(() => {
-    const handleLogoutOnClose = () => logout(true); // localStorage 유지
+    const handleLogoutOnClose = () => logout();
 
     window.addEventListener("beforeunload", handleLogoutOnClose);
     return () => {

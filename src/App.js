@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider";
 import PrivateRoute from "./context/PrivateRoute";
 import AdminRoute from "./context/AdminRoute";
-import Layout from "./pages/Layout";
+import Layout from "./layouts/Layout";
 import CalendarPage from "./pages/CalendarPage";
 import EditUserInfo from "./pages/EditUserInfo";
 import CalendarDiv from "./pages/CalendarDiv";

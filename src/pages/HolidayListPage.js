@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import "../lib/AdminPage.css";
+import "../styles/AdminPage.css";
 import solarlunar from "solarlunar";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import {
@@ -8,7 +8,7 @@ import {
   fetchHolidaysData,
   updateHoliday,
 } from "../services/userService";
-import { validateDate, validateSubstituteHoliday } from "../services/validate";
+import { validateDate, validateSubstituteHoliday } from "../utils/validate";
 
 function HolidayListPage() {
   // 공휴일 객체
@@ -159,7 +159,6 @@ function HolidayListPage() {
   const handleModify = (holiday, mode) => {
     // console.log("handleModify holiday:", holiday);
     setModifyValues(holiday);
-    console.log("modifyValues:", modifyValues);
     if (mode === "update") {
       setShowModify(true);
     } else if (mode === "delete") {

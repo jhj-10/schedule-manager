@@ -74,9 +74,11 @@
   margin-bottom: 20px;
   height: auto;
 }
-.wrap {
+
+/* .wrap {
   flex-wrap: wrap;
-}
+} */
+
 .admin-add-holiday-title {
   margin-bottom: 10px;
   font-weight: 600;
@@ -128,8 +130,8 @@
   text-align: center;
   padding-top: 2px;
 }
-
+/* 
 .deleteCell {
   flex: 0.5;
   padding: 2px 0px;
-}
+} */

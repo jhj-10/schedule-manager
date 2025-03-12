@@ -382,7 +382,6 @@ export const sendEmail = async (emailData) => {
       `${END_POINT}/api/send-email`,
       emailData
     );
-    console.log("sendEmail:", response);
     return response;
   } catch (error) {
     console.error("There was an error sending the Email!", error);
