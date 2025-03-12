@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { AuthContext } from "../context/AuthProvider";
-import "../lib/FormPage.css";
+import "../styles/FormPage.css";
 import {
   addManpowerStatus,
   createSchedule,

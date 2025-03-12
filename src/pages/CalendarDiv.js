@@ -12,7 +12,7 @@ import Modal from "react-modal";
 import solarlunar from "solarlunar";
 import { Lunar } from "lunar-javascript";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "../lib/CalendarPage.css";
+import "../styles/CalendarPage.css";
 import "moment/locale/ko";
 import { AuthContext } from "../context/AuthProvider";
 import {
