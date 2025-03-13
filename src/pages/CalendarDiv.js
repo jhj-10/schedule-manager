@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
 import Modal from "react-modal";
@@ -93,6 +93,10 @@ function CalendarDiv() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const calendarRef = useRef(null);
+  const location = useLocation();
+
+  const [currentView, setCurrentView] = useState(Views.MONTH);
+  console.log("currentView:", currentView);
 
   const [events, setEvents] = useState([]); // 일정 리스트
   const [holidays, setHolidays] = useState([]); // 공휴일 리스트
@@ -257,7 +261,14 @@ function CalendarDiv() {
     const fetchData = async () => {
       try {
         const fetchedEvents = await fetchSchedules("userId", selectedUsers);
-        setEvents(fetchedEvents);
+        // 🚀 모든 이벤트의 start와 end를 Date 객체로 변환
+        const formattedEvents = fetchedEvents.map((event) => ({
+          ...event,
+          start: new Date(event.start), // ← Date 객체로 변환
+          end: new Date(event.end),
+        }));
+
+        setEvents(formattedEvents);
       } catch (error) {
         console.error("Error fetching schedules:", error);
       } finally {
@@ -588,6 +599,12 @@ function CalendarDiv() {
     [] // No dependencies for this function
   );
 
+  // 더보기 클릭시
+  const handleShowMore = (events, date) => {
+    console.log("더 보기 클릭! 날짜:", date);
+    console.log("해당 날짜의 숨겨진 이벤트:", events);
+  };
+
   // 공휴일데이터 가져오기
   useEffect(() => {
     const fetchHolidays = async () => {
@@ -616,6 +633,13 @@ function CalendarDiv() {
     fetchHolidays();
   }, [convertToSolarDate, addSubstituteHolidays]);
 
+  // location.state.view 값이 있으면 `currentView` 변경
+  useEffect(() => {
+    if (location.state?.view) {
+      setCurrentView(location.state.view);
+    }
+  }, [location.state]);
+
   return (
     <div ref={calendarRef} className="calendar-container">
       {loading ? (
@@ -631,7 +655,10 @@ function CalendarDiv() {
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
             eventPropGetter={eventPropGetter}
+            onShowMore={handleShowMore} // 여기에서 이벤트 핸들러 추가!
             defaultView={Views.MONTH}
+            view={currentView}
+            onView={(view) => setCurrentView(view)}
             components={{
               event: CustomEvent,
               toolbar: CustomToolbar,

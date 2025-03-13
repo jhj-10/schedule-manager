@@ -27,10 +27,7 @@ function Header({ handleSideMenu }) {
           ▒{" "}
         </button>
         <button
-          onClick={
-            () => navigate("/")
-            // navigate("/", { state: { sideMenu: true, loginUser: loginUser } })
-          }
+          onClick={() => navigate("/", { state: { view: "month" } })}
           className="main_button spc-button"
         >
           <h2 className="header-title">Calendar</h2>

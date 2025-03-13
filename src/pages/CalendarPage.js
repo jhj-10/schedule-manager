@@ -83,7 +83,8 @@ function CalendarPage() {
 
   // 일정보기
   const handleScheduleView = () => {
-    navigate("/", { state: { users: selectedUsers } });
+    navigate("/", { state: { view: "month" } });
+    // navigate("/", { state: { users: selectedUsers, view: "month" } });
   };
 
   // 사용자정보보기
